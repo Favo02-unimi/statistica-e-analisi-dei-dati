@@ -1,5 +1,22 @@
 #import "@preview/gentle-clues:0.8.0": *
 #import "@preview/cetz:0.2.2"
+#import "@preview/codly:0.2.0": *
+
+// pdf metadata
+#set document(
+  title: "Statistica e Analisi dei dati",
+  author: ("Luca Favini", "Matteo Zagheno"),
+)
+
+// codly setup
+#show: codly-init.with()
+#codly(
+  languages: (python: (name: "Python", color: blue, icon: none)),
+  zebra-color: white,
+  stroke-width: 1.5pt,
+  stroke-color: blue,
+  enable-numbers: false
+)
 
 // evidenziare link
 #show link: it => {
@@ -17,12 +34,6 @@
 #show outline.entry: it => {
   underline(it, stroke: 1.5pt + blue)
 }
-
-// pdf metadata
-#set document(
-  title: "Statistica e Analisi dei dati",
-  author: ("Luca Favini", "Matteo Zagheno"),
-)
 
 // numerazione titoli
 #set heading(numbering: "1.1.")
@@ -79,19 +90,28 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 
 = Statistica descrittiva <descrittiva>
 
-== Introduzione
-
 / Popolazione: insieme di elementi da analizzare, spesso troppo numerosa per essere analizzata tutta
 / Campione: parte della popolazione estratta per essere analizzata, deve essere rappresentativo
 / Campione casuale (semplice): tutti i membri della popolazione hanno la stessa possibilità di essere selezionati
 
 == Classificazione dei dati: qualitativi e quantitativi <quantitativi>
 
+/ Dati quantitativi \/ Scalari \/ Numerici: l'esito della misurazione è una quantità numerica
+  / Discreti: si lavora su valori singoli (spesso interi), ad esempio: _numeri di figli_
+  / Continui: si lavora su range di intervalli, ad esempio: _peso_ o _altezza_
+
+/ Dati qualitativi \/ Categorici \/ Nominali: l'esito della misurazione è un'etichetta
+  / Booleani \/ Binari: due valori possibili, ad esempio: _sesso_
+  / Nominali \/ Sconnessi: valori *non* ordinabili, ad esempio: _nome_
+  / Ordinali: valori ordinabili, ad esempio: _livello di soddisfazione_
+
+#info(title: "Nota")[Spesso alcuni dati _numerici_ vengono considerati _qualitativi_, dato che non ha senso effettuare su di essi considerazioni algebriche o numeriche. Un esempio potrebbe essere la data di nascita. ]
+
 == Frequenze
 
 === Frequenze assolute e relative <frequenze>
 
-=== Frequenze cumulate
+=== Frequenze cumulate <cumulata>
 
 ==== Funzione cumulativa empirica
 
@@ -155,9 +175,7 @@ $ s^2 = 1/(n-1)sum_(i=1)^n (x_i^2 - n overline(x)^2) $
 
 #info(title: "Nota")[Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva.]
 
-La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta così: //TODO: si può scrivere meglio
-
-$ s_y^2 = a^2 s_x^2 $
+La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta: $ s_y^2 = a^2 s_x^2 $
 
 ==== Varianza campionaria standard <varianza-standard>
 
@@ -179,7 +197,6 @@ $ s^* = frac(s, |overline(x)|) $
 
 Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1]$) è un valore $q_alpha$ che divide la popolazione in due parti, proporzionali in numero di elementi ad $alpha$ e (1-$alpha$) e caratterizzate da valori rispettivamente minori e maggiori di $q_alpha$.
 
-
 / Percentile: quantile descritto in percentuale
 / Decile: popolazione divisa in 10 parti con ugual numero di elementi
 / Quartile: popolazione divisa in 4 parti con ugual numero di elementi
@@ -193,18 +210,20 @@ Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1
   - il _baffo_ "superiore", che parte terzo quartile e raggiunge il massimo
   - eventuali _outliers_ "superiori", rappresentati con le `x` dopo il baffo
 
-  #cetz.canvas({
-    import cetz: *
-    plot.plot(size: (4,4), x-tick-step: none, y-tick-step: none, {
-      plot.add-boxwhisker((
-        x: 1,
-        outliers: (7, 65, 69),
-        min: 20, max: 60,
-        q1: 25,
-        q2: 33,
-        q3: 50))
+  #figure(caption: [Grafico boxplot],
+    cetz.canvas({
+      import cetz: *
+      plot.plot(size: (4,4), x-tick-step: none, y-tick-step: none, {
+        plot.add-boxwhisker((
+          x: 1,
+          outliers: (7, 65, 69),
+          min: 20, max: 60,
+          q1: 25,
+          q2: 33,
+          q3: 50))
+      })
     })
-  })]
+  )]
 
 == Indici di correlazione
 
@@ -230,11 +249,77 @@ $ op("Cov")(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 - $op("Cov")(x, y) tilde.eq 0$ correlazione improbabile
 - $op("Cov")(x, y) < 0$ probabile correlazione indiretta
 
+#figure(caption: [Correlazione lineare _diretta_ (sinistra) e _indiretta_ (destra)],
+[
+  #box(cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      size: (4,4),
+      x-tick-step: 2,
+      y-tick-step: 2,
+      axis-style: "school-book",
+      {
+        plot.add(((-5,-5), (5,5)), style: (stroke: 2pt + red))
+        plot.annotate(draw.circle((0, 0), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((0.37, 0.4), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((1, 1.2), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-1, -1.5), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((2, 2.4), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-2, -2.2), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((3, 3.6), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-3, -3.3), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((4, 4.8), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-4, -4.4), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((0.5, 0.6), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-0.8, -1.0), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((1.5, 1.3), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-1.7, -1.8), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((2.5, 2.7), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-2.6, -2.4), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((3.3, 3.9), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-3.5, -3.1), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((4.2, 4.6), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-4.3, -4.7), fill: gray, radius: 0.2))
+    })
+  }))
+  #box(cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      size: (4,4),
+      x-tick-step: 2,
+      y-tick-step: 2,
+      axis-style: "school-book",
+      {
+        plot.add(((-5,5), (5,-5)), style: (stroke: 2pt + red))
+        plot.annotate(draw.circle((0, 0), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((0.4, -0.5), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((1.2, -1.5), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-1.5, 1.8), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((2.3, -2.6), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-2.4, 2.2), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((3.6, -3.8), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-3.8, 3.5), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((4.7, -4.3), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-4.5, 4.2), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((0.2, -0.2), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-0.6, 0.7), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((1.3, -1.1), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-1.8, 2.0), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((2.7, -2.9), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-2.9, 2.6), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((3.8, -4.0), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-4.0, 3.7), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((4.3, -4.5), fill: gray, radius: 0.2))
+        plot.annotate(draw.circle((-4.7, 4.4), fill: gray, radius: 0.2))
+    })
+  }))
+])
+
 #info(title: "Nota")[
   Una relazione diretta/indiretta non è necessariamente _lineare_, può essere anche _logaritmica_ o seguire altre forme.
 ]
-
-// TODO: grafici di correlazione scatterplot
 
 === Indice di correlazione di Pearson (indice di correlazione lineare) <correlazione-lineare>
 
@@ -246,17 +331,17 @@ Dove $s$ è la varianza campionaria standard.
 
 // TODO: differenza tra s_x e s_X
 
-- $rho tilde +1$ probabile correlazione linearmente diretta
-- $rho tilde 0$ correlazione improbabile
-- $rho tilde -1$ probabile correlazione linearmente indiretta
+- $rho tilde.eq +1$ probabile correlazione linearmente diretta
+- $rho tilde.eq 0$ correlazione improbabile
+- $rho tilde.eq -1$ probabile correlazione linearmente indiretta
 
 #warning(title: "Attenzione")[L'#link(<correlazione-lineare>)[indice di correlazione lineare] ($rho$) cattura *solo* relazioni dirette/indirette _lineari_ ed è insensibile alle trasformazioni lineari.]
 
-#warning(title: "Attenzione")[La #link(<covarianza>)[covarianza campionaria] o l'#link(<correlazione-lineare>)[indice di correlazione lineare] $tilde.eq 0$ non implicano l'indipendenza del campione, ma è vero il contrario:
-$ op("Cov")(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
-$ rho(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
-$ op("Indipendenza") quad arrow.r.double quad rho(x, y) tilde.eq op("Cov")(x, y) tilde.eq 0 $
-
+#warning(title: "Attenzione")[
+   La #link(<covarianza>)[covarianza campionaria] o l'#link(<correlazione-lineare>)[indice di correlazione lineare] $tilde.eq 0$ non implicano l'indipendenza del campione, ma è vero il contrario:
+  $ op("Cov")(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
+  $ rho(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
+  $ op("Indipendenza") quad arrow.r.double quad rho(x, y) tilde.eq op("Cov")(x, y) tilde.eq 0 $
 ]
 
 == Indici di eterogeneità
@@ -266,7 +351,7 @@ $ op("Indipendenza") quad arrow.r.double quad rho(x, y) tilde.eq op("Cov")(x, y)
 
 L'eterogeneità può essere calcolata anche su un insieme di dati qualitativi.
 
-=== Indice di Gini (per l’eterogeneità) <gini>
+=== Indice di Gini (per l'eterogeneità) <gini>
 
 $ I = 1 - sum_(j=1)^n f_j^2 $
 
@@ -278,8 +363,6 @@ Dove $f_j$ è la #link(<frequenze>)[frequenza relativa] di $j$ ed $n$ è il nume
 Generalizzando, $I$ non raggiungerà mai $1$: $ 0 <= I <= (n-1)/n < 1 $
 
 Dal momento che l'indice di Gini tende a $1$ senza mai arrivarci introduciamo l'*indice di Gini normalizzato*, in modo da arrivare a $1$ nel caso di eterogeneità massima: $ I' = n/(n-1)I $
-
-// TODO: grafico gini
 
 === Entropia <entropia>
 
@@ -312,36 +395,276 @@ Un indice di concentrazione è un indice statistico che misura in che modo un _b
 - Concentrazione _massima_ (*sperequato*): un individuo possiete tutta la quantità $a_(1..n-1) = 0, quad a_n = n overline(a)$
 - Concentrazione _minima_ (*equo*): tutti gli individui possiedono la stessa quantità $a_(1..n) = overline(a)$
 
-=== Curva di Lorentz
+=== Curva di Lorentz <lorenz>
+
+La curva di Lorenz è una rappresentazione *grafica* della _distribuzione_ di un bene nella popolazione.
 
 Dati:
 - $F_i = i/n$: posizione percentuale dell'osservazione i nell'insieme
-- $Q_i = 1/op("TOT") sum_(k=1)^i a_k$
+- $Q_i = 1/op("TOT") limits(sum)_(k=1)^i a_k$
 
 La tupla $(F_i, Q_i)$ indica che il $100 dot F_i%$ degli individui detiene il $100 dot Q_i%$ della quantità totale.
 
-Inoltre: $forall i 0 <= Q_i <= F_i <= 1$.
+Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
 
-//TODO: grafico curva di lorentz
+#conclusion(title: "Informalmente")[
+  Possiamo vedere $F_i$ come _"quanta"_ popolazione è stata analizzata fino all'osservazione $i$, espressa nel range $[0, 1]$.
+  $Q_i$ è invece una #link(<cumulata>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$.
+]
+
+#figure(caption: [Curva di Lorentz],
+  cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      size: (4,4),
+      x-tick-step: 1,
+      y-tick-step: 1,
+      axis-style: "school-book",
+      {
+        plot.add(((0,0), (1,1)), line: "spline", style: (stroke: 2pt + green), label: "Minima")
+        plot.add(((0,0), (0.6, 0.2), (1,1)), line: "spline", style: (stroke: 2pt + orange), label: "Media")
+        plot.add(((1,0), (1,1)), line: "spline", style: (stroke: 2pt + red), label: "Massima")
+    })
+  })
+)
 
 === Indice di Gini (per la concentrazione)
 
-Dato che la curva di Lorenz non assume mai alcun valore nella parte di piano superiore alla retta che collega $(0,0)$ a $(1,1)$, allora introduciamo l'indice di Gini, che invece assume valori nel range $[0, 1]$.
+Dato che la #link(<lorenz>)[curva di Lorenz] non assume mai alcun valore nella parte di piano superiore alla retta che collega $(0,0)$ a $(1,1)$, allora introduciamo l'*indice di Gini*, che invece assume valori nel range $[0, 1]$.
+
+Anche esso indica la _concetrazione_ di un bene nella popolazione.
 
 $ G = quad (limits(sum)_(i=1)^(n-1) F_i - Q_i) / (limits(sum)_(i=1)^(n-1) F_i) $
 
+È possibile riscrivere il denominatore come:
+
 $ sum_(i=1)^(n-1) F_i quad = quad 1/n sum_(i=1)^(n-1) i quad = quad 1/n (n(n-1))/2 quad = quad (n-1) / 2 $
 
+Ottendendo come formula alternatica:
+
 $ G = quad 2 / (n-1) sum_(i=1)^(n-1) F_i - Q_i $
+
+#conclusion(title: "Informalmente")[
+  Facendo un parallelo con la #link(<lorenz>)[curva di Lorenz], possiamo vedere $F_i - Q_i$ come la distanza tra la bisettrice ($F_i$) e la ricchezza dell'osservazione $i$ ($Q_i$). La somma di queste distanze viene poi _"normalizzata"_, dividendo per $(n-1) / 2$.
+]
+
+=== Analisi della varianza (ANOVA)
+
+Dato un campione, è possibile suddividerlo in più _gruppi_ ed effettuare delle analisi sulle _diversità_ tra i vari gruppi. Ad esempio, dato un campione di dati sulla natalità, si potrebbe analizzare formando gruppi per regione o per reddito.
+
+L'analisi della varianza (*ANOVA* - ANalysis Of VAriance) è un insieme di tecniche statistiche che permettono, appunto, di confrontare due o più _gruppi_ di dati. Definiamo a questo scopo:
+
+/ Numerosità dei gruppi: dato un campione diviso in $G$ gruppi, ognuno ha numerosità $n_1, ..., n_G$
+
+/ Osservazione: viene definita $x_i^g$ come l'$i$-esima osservazione del $g$-esimo gruppo
+
+/ Media campionaria di tutte le osservazioni: la media del campione $ overline(x) = 1/n sum_(g=1)^G  sum_(i=1)^n_g x_i^g $
+
+/ Media campionaria di un gruppo: la media dei valori del gruppo $ overline(x)_g = 1/n_g sum_(i=1)^n_g x_i^g $
+
+/ Somme degli scarti:
+
+  - Somma *totale* degli scarti (tra _ogni elemento_ e la _media di tutto il campione_): $ "SS"_T = sum_(g=1)^G sum_(i=1)^n_g (x_i^g - overline(x))^2 $
+  - Somma degli scarti *entro/within* i gruppi (tra _ogni elemento_ e la _media del proprio gruppo_): $ "SS"_W = sum_(g=1)^G sum_(i=1)^n_g (x_i^g - overline(x)^g)^2 $
+  - Somma degli scarti *tra/between* i gruppi (tra la _media di ogni gruppo_ e _la media del campione_, "pesato" per la _numerosità_ del gruppo): $ "SS"_B = sum_(g=1)^G n_g (overline(x)^g - overline(x))^2 $
+
+Vale la seguente regola: $"SS"_T = "SS"_W + "SS"_B$.
+
+/ Indici di variazione:
+
+  - *Total* (la varianza totale del campione):  $ ("SS"_T)/(n-1) $
+  - *Within* (la varianza di ogni elemento del gruppo): $ ("SS"_W)/(n-G) $
+  - *Between* (la varianza tra ogni gruppo e il campione completo): $ ("SS"_B)/(G-1) $
+
+L'ipotesi alla base è che dati $G$  gruppi, sia possibile scomporre la varianza in due componenti: _Varianza interna ai gruppi_ (varianza *Within*) e _Varianza tra i gruppi_ (varianza *Between*).
+
+#conclusion(title: "Informalmente")[
+  Analizzando diversi gruppi attraverso l'ANOVA, si possono raggiungere due conclusioni:
+  - i gruppi risultano significativamente *diversi* tra loro: la _varianza between_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di ciascun gruppo)
+  - i gruppi risultano *omogenei*: la _varianza within_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di tutti i gruppi)
+]
+
+```python
+import numpy as np
+
+def anova(groups):
+    all_elements = pd.concat(groups)
+    sum_total = sum((all_elements - all_elements.mean())**2)
+    sum_within = sum([sum((g - g.mean())**2) for g in groups])
+    sum_between = sum([len(g) * (g.mean()-all_elements.mean())**2 for g in groups])
+    assert(np.abs(sum_total - sum_within - sum_between) < 10**-5)
+    n = len(all_elements)
+    total_var = sum_total / (n-1)
+    within_var = sum_within / (n-len(groups))
+    return (total_var, within_var*(n-len(groups))/(n-1))
+```
+
+== Alberi di decisione
+
+// TODO: fare la parte sugli alberi
+
+== Classificatori
+
+Dato un _classificatore binario_ che divide in due classi (positiva e negativa) e un _insieme di oggetti_ di cui è *nota* la classificazione, possiamo valutare la sua bontà tramite il numero di casi classificati in modo errato. La classificazione errata può essere:
+- *Falso negativo*: oggetto _positivo_ classificato come _negativo_
+- *Falso positivo*: oggetto _negativo_ classificato come _positivo_
+
+#info(title: "Nota")[
+  Il peso di un falso positivo può *non* essere lo stesso di un falso negativo, si pensi al caso di una malattia contagiosa: un _falso negativo_ sarà molto più pericoloso di un _falso positivo_ (che verrà scoperto con ulteriori analisi).
+]
+
+Introduciamo la *matrice di confusione*, che riassume la bontà del classificatore:
+
+#figure(caption: [Matrice di confusione],
+  table(
+    columns: (auto, auto, auto, auto, auto),
+    inset: 10pt,
+    align: horizon,
+
+    table.cell(colspan: 2, rowspan: 2, stroke: none, []),
+    table.cell(colspan: 2, fill: silver, [*Valore effettivo*]),
+    table.cell(rowspan: 2, stroke: none, []),
+
+    [Positivo],
+    [Negativi],
+
+    table.cell(rowspan: 2, fill: silver, [*Predizione del classificatore*]),
+
+    [Positivo],
+    [Veri positivi (VP)],
+    [Falsi positivi (FP)],
+    [_Totali classificati positivi (TOT CP)_],
+
+    [Negativi],
+    [Falsi negativi (FN)],
+    [Veri negativi (VN)],
+    [_Totali classificati negativi (TOT CN)_],
+
+    table.cell(colspan: 2, stroke: none,  []),
+    [_Totale positivi (TP)_],
+    [_Totale negativi (TN)_],
+    [_Totale casi (TOT casi)_],
+  )
+)
+
+```python
+pd.DataFrame(metrics.confusion_matrix(Y_test, preds))
+```
+
+/ Sensibilità: capacità del classificatore di predire bene i positivi $"VP"/"TP"$
+/ Specificità: capacità del classificatore di predire bene i negativi $"VN"/"TN"$
+
+È possibile valutare la bontà di un classificatore attraverso il punto:
+
+$ (1 - "Specifità", "Sensibilità") quad = quad (1 - "VN"/"TN", "VP"/"TP") quad = quad ("FP"/"TN", "VP"/"TP") $
+
+=== Casi particolari
+
+/ Classificatore costante: associa indiscriminatamente gli oggetti ad una classe (positiva o negativa)
+/ Classificatori positivi (CP): tutti i casi sono classificati come positivi
+  - _Sensibilità_: $1$, _Specificitià_: $0$, _Punto_ $(1,1)$ #box(circle(radius: 2.5pt, fill: green, stroke: 1pt + black))
+/ Classificatori negativi (CN): tutti i casi sono classificati come negativi
+  - _Sensibilità_: $0$, _Specificitià_: $1$, _Punto_ $(0, 0)$ #box(circle(radius: 2.5pt, fill: red, stroke: 1pt + black))
+/ Classificatore ideale (CI): tutti i casi sono classificati correttamente
+    - _Sensibilità_: $1$, _Specificitià_ $1$, _Punto_ $(0,1)$ #box(circle(radius: 2.5pt, fill: blue, stroke: 1pt + black))
+/ Classificatore peggiore (CE): tutti i casi sono classificati erroneamente
+    - _Sensibilità_: $0$, _Specificitià_ $0$, _Punto_ $(1, 0)$ #box(circle(radius: 2.5pt, fill: gray, stroke: 1pt + black))
+/ Classificatore casuale: ogni caso viene assegnato in modo casuale
+    - _Sensibilità_: $0.5$, _Specificitià_ $0.5$, _Punto_ $(1/2, 1/2)$ #box(circle(radius: 2.5pt, fill: yellow, stroke: 1pt + black))
+
+#figure(caption: [Rappresentazione classificatori],
+  cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      name: "classificatori",
+      size: (4,4),
+      x-tick-step: 0.5,
+      y-tick-step: 0.5,
+      axis-style: "school-book",
+      {
+        plot.add(((0,0), (1,1)), style: (stroke: silver))
+        plot.add-anchor("00", (0,0))
+        plot.add-anchor("11", (1,1))
+        plot.add-anchor("01", (0,1))
+        plot.add-anchor("10", (1,0))
+        plot.add-anchor("55", (0.5,0.5))
+    })
+
+    draw.circle((0, 0), fill: red, radius: .1)
+    draw.circle((4, 4), fill: green, radius: .1)
+    draw.circle((0, 4), fill: blue, radius: .1)
+    draw.circle((4, 0), fill: gray, radius: .1)
+    draw.circle((2, 2), fill: yellow, radius: .1)
+    draw.content("classificatori.00", [*Negativo*], anchor: "south-west", padding: .2)
+    draw.content("classificatori.11", [*Positivo*], anchor: "west", padding: .2)
+    draw.content("classificatori.01", [*Ideale*], anchor: "west", padding: .2)
+    draw.content("classificatori.10", [*Peggiore*], anchor: "south", padding: .3)
+    draw.content("classificatori.55", [*Casuale*], anchor: "west", padding: .2)
+  }))
+
+=== Classificatori a soglia (Curva ROC)
+
+Un classificatore a soglia discrimina un caso in base ad una *soglia* stabilita a priori, in caso la misurazione sia _superiore_ alla soglia allora verrà classificato _positivamente_, altrimenti _negativamente_.
+
+Per trovare il valore con cui _fissare_ la soglia, possiamo sfruttare questo metodo:
+
+- definiamo $theta$ come una generica soglia
+- è necessario stabilire un intervallo $[theta_min, theta_max]$
+  - utilizzando $theta_min$ tutti i casi saranno positivi, ottenento un classificatore positivo #box(circle(radius: 2.5pt, fill: green, stroke: 1pt + black))
+  - utilizzando $theta_max$ tutti i casi saranno negativi, ottenento un classificatore negativo #box(circle(radius: 2.5pt, fill: red, stroke: 1pt + black))
+- definiamo $D$ come una discretizzazione di questo intervallo continuo
+
+Per ogni soglia $theta in D$ è possibile calcolare la _sensibilità_ e _specificità_. Questo classificatore viene quindi _rappresentato_ sul piano cartesiano attraverso il _punto_ $(1 - "Specifità", "Sensibilità")$.
+
+Il risultato è una *curva*, detta *ROC* (Receiver Operator Carapteristic) #box(line(length: 10pt, stroke: 2pt + red), inset: (bottom: 3pt)), che ha sempre come estremi in $(0,0)$ (caso in cui viene usato $theta_max$) e $(1,1)$ (caso in cui viene usato $theta_min$).
+
+Per misurare la _bontà_ del classificatore viene misurata l'area di piano sotto la curva (*AUC* - Area Under the ROC Curve #box(rect(height: 7pt, width: 15pt, fill: rgb("#FFCDD2")))), più si avvicina a $1$, _migliore_ è il classificatore.
+
+#figure(caption: [Curva ROC],
+  cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      name: "curvaroc",
+      size: (4,4),
+      x-tick-step: 0.5,
+      y-tick-step: 0.5,
+      axis-style: "school-book",
+      fill-below: true,
+      {
+        plot.add(((0,0), (1,1)), style: (stroke: silver))
+        plot.add(((0,0), (0.01, 0.05), (0.05, 0.3), (0.1, 0.5), (0.15, 0.6), (0.3, 0.8), (0.4, 0.85), (0.7, 0.92), (0.8, 0.94), (0.90, 0.97), (1,1)), style: (stroke: 2pt + red, fill: rgb("#FFCDD2")), fill: true, fill-type: "axis")
+        plot.add-anchor("00", (0,0))
+        plot.add-anchor("11", (1,1))
+        plot.add-anchor("01", (0,1))
+        plot.add-anchor("10", (1,0))
+        plot.add-anchor("55", (0.5,0.5))
+    })
+
+    draw.circle((0, 0), fill: red, radius: .1)
+    draw.circle((4, 4), fill: green, radius: .1)
+    draw.circle((0, 4), fill: blue, radius: .1)
+    draw.circle((4, 0), fill: gray, radius: .1)
+    draw.circle((2, 2), fill: yellow, radius: .1)
+    draw.content("curvaroc.00", [*Negativo*], anchor: "south-west", padding: .2)
+    draw.content("curvaroc.11", [*Positivo*], anchor: "west", padding: .2)
+    draw.content("curvaroc.01", [*Ideale*], anchor: "west", padding: .2)
+    draw.content("curvaroc.10", [*Peggiore*], anchor: "south", padding: .3)
+    draw.content("curvaroc.55", [*Casuale*], anchor: "west", padding: .2)
+  }))
+
+== Trasformazione dei dati
+
+// TODO: trasformazione dei dati
+
+== Grafici
+
+// TODO: fare i grafici
 
 = Calcolo delle probabilità <probabilità>
 
 = Statistica inferenziale <inferenziale>
 
 = Cheatsheet Python <python>
-
-/ Varianza campionaria: `Series.var()`
-/ Devianza standard campionaria: `Series.std()`
-/ Indici di centralità e dispersione: `Series.describe()`
-/ Quantile: `Series.quantile()`
-/ Covarianza: `Series.cov()`

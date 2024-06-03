@@ -670,6 +670,95 @@ Per misurare la _bontà_ del classificatore viene misurata l'area di piano sotto
 
 = Calcolo delle probabilità <probabilità>
 
+== Calcolo combinatorio
+
+Analizzare _come_ e in _quanti_ modi si possono effettuare raggruppamenti di elementi.
+
+/ Principio di enumerazione (principio fondamentale del calcolo combinatorio): se dobbiamo compiere $t$ esperimenti e per ognuno di essi ci possono essere $s_i$ possibili risultati, il numero di risultati totali è $s_1 dot s_2 dot ... dot s_t$
+
+#informalmente[
+  Vogliamo selezionare $k$ elementi da un insieme $A$ di $n$ elementi:
+
+  / Disposizioni: l'ordine è importante $(a, b) != (b, a)$
+  / Combinazioni: l'ordine _non_ è importante $(a, b) = (b, a)$
+  / Permutazioni: tutti gli elementi vengono disposti $k = n$
+
+  È possibile sia _avere_ che _non avere_ delle *ripetizioni* in tutti i casi.
+]
+
+=== Disposizioni
+
+Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezionare $k$ oggetti (con $k <= n$), tenendo in cosiderazione l'*ordine*.
+
+/ Disposizione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ d_(n,k) = n! / (n-k)! $
+
+/ Disposizione con ripetizione: gli oggetti di $A$ possono essere usati più di una volta $ D_(n,k) = n^k $
+
+=== Combinazioni
+
+Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezionare $k$ oggetti (con $k <= n$), *senza* considerare l'ordine.
+
+#nota[
+  Il numero di combinazioni $c_(n,k)$ è sempre minore del numero di disposizioni $d_(n,k)$, dato che l'ordine non conta.
+]
+
+/ Combinazione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ c_(n,k) = d_(n,k) / k! = n!/(k! dot (n-k)!) = vec(n, k) $
+
+#nota[$vec(n, k)$ viene detto *coefficiente binomiale*]
+
+/ Combinazione con ripetizioni: gli oggetti di $A$ possono venir usati più di una volta $ C_(n,k) = (n+k-1)! / (k! dot (n-1)!) = vec(n + k - 1, k) $
+
+=== Permutazioni
+
+Dato un insieme di $n$ oggetti $A = { a_1, ..., a_n }$, una *permutazione* è una sequenza _ordinata_ in cui compaiono _tutti_ gli oggetti (quindi vogliamo selezionare $k$ elementi).
+
+/ Permutazioni semplici (senza ripetizioni): l'insieme $A$ non contiene elementi duplicati $ P_n = n! $
+
+/ Permutazioni di oggetti distinguibili a gruppi (con ripetizioni): l'insieme $A$ contiene $k$ gruppi di oggetti indistinguibili, ognuno con numerosità $n_1, ..., n_k$ (con $sum_(i=1)^k n_i = n)$, allora dobbiamo disporre tutti questi elementi $ P_(n:n_1, ..., n_k) = n! / (n_1 ! dot ... dot n_k !) = vec(n, (n_1, ..., n_k)) $
+
+#nota[$vec(n, (n_1, ..., n_k))$ viene detto *coefficiente multinomiale*]
+
+== Introduzione
+
+/ Esito $omega in Omega$: risultato effettivo di un esperimento
+/ Evento $E subset.eq Omega$: è un qualsiasi insieme formato da tutti, alcuni o nessuno dei possibili esiti di un esperimento
+/ Probabilità: quantificazione dell'incertezza di un evento
+/ Spazio campionario $Omega$ (insieme degli esiti o insieme universo): è l'insieme di tutti gli esiti possibili. Può essere _finito_ o _infinito_, _continuo_ o _discreto_
+
+#informalmente[
+  _Esempio_: lanciando un dado, l'_esito_ è il numero risultante, un _evento_ può essere "esce 3 o 6" e la _probabilità_ di questo evento è $2/6$.
+]
+
+/ Evento certo $E = Omega$: si verifica sempre
+/ Evento impossibile $E = emptyset$: non si verifica mai
+
+#nota[
+  Indichiamo sempre con una _minuscola_ un _esito_, mentre con una _maiuscola_ un _evento_.
+]
+
+Dati degli eventi, è possibile applicare le operazioni e proprietà degli insiemi su di essi:
+
+/ Unione $E union F$: quando si verifica l'evento $E$ o l'evento $F$
+/ Intersezione $E sect F$: quando si verificano entrambi gli eventi $E$ ed $F$
+/ Mutualmente esclusivi $E sect F = emptyset$: i due eventi sono _mutualmente esclusivi_
+/ Differenza $E - F$: si verifica l'evento $E$, ma l'evento $F$ non si verifica (l'operazione di sottrazione non è commutativa, $E - F != F - E$)
+/ Complemento $Omega - E = E^c = overline(E)$: quando l'evento $E$ non si verifica
+/ Sottoinsieme $E subset.eq F = E -> F$: quando si verifica $E$, allora si verifica anche $F$
+
+/ Proprietà per unione e intersezione:
+  / Commutatività: $E union F = F union E$
+  / Associatività: $(D union E) union F = D union (F union E)$
+  / Distrbutività: $D union (E sect F) = (D union E) sect (D union F)$
+  / De Morgan: $overline(E union F) = overline(E) sect overline(F)$: l'evento che si verifica quando non si verifica $E$ o $F$ è lo stesso evento che si verifica quando non si verifica $E$ e non si verifica $F$
+
+È possibile dare diverse _interpreazioni_ alla probabilità:
+
+/ Approccio soggettivista: la probabilità di un esito non è oggettiva: è il livello di _fiducia_ che un soggetto _(lo studioso)_ ripone nel verificarsi di un evento
+
+/ Approccio frequentista: la probabilità di un esito è una _proprietà_ dell'esito stesso: viene calcolata come il rapporto tra il numero di casi _favorevoli_ e il numero di casi _possibili_ ripetendo l'esperimento un numero di volte tendente all'infinito
+
+== Probabilità
+
 = Statistica inferenziale <inferenziale>
 
 = Cheatsheet Python <python>

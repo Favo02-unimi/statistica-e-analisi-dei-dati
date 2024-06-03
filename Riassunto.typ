@@ -35,6 +35,11 @@
   underline(it, stroke: 1.5pt + blue)
 }
 
+// box colorati
+#let nota(body) = { info(title: "Nota")[#body] }
+#let attenzione(body) = { warning(title: "Attenzione")[#body] }
+#let informalmente(body) = { conclusion(title: "Informalmente")[#body] }
+
 // numerazione titoli
 #set heading(numbering: "1.1.")
 
@@ -105,7 +110,7 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
   / Nominali \/ Sconnessi: valori *non* ordinabili, ad esempio: _nome_
   / Ordinali: valori ordinabili, ad esempio: _livello di soddisfazione_
 
-#info(title: "Nota")[Spesso alcuni dati _numerici_ vengono considerati _qualitativi_, dato che non ha senso effettuare su di essi considerazioni algebriche o numeriche. Un esempio potrebbe essere la data di nascita. ]
+#nota[Spesso alcuni dati _numerici_ vengono considerati _qualitativi_, dato che non ha senso effettuare su di essi considerazioni algebriche o numeriche. Un esempio potrebbe essere la data di nascita. ]
 
 == Frequenze
 
@@ -173,7 +178,7 @@ Metodo alternativo per calcolare la varianza:
 
 $ s^2 = 1/(n-1)sum_(i=1)^n (x_i^2 - n overline(x)^2) $
 
-#info(title: "Nota")[Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva.]
+#nota[Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva.]
 
 La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta: $ s_y^2 = a^2 s_x^2 $
 
@@ -183,7 +188,7 @@ La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre 
 
 $ s = sqrt(s^2) $
 
-#warning(title: "Attenzione")[Applicando la radice quadrata solo dopo l'elevamento a potenza, non abbiamo reintrodotto il problema dei valori negativi: $sqrt(a^2) quad != quad (sqrt(a))^2 = a$]
+#attenzione[Applicando la radice quadrata solo dopo l'elevamento a potenza, non abbiamo reintrodotto il problema dei valori negativi: $sqrt(a^2) quad != quad (sqrt(a))^2 = a$]
 
 === Coefficiente di variazione
 
@@ -191,7 +196,7 @@ Valore *adimensionale*, utile per confrontare misure di fenomeni con unità di m
 
 $ s^* = frac(s, |overline(x)|) $
 
-#info(title: "Nota")[Sia la #link(<varianza-standard>)[varianza campionaria standard] che la #link(<media>)[media campionaria] sono dimensionali, ovverro hanno unità di misura. Dividendoli tra loro otteniamo un valore adimensionale.]
+#nota[Sia la #link(<varianza-standard>)[varianza campionaria standard] che la #link(<media>)[media campionaria] sono dimensionali, ovverro hanno unità di misura. Dividendoli tra loro otteniamo un valore adimensionale.]
 
 === Quantile
 
@@ -201,7 +206,7 @@ Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1
 / Decile: popolazione divisa in 10 parti con ugual numero di elementi
 / Quartile: popolazione divisa in 4 parti con ugual numero di elementi
 
-#info(title: "Nota")[
+#nota[
   È possibile visualizzare un campione attraverso un *box plot*, partendo dal basso composto da:
   - eventuali _outliers_, rappresentati con le `x` prima del baffo
   - il _baffo_ "inferiore", che parte dal valore minimo e raggiunge il primo quartile
@@ -241,7 +246,7 @@ Metodo alternativo di calcolo:
 
 $ op("Cov")(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 
-#conclusion(title: "Informalmente")[
+#informalmente[
   Intuitivamente c'è una *correlazione diretta* se al crescere di $x$ cresce anche $y$ o al descrescere di $x$ decresce anche $y$, dato che il contributo del loro prodotto alla sommatoria sarà positivo. Quindi se $x$ e $y$ hanno segno concorde allora la correlazione sarà _diretta_, altrimenti _indiretta_.
 ]
 
@@ -317,7 +322,7 @@ $ op("Cov")(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
   }))
 ])
 
-#info(title: "Nota")[
+#nota[
   Una relazione diretta/indiretta non è necessariamente _lineare_, può essere anche _logaritmica_ o seguire altre forme.
 ]
 
@@ -335,9 +340,9 @@ Dove $s$ è la varianza campionaria standard.
 - $rho tilde.eq 0$ correlazione improbabile
 - $rho tilde.eq -1$ probabile correlazione linearmente indiretta
 
-#warning(title: "Attenzione")[L'#link(<correlazione-lineare>)[indice di correlazione lineare] ($rho$) cattura *solo* relazioni dirette/indirette _lineari_ ed è insensibile alle trasformazioni lineari.]
+#attenzione[L'#link(<correlazione-lineare>)[indice di correlazione lineare] ($rho$) cattura *solo* relazioni dirette/indirette _lineari_ ed è insensibile alle trasformazioni lineari.]
 
-#warning(title: "Attenzione")[
+#attenzione[
    La #link(<covarianza>)[covarianza campionaria] o l'#link(<correlazione-lineare>)[indice di correlazione lineare] $tilde.eq 0$ non implicano l'indipendenza del campione, ma è vero il contrario:
   $ op("Cov")(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
   $ rho(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
@@ -373,14 +378,14 @@ L'entropia assume valori nel range $[0, log(n)]$ quindi utilizziamo l'*entropia 
 
 $ H' = 1/log(n) H $
 
-#info(title: "Nota")[
+#nota[
   In base alla base del logaritmo utilizzata, l'entropia avrà unità di misura differente:
   - $log_2$: bit
   - $log_e$: nat
   - $log_10$: hartley
 ]
 
-#conclusion(title: "Informalmente")[
+#informalmente[
   Intuitivamente sia l'#link(<gini>)[indice di Gini] che l'#link(<entropia>)[entropia] sono una _"media pesata"_ tra la frequenza relativa di ogni elemento ed un peso: la _frequenza stessa_ nel caso di Gini e il _logaritmo del reciproco_ nell'entropia. La frequenza relativa è già nel range $[0, 1]$, quindi non c'è bisogno di dividere per il numero di elementi.
 ]
 
@@ -407,7 +412,7 @@ La tupla $(F_i, Q_i)$ indica che il $100 dot F_i%$ degli individui detiene il $1
 
 Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
 
-#conclusion(title: "Informalmente")[
+#informalmente[
   Possiamo vedere $F_i$ come _"quanta"_ popolazione è stata analizzata fino all'osservazione $i$, espressa nel range $[0, 1]$.
   $Q_i$ è invece una #link(<cumulata>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$.
 ]
@@ -445,7 +450,7 @@ Ottendendo come formula alternatica:
 
 $ G = quad 2 / (n-1) sum_(i=1)^(n-1) F_i - Q_i $
 
-#conclusion(title: "Informalmente")[
+#informalmente[
   Facendo un parallelo con la #link(<lorenz>)[curva di Lorenz], possiamo vedere $F_i - Q_i$ come la distanza tra la bisettrice ($F_i$) e la ricchezza dell'osservazione $i$ ($Q_i$). La somma di queste distanze viene poi _"normalizzata"_, dividendo per $(n-1) / 2$.
 ]
 
@@ -479,7 +484,7 @@ Vale la seguente regola: $"SS"_T = "SS"_W + "SS"_B$.
 
 L'ipotesi alla base è che dati $G$  gruppi, sia possibile scomporre la varianza in due componenti: _Varianza interna ai gruppi_ (varianza *Within*) e _Varianza tra i gruppi_ (varianza *Between*).
 
-#conclusion(title: "Informalmente")[
+#informalmente[
   Analizzando diversi gruppi attraverso l'ANOVA, si possono raggiungere due conclusioni:
   - i gruppi risultano significativamente *diversi* tra loro: la _varianza between_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di ciascun gruppo)
   - i gruppi risultano *omogenei*: la _varianza within_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di tutti i gruppi)
@@ -510,7 +515,7 @@ Dato un _classificatore binario_ che divide in due classi (positiva e negativa) 
 - *Falso negativo*: oggetto _positivo_ classificato come _negativo_
 - *Falso positivo*: oggetto _negativo_ classificato come _positivo_
 
-#info(title: "Nota")[
+#nota[
   Il peso di un falso positivo può *non* essere lo stesso di un falso negativo, si pensi al caso di una malattia contagiosa: un _falso negativo_ sarà molto più pericoloso di un _falso positivo_ (che verrà scoperto con ulteriori analisi).
 ]
 

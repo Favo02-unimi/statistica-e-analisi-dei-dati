@@ -40,6 +40,14 @@
 #let attenzione(body) = { warning(title: "Attenzione")[#body] }
 #let informalmente(body) = { conclusion(title: "Informalmente")[#body] }
 
+// testo matematico colorato
+#let mg(body) = text(fill: green, $#body$)
+#let my(body) = text(fill: yellow, $#body$)
+#let mo(body) = text(fill: orange, $#body$)
+#let mr(body) = text(fill: red, $#body$)
+#let mp(body) = text(fill: purple, $#body$)
+#let mb(body) = text(fill: blue, $#body$)
+
 // numerazione titoli
 #set heading(numbering: "1.1.")
 
@@ -718,7 +726,7 @@ Dato un insieme di $n$ oggetti $A = { a_1, ..., a_n }$, una *permutazione* è un
 
 #nota[$vec(n, (n_1, ..., n_k))$ viene detto *coefficiente multinomiale*]
 
-== Introduzione
+== Elementi di probabilità
 
 / Esito $omega in Omega$: risultato effettivo di un esperimento
 / Evento $E subset.eq Omega$: è un qualsiasi insieme formato da tutti, alcuni o nessuno dei possibili esiti di un esperimento
@@ -757,7 +765,201 @@ Dati degli eventi, è possibile applicare le operazioni e proprietà degli insie
 
 / Approccio frequentista: la probabilità di un esito è una _proprietà_ dell'esito stesso: viene calcolata come il rapporto tra il numero di casi _favorevoli_ e il numero di casi _possibili_ ripetendo l'esperimento un numero di volte tendente all'infinito
 
-== Probabilità
+=== Algebra di eventi
+// TODO: da rivedere e da riscrivere
+
+Un algebra di eventi $A$ è un insieme di eventi ${E_1, E_2, ...}$ a cui sono associate delle operazioni che soddisfa le proprietà:
+
+- $forall E in A, space E subset.eq Omega$: ogni evento appartenente all'_algebra_ $A$ appartiene all'insieme di tutti gli _eventi possibili_ $Omega$
+- $Omega in A$: l'insieme di tutti gli _eventi possibili_ $Omega$ appartiene all'_algebra_ $A$
+- $forall E in A, space overline(E) in A$: chiusura rispetto al _complemento_
+- $forall E, F in A, space E union F in A$: chiusa rispetto all'_unione_
+- $forall E, F in A, space E sect F in A$: chiusura rispetto all'_intersezione_
+
+#nota[La chiusura rispetto all'_intersezione_ non è una vera proprietà, ma deriva dalla chiusura rispetto all'_unione_ a cui viene applicata la _legge di De Morgan_]
+
+#nota[Se la chiusura sull'_unione_ vale anche per $|Omega| = infinity
+$, allora $A$ viene chiamata $sigma$-algebra]
+
+#informalmente[
+  L'algebra degli eventi non è un _vero_ insieme di eventi, ma è un _"dizionario"_ che sfruttiamo per definire quali _operazioni_ e _variabili_ sono ammesse su un $Omega$
+]
+
+=== Assiomi di Kolmogorov
+
+Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabilità che un evento avvenga.
+
+$P : A -> [0,1]$ è una funzione di probabilità se e solo se:
+
+1. $forall E in A, 0 <= P(E) <= 1$: la frequenza è sempre _positiva_ e compresa tra $0$ e $1$
+2. $P(Omega) = 1$: un evento che si verifica tutte le $n$ volte: $n/n = 1$
+3. $forall E, F in A, space (E sect F) = emptyset space => space P(E union F) = P(E) + P(F)$
+
+#nota[
+  La probabilità che accadano diversi eventi _distinti_ $E_i, E_j$ e _disgiunti_ $E_i sect E_j = emptyset$ è la _somma_ delle loro probabilità:
+  $ P(limits(union.big)_(i=1)^n E_i) = sum_(i=1)^n P(E_i) $
+]
+
+#nota[
+  Formalmente la funzione probabilità è definita $P : A -> bb(R)^+$ (numeri _reali positivi_), applicando gli assiomi il _codominio_ viene ristretto a $[0, 1]$.
+
+  In modo analogo, il _primo assioma_ stabilisce che il risultato dell'applicazione della funzione debba essere _positiva_, senza imporre un _limite superiore_, che poi viene aggiunto dal _secondo assioma_
+]
+
+=== Teoremi derivati dagli assiomi
+
+/ Probabilità del complemento: $ forall E in A, space P(overline(E)) = 1 - P(E) $
+
+/ Probabilità dell'evento impossibile: $ P(emptyset) = 0 $
+
+/ Proprietà di monotonicità: $ forall E, F in A |  E subset.eq F => P(E) <= P(F) $
+
+/ Probabilità dell'unione di eventi: $ forall E, F in A, space P(E union F) = P (E) + P (F) − P(E sect F) $
+
+// TODO: fare dimostrazioni dei teoremi/proprietà
+
+=== Spazi di probabilità ed Esiti equiprobabili
+
+Definiamo lo *spazio di probabilità* come la tripla $(Omega, A, P)$ composta dallo spazio di _esiti possibili_ $Omega$, l'_algebra_ $A$ e la _funzione probabilità_ $P$.
+
+/ Spazio equiprobabile: uno spazio è _equiprobabile_ se gli eventi elementari (gli elementi $Omega$) hanno tutti la _stessa_ probabilità: $ P(E) = 1/N quad quad P({E_1, ..., E_k}) = k/N $
+
+Si dimostra con il secondo assioma di _Kolmogorov_:
+
+$ P(Omega) = 1 = P({e_1}) + ... + P({e_N}) = sum_(i=1)^N P({e_i}) $
+
+#nota[Uno spazio può essere _equiprobabile_ solo se $Omega$ è un _insieme finito_]
+
+== Probabilità condizionata
+
+Dati due eventi $E, F$, la probabilità che si verifichi l'evento $E$ sapendo che _si è verificato_ l'evento $F$ è detta *probabilità condizionata*: $ P(E|F) = P(E sect F) / P(F) $
+
+#nota[
+  - $P(E|F)$ si legge _"probabilità di $E$ dato $F$"_
+  - $E$ si dice evento _condizionato_
+  - $F$ si dice evento _condizionante_
+]
+
+#attenzione[In caso $P(F) = 0$, ovvero $F = emptyset$, allora $P(E|F) = "indefinita"$]
+
+#informalmente[
+  Intuitivamente $P(E|F)$ è la probabilità che preso un punto qualsiasi all'interno di $F$, il punto appartenga a $E sect F$, quindi $(E sect F) / F$
+]
+
+=== Regola di fattorizzazione
+
+Dati due eventi $E, F in Omega$, la probabilità che accadano _entrambi_ (la loro intersezione) è data dalla regola di _fattorizzazione_:
+
+$ P(E sect F) = P(F) dot P(E|F) $
+
+#informalmente[
+  A differenza di una possibilità condizionata "semplice", _non sappiamo_ se $F$ si sia già verificato o meno, quindi dobbiamo considerare anche la _sua possibilità_ oltre a quella condizionata di $E$
+]
+
+=== Teorema delle probabilità totali
+
+Dato $Omega$ partizionato in $F_1, ..., F_n$ partizioni disguinte, la probabilità che accada un evento $E in Omega$ è:
+
+$ P(E) = sum_(i=1)^n P(F_i) dot P(E|F_i)  $
+
+#nota[Insieme $A$ partizionato: $limits(union.big)_(i=1)^n F_i = A$ con $forall i, j, space  i != j, space F_i sect F_j = emptyset$. L'_unione_ di tutte le partizioni è uguale all'insieme iniziale e tutte le partizioni sono _disgiunte_]
+
+#figure(caption: [
+  Probabilità di $E$:
+  $ P(E) =
+  (mr(P(F_1)) dot mb(P(E|F_1))) + (mr(P(F_2)) dot mb(P(E|F_2))) + (mr(P(F_3)) dot mb(P(E|F_3)))\
+  =(mr(1/3) dot mb(0)) + (mr(1/3) dot mb(1/6)) + (mr(1/3) dot mb(1/2)) = 2/9\
+   $
+], image("probabilita-totali.png", width: 40%))
+
+È possibile esprimere $E$ come:
+
+$ P(E) = mr(P(E sect F)) &+ mb(P(E sect overline(F))) \
+  = mr(P(E | F) P(F)) &+ mb(P(E | overline(F)) P(mo(overline(F)))) \
+  = P(E | F) P(F) &+ P(E | overline(F)) P(mo(1-P(F))) $
+
+Altre trasformazioni utili:
+
+$ (E sect F) union (E sect overline(F)) = E sect (F union overline(F)) = E sect Omega = E $
+
+$ (E sect F) sect (E sect overline(F)) = E sect (F union overline(F)) = E sect emptyset = emptyset $
+
+=== Teorema di Bayes
+
+Dato $Omega$ partizionato in $F_1, ..., F_n$ partizioni disguinte, e un evento $E$, la probabilità che accada una certa $F_k subset.eq Omega $ è:
+
+$ P(F_k | E) &= (P(E | F_k) P(F_k)) / mr(P(E)) \
+ &= (P(E | F_k) P(F_k)) / mr(limits(sum)_(i=1)^n P(E | F_i) P(F_i)) $
+
+#figure(caption: [
+  Probabilità di $F_2$:
+  $ P(F_2) =
+  mr(P(E|F_2)) dot mb(P(F_2)) / mp(P(E)) \
+  = (mr(P(E sect F_2) / P(F_2)) mb(P(F_2))) / mp((P(F_1) dot P(E|F_1)) + (P(F_2) dot P(E|F_2)) + (P(F_3) dot P(E|F_3))) \
+  = (mr((1/6 dot 1/3) / (1/3)) mb(1/3)) / mp(2/9) = 1/4
+   $
+], image("probabilita-totali.png", width: 40%))
+
+=== Classificatore naive-Bayes
+
+Possiamo generalizzare il _teorema di Bayer_ per ricavarne un *classificatore*: date delle _caratteristiche_ $X_1, ..., X_n$ che assumono valore $x_1, ..., x_n$, vogliamo assegnare l'oggetto $y_k$ alla _classe_ che massimizza la probabilità:
+
+$ P(Y = y_k | X_1 = x_1, ..., X_n = x_n) $
+
+Applicando il teorema di _Bayes_:
+
+$ = (P(X_1 = x_1, ..., X_n = x_n | Y = y_k) dot P(Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
+
+La formula viene semplificata in modo "ingenuo" _(naive)_, assumendo che $P(X_1 = x_1 and X_2 = x_2 | Y) = P(X_1 = x_1) dot P(X_2 = x_2)$:
+
+$ = (P(Y = y_k) dot limits(product)_(i=1)^n P(X_i = x_i | Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
+
+Per trovare la classe alla quale _assegnare_ l'oggetto, bisogna calcolare la probabilità per ogni possibile $y_k$ e trovare il massimo:
+
+$ = arg max_k P(Y = y_k) dot product_i^n P(X_i = x_i | Y = y_k) $
+
+#nota[
+  Dato che ci interessa solo $y_k$ massimo e il _denominatore_ non dipende da $k$, allora possiamo _ignorarlo_ dato che non influenzerà la scelta del masssimo
+]
+
+// TODO: classificatore naive-bayes in Python (appunti michele)
+
+=== Eventi indipendenti
+
+Quando il verificarsi di un evento $F$ _non influenza_ la probabilità del verificarsi di un altro evento $E$, allora gli eventi si dicono *indipendenti*:
+$ P(E | F) = P(E) $
+$ P(E sect F) = P(E) dot P(F) $
+
+#nota[
+  Sfruttando le formule viste in precedenza, è possibile verificare che i conti tornino:
+  $ P(E) = mr(P(E sect F)) / P(F) = mr(P(E) dot cancel(P(F))) / cancel(P(F)) = P(E) $
+]
+
+#informalmente[
+  È molto difficile rappresentare _graficamente_ attraverso _diagrammi di Venn_ eventi indipendenti, meglio non farlo :)
+]
+
+/ Proprietà:
+
+- Se $E$ è indipendente da $F$, $F$ è indipendente da $E$
+- Se $E$ e $F$ sono indipendenti, allora anche $E$ e $overline(F)$ sono indipendenti
+
+=== Indipendenza a tre i più eventi
+
+Tre eventi $E, F, G$ sono _indipendenti_ se valgono le proprietà:
+
+- $P(E sect F sect G) = P(E) dot P(F) dot P(G)$
+- $P(E sect F) = P(E) dot P(F)$
+- $P(F sect G) = P(F) dot P(G)$
+- $P(E sect G) = P(E) dot P(G)$
+
+È possibile _estendere_ la definizione ad un numero _arbitrario_ di eventi:
+
+Gli eventi $E_1, ..., E_n$ si dicono indipendenti se per ogni loro sottogruppo $E_a_1, ..., E_a_r$ con $1 <= a_1 <= ... <= a_r <= n$ vale l'equazione:
+
+$ P(sect.big_(i=1)^r E_(a i)) = product_(i=1)^r P(E_a_i) $
+
+== Variabili aleatorie
 
 = Statistica inferenziale <inferenziale>
 

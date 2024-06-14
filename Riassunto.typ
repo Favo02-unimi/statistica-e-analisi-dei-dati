@@ -39,6 +39,7 @@
 #let nota(body) = { info(title: "Nota")[#body] }
 #let attenzione(body) = { warning(title: "Attenzione")[#body] }
 #let informalmente(body) = { conclusion(title: "Informalmente")[#body] }
+#let dimostrazione(body) = { memo(title: "Dimostrazione")[#body] }
 
 // testo matematico colorato
 #let mg(body) = text(fill: green, $#body$)
@@ -72,13 +73,49 @@
 
 ]))
 
+#set par(linebreaks: "optimized")
+
 // impostazioni pagine
 #set page(
   numbering: "1",
   header: [
     #set text(8pt)
-    #set align(right)
-    _Statistica e Analisi dei dati_
+
+    #context {
+      let selector = selector(heading).before(here())
+      let level = counter(selector)
+      let headings = query(selector)
+
+      if headings.len() == 0 {
+        return
+      }
+
+      let headings_shown = (1, 2)
+      let heading_max_level = calc.max(..headings_shown)
+
+      let number = level.display((..nums) => nums
+        .pos()
+        .slice(0, calc.min(heading_max_level, nums.pos().len()))
+        .map(str)
+        .join("."))
+
+      let heading_text = headings_shown.map((i) => {
+        let headings_at_this_level = headings
+          .filter(h => h.level == i)
+
+        if headings_at_this_level.len() == 0 { return none }
+
+        headings_at_this_level
+          .last()
+          .body
+      })
+      .filter(it => it != none)
+      .join([ --- ])
+
+      [_Statistica e Analisi dei dati_]
+      h(1fr)
+      [_ #number #h(0.4em) #heading_text _]
+    }
   ],
 )
 
@@ -92,6 +129,7 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 - #link(<probabilità>)[Calcolo delle probabilità]: creazione e analisi di modelli in situazioni di *incertezza*;
 - #link(<inferenziale>)[Statistica inferenziale]: *approssimazione* degli esiti mancanti, attraverso modelli probabilistici;
 - _Appendice: #link(<python>)[Cheatsheet Python]:_ raccolta funzioni/classi Python utili ai fini dell'esame _(e non)_.
+- _Appendice: #link(<integrali>)[Cheatsheet integrali]:_ come svolgere gli integrali.
 
 // indice
 #outline(
@@ -134,7 +172,7 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 
 == Grafici
 
-== Indici di centralità
+== Indici di centralità <indice-centralita>
 
 Sono indici che danno un'idea approssimata dell'ordine di grandezza (quindi dove ricadono) dei valori esistenti.
 
@@ -818,7 +856,7 @@ $P : A -> [0,1]$ è una funzione di probabilità se e solo se:
 
 // TODO: fare dimostrazioni dei teoremi/proprietà
 
-=== Spazi di probabilità ed Esiti equiprobabili
+=== Spazi di probabilità ed Esiti equiprobabili <spazio-probabilita>
 
 Definiamo lo *spazio di probabilità* come la tripla $(Omega, A, P)$ composta dallo spazio di _esiti possibili_ $Omega$, l'_algebra_ $A$ e la _funzione probabilità_ $P$.
 
@@ -910,9 +948,15 @@ Applicando il teorema di _Bayes_:
 
 $ = (P(X_1 = x_1, ..., X_n = x_n | Y = y_k) dot P(Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
 
-La formula viene semplificata in modo "ingenuo" _(naive)_, assumendo che $P(X_1 = x_1 and X_2 = x_2 | Y) = P(X_1 = x_1) dot P(X_2 = x_2)$:
+La formula viene semplificata in modo "ingenuo" _(naive)_, assumendo che le caratteristiche siano #link(<eventi-indipendenti>)[eventi indipendenti] $P(X_1 = x_1 and X_2 = x_2 | Y) = P(X_1 = x_1) dot P(X_2 = x_2)$:
 
 $ = (P(Y = y_k) dot limits(product)_(i=1)^n P(X_i = x_i | Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
+
+#informalmente[
+  Questa _assunzione_ è, appunto, _ingenua_: ad esempio, una persona con i capelli chiari è _più probabile_ che abbia anche gli occhi chiari rispetto ad una persona con i capelli scuri. Le due caratteristiche _non_ sono _indipendenti_.
+
+  Come capire _formalmente_ se due eventi (o più) eventi sono _indipendenti_ è descritto nel #link(<eventi-indipendenti>)[paragrafo successivo].
+]
 
 Per trovare la classe alla quale _assegnare_ l'oggetto, bisogna calcolare la probabilità per ogni possibile $y_k$ e trovare il massimo:
 
@@ -924,7 +968,7 @@ $ = arg max_k P(Y = y_k) dot product_i^n P(X_i = x_i | Y = y_k) $
 
 // TODO: classificatore naive-bayes in Python (appunti michele)
 
-=== Eventi indipendenti
+=== Eventi indipendenti <eventi-indipendenti>
 
 Quando il verificarsi di un evento $F$ _non influenza_ la probabilità del verificarsi di un altro evento $E$, allora gli eventi si dicono *indipendenti*:
 $ P(E | F) = P(E) $
@@ -944,7 +988,7 @@ $ P(E sect F) = P(E) dot P(F) $
 - Se $E$ è indipendente da $F$, $F$ è indipendente da $E$
 - Se $E$ e $F$ sono indipendenti, allora anche $E$ e $overline(F)$ sono indipendenti
 
-=== Indipendenza a tre i più eventi
+=== Indipendenza a tre o più eventi
 
 Tre eventi $E, F, G$ sono _indipendenti_ se valgono le proprietà:
 
@@ -961,6 +1005,339 @@ $ P(sect.big_(i=1)^r E_(a i)) = product_(i=1)^r P(E_a_i) $
 
 == Variabili aleatorie
 
+Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che assume un valore _diverso_ ogni osservazione. Permettono di codificare gli _eventi_ in termini di numeri reali.
+
+Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, una variabile aleatoria è $X : Omega -> bb(R)$ che associa ad ogni _esito_ un _numero reale_.
+
+#attenzione[
+  Non tutte le funzioni definite come $X : Omega -> bb(R)$ rappresentano una _variabile aleatoria_
+]
+
+/ Specificazioni: _valori_ che possono essere assunti da una variabile aleatoria
+/ Supporto: l'_insieme_ delle _specificazioni_, dove la probabilità non sia nulla $P(X = x_i) != 0$
+
+#nota[
+  È possibile calcolare il _supporto_ di una variabile aleatoria *discreta* calcolando l'_insieme_ di punti in cui la #link(<funzione-massa>)[funzione di massa] non assuma valore nullo
+]
+
+=== Variabili aleatorie discrete <aleatorie-discrete>
+
+Una variabile aleatoria si dice discreta se il suo supporto è finito e numerabile (ovvero ha un numero finito di valori possibili). Dato $[m,n]$ il range di valori che possono _essere assunti_ dalla variabile $X$, vale:
+
+$ 1 = P(Omega) = P(union.big_(i=m)^n {X = i}) = sum_(i=m)^n P(X = i) $
+
+==== Funzione indicatrice
+
+Dati $A, B$ due insiemi tali che $A subset.eq B$, la funzione indicatrice di $A$ rispetto a $B$ è la funzione $I : B -> {0, 1}$ che vale:
+
+$ I_(A(x)) = cases(1 "se" x in A, 0 "se" x in.not A) $
+
+#informalmente[
+  La _funzione indicatrice_ agisce da _filtro_, "limitando il dominio". Quando viene _moltiplicata_ con una probabilità la _annulla_ o la _lascia inalterata_.
+
+  Ad esempio, la probabilità di un _dado_ è: $P(X = x) = 1/6 dot mr(I_({1, ..., 6}(x)))$, la funzione indicatrice _annulla_ la probabilità di $1/6$ in caso $x$ non sia nel "dominio" del dado ($1 <= x <= 6$)
+]
+
+==== Funzione di massa di probabilità <funzione-massa>
+
+Data una variabile aleatoria discreta $X$ con supporto $D$, la sua _funzione di massa di probabilità_ $P_X : bb(R) -> [0,1]$ è la funzione che associa ad ogni valore $x in bb(R)$ la probabilità che l'esito di $X$ ne sia uguale:
+$ forall x in bb(R), space p_(X)(x) = P(X = x) dot I_(D)(x) $
+
+#attenzione[
+  La funzione di massa di probabilità *NON* vale per le #link(<aleatorie-continue>)[variabili aleatorie continue]
+]
+
+*Proprietà* che la funzione di massa di probabilità deve _rispettare_:
+
+- $forall x in bb(R), f_(X)(x) >= 0$: non può essere negativa
+- $limits(sum)_(x in D) f_(X)(x) = 1$: la somma della funzione di massa per tutti i valori che $x$ può assumere deve fare $1$
+
+// TODO: grafico funzione massa
+
+==== Funzione di ripartizione <funzione-ripartizione>
+
+Data una variabile aleatoria $X$, la sua _funzione di ripartizione_ o _distribuzione cumulativa_ $F_X : bb(R) -> [0, 1]$ è la funzione che associa ad ogni valore $x in bb(R)$ la probabilità che l'esito di $X$ ne sia minore o uguale:
+$ forall x in bb(R), space F_(X)(x) = P(X <= x) $
+
+#attenzione[
+  La funzione di ripartizione è _valida_ sia per le #link(<aleatorie-discrete>)[variabili aleatorie discrete] che per le #link(<aleatorie-continue>)[variabili aleatorie continue]
+]
+
+#nota[
+  È possibile calcolare la probabilità per un _valore maggiore_ di una certa soglia sfruttando il complementare:
+  $ P(X>x) = 1 - P(X <= x) = 1 - F(x) $
+]
+
+#nota[
+  È possibile calcolare la probabilità per un valore _compreso_ tra due estremi:
+  $ P(a < X <= b) = P(X <= b) - P(X <= a) = F(b) - F(a) $
+]
+
+La funzione di ripartizione può essere vista come la _somma_ applicando alla _funzione di massa_ tutti i valori minori uguali di un certo valore $a$:
+
+$ F(a) = sum_(x <= a) p(x) $
+
+#informalmente[
+  Per una variabile aleatoria discreta, $F$ è una _funzione a gradini_, costante tra gli intervalli dei valori assunti da $X$, che salta di $p(x)$ ad ogni nuovo valore
+]
+
+// grafico funzione di ripartizione
+
+==== Valore atteso
+
+Il _valore atteso_ di una variabile aleatoria $X$ è un _indice dimensionale_ di #link(<indice-centralita>)[centralità] delle _specificazioni_ della variabile aleatoria.
+
+$ E[X] = sum_i x_i dot P(X = x_i) = sum_i x_i dot p(x_i) $
+
+#informalmente[
+  Il _valore atteso_ è semplicemente la _"media pesata"_ per ogni possibile valore nel _dominio_ (specificazione) di una variabile aleatoria
+]
+
+#nota[
+  Il valore atteso può essere indicato con $E$ o con $mu$
+]
+
+*Proprietà* del valore atteso:
+
+- il _valore atteso_ di una funzione indicatrice è uguale alla _probabilità dell'evento_: $ E[I_A] = P(A) $
+- il _valore atteso_ di una variabile aleatoria discreta $X$ opera in modo _lineare_: $ Y = a dot X + b quad quad  E[Y] = a dot E[X] + b $
+- data una qualsiasi _funzione_ reale $g$ e una variabile aleatoria $X$ con funzione di massa $p$, allora vale: $ E[g(X)] = sum_i g(x_i) dot p(x_i) $
+- data una qualsiasi _funzione_ reale $g$ di due variabili e due variabili aleatorie discrete $X, Y$, allora vale: $ E[g(X, Y)] = sum_x sum_y g(x,y) dot p(x,y) $
+
+==== Varianza
+
+Sia $X$ una variabile aleatoria di media $mu$, la varianza di $X$ è:
+$ op("Var")(X) = G_X^2 = E[(X - mu)^2] $
+
+#nota[
+  Formula alternativa per la varianza: $ op("Var")(X) &= E[(X - mu)^2] \
+  &= E[X^2 - 2 mu X + mu^2] \
+  &= E[X^2] - 2 mu E[X] + mu^2 \
+  &= E[X^2] - 2mu^2 + mu^2 \
+  &= E[X^2] - E[X]^2 \
+  &= sum_i x_i^2 dot P(X = x_i) - (sum_i x_i dot P(X = x_i))^2 $
+]
+
+*Proprietà* varianza:
+
+- la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_ $ op("Var")(I) = P(A) dot P(overline(A)) $
+- la varianza non opera in modo lineare: $ op("Var")(a X + b) = a^2 op("Var")(X) $
+
+/ Deviazione standard: $sigma_X = sqrt(op("Var")(X))$
+
+=== Variabili aleatorie multivariate
+
+Oltre alle #link(<aleatorie-discrete>)[variabili aleatorie *univariate*], è possibile utilizzare un _vettore_ di lunghezza arbitraria, ottenendo una variabile aleatoria *multivariata*.
+
+#nota[
+  Quando il vettore è lungo $2$ elementi, la variabile aleatoria si dice *bivariata*
+]
+
+==== Funzione di ripartizione congiunta
+
+Sia $A$ una variabile aleatoria bivariata formata da $X,Y$ variabili aleatorie _univariate discrete_, allora la loro _funzione di ripartizione conguinta_ è:
+
+$ F_"X,Y" (x,y) = P(X <= x, Y <= y) $
+
+#nota[
+  La virgola dentro la probabilità denota l'intersezione: $ P(X <= x, Y <= y) = P(X <= x sect Y <= y) $
+]
+
+È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
+$ F_(X_1, ..., X_n)(x_1, ..., x_n) = P(X_1 <= x_1, ..., X_n <= x_n) $
+
+#nota[
+  Si dice _funzione di ripartizione (o massa)_ *marginale* quando da una _funzione di ripartizione (o massa)_ *congiunta* estraggo una _funzione di ripartizione (o massa)_ di una variabile *univariata*
+]
+
+Possiamo ottenere una $F_(X)(x)$ *funzione di ripartizione marginale* di $X$ nel seguente caso:
+
+$ lim_(y -> +infinity) F_"X,Y" (x,y) &= mr(lim_(y -> +infinity)) P(X <= x, mr(Y <= y)) \
+&= P(X <= x) space dot mr(lim_(y -> +infinity) P(Y <= y)) \
+&= P(X <= x) dot mr(Omega) \
+&= P(X <= x) \
+&= F_X (x) $
+
+==== Funzione di massa di probabilità congiunta
+
+Siano $X,Y$ due variabili aleatorie _univariate discrete_, allora la loro _funzione di massa di probabilità congiunta_ $p: bb(R) times bb(R) -> [0, 1]$ è:
+
+$ p_(X,Y) (x,y) = P(X = x, Y = y) $
+
+È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
+$ p_(X_1, ..., X_n)(x_1, ..., x_n) = P(X_1 = x_1, ..., X_n = x_n) $
+
+Possiamo ottenere una $p_(X)(x)$ *funzione di massa di probabilità marginale* di $X$ nel seguente caso:
+
+$ sum_(y_i in D) p_(X,Y) (x,y) &= mr(sum_(y_i in D)) P({X = x} sect mr({Y = y})) \
+  &= P({X = x} sect space mr(union.big_(y_i in D) {Y = y})) \
+  &= P({X = x} dot mr(Omega)) \
+  &= P({X = x}) \
+  &= p_X (x) $
+
+==== Indipendenza
+
+Due variabili aleatorie $X, Y$ si dicono *indipendenti* se $forall A, B subset.eq RR, space X in A$ e $Y in B$ sono #link(<eventi-indipendenti>)[indipendenti]:
+
+$ P(X in A, Y in B) = P(X in A) dot P(Y in B) $
+$ P(X <= A, Y <= B) = P(X <= A) dot P(Y <= B) $
+$ p(x,y) = p_(X)(x) dot P_(Y)(y) $
+$ F(a,b) = F_(X)(a) dot F_(Y)(b) $
+
+#nota[
+  Questi risultati sono _dimostrabili_ usando gli _assiomi delle probabilità_
+]
+
+È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
+$ P(X_1 in A_1, ..., X_n in A_n) = product_(i=1)^n P(X_i in A_i) $
+
+==== Valore atteso
+
+Il valore atteso della _somma_ di variabili aleatorie discrete è:
+$ E[sum_i X_i] = sum_i E[X_i] $
+
+Il valore atteso del _prodotto_ di variabili aleatorie discrete è:
+$ E[product_i X_i] = product_i E[X_i] $
+
+==== Covarianza
+
+Siano $X$ e $Y$ due variabili aleatorie di media $mu_X$ e $mu_Y$, la loro _covarianza_ è:
+$ op("Cov")(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
+
+#nota[
+  Formula alternativa:
+  $ op("Cov")(X, Y) &= [X Y - mu_X Y - mu_Y X + mu_X mu_Y] \
+    &= E[X Y] - mu_X E[Y] - mu_y E[X] + mu_X mu_Y \
+    &= E[X Y] - E[X] E[Y]
+  $
+]
+
+*Proprietà* della covarianza:
+
+- simmetria: $op("Cov")(X, Y) = op("Cov")(Y, X)$
+- generalizzazione concetto di varianza: $op("Cov")(X, X) = op("Var")(X)$
+- linearità:
+  - $op("Cov")(a X, Y) = op("Cov")(X, a Y) = a op("Cov")(X, Y)$
+  - $op("Cov")(X + Y, Z) = op("Cov")(X, Z) + op("Cov")(Y, Z)$
+
+==== Varianza
+
+Siano $X$ e $Y$ due variabili aleatorie la loro _varianza_ della loro _somma_ è:
+$ op("Var")(X + Y) = op("Var")(X) + op("Var")(Y) + 2 op("Cov")(X, Y) $
+
+È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
+$ op("Var")(sum_i^n X_i) = sum_i^n op("Var")(X_i) + sum_i^n sum_(j, j != i)^n op("Cov")(X_i, X_j) $
+
+=== Variabili aleatorie continue <aleatorie-continue>
+
+Una variabile aleatoria si dice *continua* quando ha un _supporto *non* numerabile_.
+
+==== Funzione densità di probabilità
+
+#informalmente[
+  La #link(<funzione-massa>)[funzione di massa] (come spiegato sotto) non ha più senso per le _variabili aleatorie continue_, quindi lo stesso concetto prende il nome di _funzione densità di probabilità_
+]
+
+Siccome $X$ deve per forza assumere un valore in $bb(R)$, allora la _funzione di densità_ ( $f_"X" (x)$ ) deve rispettare:
+$ P(X in bb(R)) = integral_(-infinity)^(+infinity) f_(X)(x) dif x = 1 $
+
+Per variabili aleatorie _continue_ non ha senso cercare la probabilità assunta da un _singolo valore_, infatti:
+$ P(X = a) = integral_a^a f_(X)(x) dif x = 0 $
+
+Per questo motivo si ragiona in termini di _intervalli_ di probabilità:
+$ P(a <= X <= b) = integral_a^b f_(X)(x) dif x $
+
+Esiste una relazione tra la #link(<funzione-ripartizione>)[funzione di ripartizione] $F$ (che *vale anche* per le variabili aleatorie continue) con la funzione di densità $f$:
+$ F(a) &= P(X <= a) \
+  &= P(X in (-infinity, a]) \
+  &= integral_(-infinity)^a f_(X)(x) dif x $
+
+Quindi la *funzione di densità* è uguale alla derivata della #link(<funzione-ripartizione>)[funzione di ripartizione] $F$:
+$ f_(X)(a) = F'(a) $
+
+==== Valore atteso
+
+Il _valore atteso_ di una variabile aleatoria continua vale:
+$ E[X] = integral_(-infinity)^(+infinity) x dot f_(X)(x) dif x $
+
+#nota[
+  Formula alternativa per il valore atteso:
+  $ E(X) = integral_0^(+infinity) 1 - F_(X)(x) dif x $
+]
+
+==== Varianza
+
+La _varianza_ di una variabile aleatoria continua vale:
+$ op("Var")(X) = E[(X - mu)^2] = integral_(-infinity)^(+infinity) (x - mu)^2 f_(X)(x) dif x $
+
+==== Disuguaglianza di Markov
+
+#informalmente[
+  Permette di ottenere un limite superiore alla probabilità dalla sola conoscenza del valore atteso
+]
+
+Sia $X$ una _variabile aleatoria_ $X >= 0$, allora $forall a > 0 in bb(R)$, vale:
+$ P(X >= a) <= E[X] / a $
+
+#nota[
+  Possiamo trarre che:
+  $ P(X < a) space = space 1 - P(X >= a) space >= space 1 - E[x] / a $
+]
+
+#dimostrazione[
+  Variabili aleatorie *discrete*:
+  $ E[X] &= mr(sum_(x>=0) x dot p(x)) \
+    &= mr(sum_(x <= a) x dot p(x) + sum_(x >= a) x dot p(x)) &>= mb(sum_(x >= a) x dot p(x)) = \
+    & &>= mb(sum_(x >= a) a dot p(x)) = \
+    & &>= mb(a dot sum_(x >= a) p(x)) = \
+    & &>= mb(a dot P(X >= a)) $
+  Quindi $ mr(E[X]) >= mb(mp(a) dot P(X >= a)) quad => quad mb(P(X >= a)) <= mr(E[X]) / mp(a) $
+]
+
+#dimostrazione[
+  Variabili aleatorie *continue*:
+  $ E[X] &= mr(integral_(-infinity)^(+infinity) x f_X (x) dif x) \
+    &= mr(integral_(0)^(a) x f_X (x) dif x + integral_(a)^(+infinity) x f_X (x) dif x) &>= mb(integral_(a)^(+infinity) x f_X (x) dif x) = \
+    & &>= mb(integral_(a)^(+infinity) a f_X (x) dif x) = \
+    & &>= mb(a integral_(a)^(+infinity) f_X (x) dif x) = \
+    & &>= mb(a dot P(X >= a)) $
+  Quindi $ mr(E[X]) >= mb(mp(a) dot P(X >= a)) quad => quad mb(P(X >= a)) <= mr(E[X]) / mp(a) $
+]
+
+
+==== Disuguaglianza di Chebyshev
+
+#informalmente[
+  Permette di ottenere un limite superiore alla probabilità che il valore di una variabile aleatoria si discosti dal suo valore atteso di una quantità maggiore o uguale a una soglia scelta
+]
+
+Sia $X$ una _variabile aleatoria_ di valore atteso $E[X] = mu$ e varianza $op("Var")(X) = sigma^2$, allora:
+$ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
+
+#informalmente[
+  $|X - mu|$ è la distanza tra la variabile aleatoria e il suo valore atteso
+]
+
+#nota[
+  Un'_applicazione_ della _disuguaglianza di Chebyshev_ riguarda la _deviazione standard_: esprime l'andamento della probabilità allontanandosi dal valore attesi di quantità ripetute della deviazione standard:
+  $ P(|X - mu| >= k sigma) <= 1/k^2 $
+]
+
+#dimostrazione[
+  $ | X - mu | >= r quad <==> quad ( X - mu )^2 >= r^2  $
+
+  dunque:
+
+  $ mr(P( |X - mu| >= r)) &= mb(P((X - mu)^2 >= r^2)) \
+     mb(P((X - mu)^2 >= r^2)) &<= E[(X - mu)^2 / r^2] text("per Markov") \
+     mr(P( |X - mu| >= r)) &<= sigma^2 / r^2
+  $
+]
+
+=== Modelli di distribuzione
+
 = Statistica inferenziale <inferenziale>
 
 = Cheatsheet Python <python>
+
+= Cheatsheet integrali <integrali>

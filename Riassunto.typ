@@ -1336,6 +1336,82 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 
 === Modelli di distribuzione
 
+Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
+
+==== Modello di Bernoulli $X tilde B(p)$
+
+La variabile aleatoria può assumere solo due specificazioni: *fallimento* o *successo*, ovvero il loro supporto è $D_X = { 0, 1 }$
+
+Il parametro $p$ indica la probabilità che $X = 1$ con $p in [0, 1]$
+
+/ Funzione di massa:
+$ p_X (x) = P(X = x) &= mr(p^x (1-p)^((1-x)) I_{0,1} (x)) \
+  &= cases(1-p quad "per " x=0, p quad "per " x=1, 0 quad "altrimenti") $
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) &= mr((1 - p) I_[0,1](x) + I_((1, +infinity))(x)) \
+  &= cases(0 quad "se " x < 0, 1-p quad "se " 0 <= x < 1, 1 quad "se " x >= 1 ) $
+
+/ Valore atteso:
+$ E[X] = mr(p) $
+
+#dimostrazione[
+  $ E[X] &= sum_x x dot P(X = x) \
+  &= 0 dot P(X = 0) + 1 dot P(X = 1) \
+  &= 1 dot P(X = 1) = p $
+]
+
+/ Varianza:
+$ op("Var")(X) = mr(p(1-p)) $
+
+#dimostrazione[
+  $ "Var"(X) &= E[(X - mu)^2] \
+  &= E[(X - p)^2] \
+  &= sum_x (x-p)^2 dot P(X=x) \
+  &= (0-p)^2 dot P(X = 0) + (1-p)^2 dot P(X=1) \
+  &= p^2(1-p) + p(1-p)^2 \
+  &= p(1-p) (cancel(p) + 1 cancel(-p)) = p(1-p) $
+]
+
+==== Modello binomiale $X tilde B(n, p)$
+
+Il modello ripete $n$ volte un esperimento bernulliano di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. Il supporto del modello è $D_X = {0, 1, ..., n}$.
+
+/ Funzione di massa:
+$ p_X (x) = P(X = x) = mr(binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)) $
+
+#figure(caption: [Funzione di massa modello binomiale], image("binomiale-massa.png",  width: 40%))
+
+/ Funzione di ripartizione:
+$ F_X (x) &= P(X <= x) = \
+  &= mr(sum_(i=0)^x p_X (i) dot I_[0, n](x) + I_((n, +infinity))(x)) \
+  &= cases(
+    limits(sum)_(i=0)^x p_X (i) quad "per " x <= n,
+    1 quad "per " x > n
+  )
+$
+
+#attenzione[
+  Nella formula della funzione di ripartizione, $p_X$ indica la _funzione di massa_, solo $p$ indica la _probabilità di successo_
+]
+
+/ Valore atteso:
+$ E[X] = mr(n dot p) $
+
+#dimostrazione[
+  $ E[X] &= E[sum_i^n X_i] \
+  &= sum_i^n E[X_i] = n dot p
+  $
+]
+
+/ Varianza:
+$ "Var"(X) = mr(n dot p (1-p)) $
+
+/ Relazioni:
+Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
+$ X_1 + X_2 = sum_(i=1) ^n X_(1,i) + sum_(j=1)^m X_(2,j) = sum_(i=1)^(n+m) Y_i = Y $
+dove $Y tilde B(n+m, p)$
+
 = Statistica inferenziale <inferenziale>
 
 = Cheatsheet Python <python>

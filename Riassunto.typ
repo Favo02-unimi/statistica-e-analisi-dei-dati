@@ -35,6 +35,11 @@
   underline(it, stroke: 1.5pt + blue)
 }
 
+// settings box colorati
+#show: gentle-clues.with(
+  breakable: true
+)
+
 // box colorati
 #let nota(body) = { info(title: "Nota")[#body] }
 #let attenzione(body) = { warning(title: "Attenzione")[#body] }
@@ -43,7 +48,7 @@
 
 // testo matematico colorato
 #let mg(body) = text(fill: green, $#body$)
-#let my(body) = text(fill: yellow, $#body$)
+#let mm(body) = text(fill: maroon, $#body$)
 #let mo(body) = text(fill: orange, $#body$)
 #let mr(body) = text(fill: red, $#body$)
 #let mp(body) = text(fill: purple, $#body$)
@@ -1220,7 +1225,7 @@ $ op("Cov")(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
   - $op("Cov")(a X, Y) = op("Cov")(X, a Y) = a op("Cov")(X, Y)$
   - $op("Cov")(X + Y, Z) = op("Cov")(X, Z) + op("Cov")(Y, Z)$
 
-==== Varianza
+==== Varianza <multivariate-varianza>
 
 Siano $X$ e $Y$ due variabili aleatorie la loro _varianza_ della loro _somma_ è:
 $ op("Var")(X + Y) = op("Var")(X) + op("Var")(Y) + 2 op("Cov")(X, Y) $
@@ -1338,11 +1343,11 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
-==== Modello di Bernoulli $X tilde B(p)$
+==== Modello di Bernoulli $X tilde B(p)$ <bernoulliano>
 
-La variabile aleatoria può assumere solo due specificazioni: *fallimento* o *successo*, ovvero il loro supporto è $D_X = { 0, 1 }$
+La variabile aleatoria può assumere solo due specificazioni: *fallimento* o *successo*, ovvero il loro supporto è $D_X = { 0, 1 }$ Il parametro $p$ indica la probabilità che $X = 1$ con $p in [0, 1]$
 
-Il parametro $p$ indica la probabilità che $X = 1$ con $p in [0, 1]$
+$ mr(X tilde B(p)) $
 
 / Funzione di massa:
 $ p_X (x) = P(X = x) &= mr(p^x (1-p)^((1-x)) I_{0,1} (x)) \
@@ -1373,9 +1378,11 @@ $ op("Var")(X) = mr(p(1-p)) $
   &= p(1-p) (cancel(p) + 1 cancel(-p)) = p(1-p) $
 ]
 
-==== Modello binomiale $X tilde B(n, p)$
+==== Modello binomiale $X tilde B(n, p)$ <binomiale>
 
-Il modello ripete $n$ volte un esperimento bernulliano di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. Il supporto del modello è $D_X = {0, 1, ..., n}$.
+Il modello ripete $n$ volte un *esperimento bernulliano indipendente* di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. Il supporto del modello è $D_X = {0, 1, ..., n}$.
+
+$ mr(X tilde B(n, p)) $
 
 / Funzione di massa:
 $ p_X (x) = P(X = x) = mr(binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)) $
@@ -1411,6 +1418,345 @@ $ "Var"(X) = mr(n dot p (1-p)) $
 Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
 $ X_1 + X_2 = sum_(i=1) ^n X_(1,i) + sum_(j=1)^m X_(2,j) = sum_(i=1)^(n+m) Y_i = Y $
 dove $Y tilde B(n+m, p)$
+
+==== Modello uniforme discreto $X tilde U(n)$
+
+Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Il supporto del modello è $D_X = [1, n]$.
+
+$ mr(X tilde U(n)) $
+
+/ Funzione di massa:
+$ p_X (x) = P(X = x) = mr(1/n I_{1, ..., n} (x)) $
+
+
+#figure(caption: [Funzione di massa modello uniforme discreto], image("uniforme-discreto-massa.png", width: 40%))
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) = mr(floor(x) / n I_[1, n] (x) + I_((n, +infinity)) (x)) $
+
+#dimostrazione[
+  $ forall x <= n quad F_X (x) &= P(X <= x) \
+    &= sum_(i=1)^floor(x) P(X = i) \
+    &= 1/n sum_(i=1)^floor(x) i \
+    &= 1^floor(x) dot 1/n = floor(x)/n $
+]
+
+#figure(caption: [Funzione di ripartizione modello uniforme discreto], image("uniforme-discreto-ripartizione.png", width: 40%))
+
+/ Valore atteso:
+$ E[x] = mr((n+1)/2) $
+
+#dimostrazione[
+  $ E[X] &= sum_(i=1)^n i dot P(X=i) \
+   &= sum_(i=1)^n i dot 1/n \
+   &= 1/n sum_(i=1)^n i \
+   &= 1/cancel(n) dot (cancel(n)(n+1))/2 = (n+1)/2 $
+]
+
+#nota[
+  $ E[X^2] = ((n+1)(2n+1))/6 $
+]
+
+/ Varianza:
+$ "Var"(X) = mr((n^2 - 1)/12) $
+
+#dimostrazione[
+  $ "Var"(X) &= E[X^2] - E[X]^2 \
+    &= ((n+1)(2n+1))/6 - ((n+1)/2)^2 \
+    &= (n+1)((2n+1)/6 - (n+1)/n) \
+    &= (n+1)((4n + 2 - 3n - 3) / 12) \
+    &= (n+1)((n-1)/12) = (n^2 - 1)/12 $
+]
+
+// TODO: finire modello
+
+==== Modello uniforme continuo $X tilde U(a,b)$
+
+// TODO: catu li fa in ordine diverso: prima tutti i discreti, poi tutti i continui
+
+Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*. Il supporto del modello è $D_X = [a, b]$.
+
+$ mr(X tilde U(a,b)) $
+
+/ Funzione di densità di probabilità:
+$ f_X (x) = P(X = x) = mr(1/(b-a) I_[a,b] (x)) $
+
+#figure(caption: [Funzione di densità modello uniforme continuo], image("uniforme-continuo-densita.png", width: 40%))
+
+#dimostrazione[
+  Sappiamo che la $limits(integral)_(-infinity)^(+infinity) f_X (x) dif x$ deve essere uguale a $1$, quindi possiamo ricavare la funzione di densità $f_X$, sostituendola con l'incognita $alpha$:
+
+  $ integral_(-infinity)^(+infinity) a &= integral_(a)^(b) alpha dif x \
+     &= alpha integral_(a)^(b) 1 dif x \
+     &= alpha[x]^b_a \
+     &= alpha (b-a) \
+     &= alpha = 1/(b-a) $
+
+  Possiamo quindi ricavare $f_X$: $ f_X (x) = 1/(b-a) $
+]
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) = mr((x-a)/(b-a) I_[a,b] (x) + I_((b,+infinity)) (x)) $
+
+#figure(caption: [Funzione di ripartizione modello uniforme continuo], image("uniforme-continuo-ripartizione.png", width: 40%))
+
+#dimostrazione[
+  $ F_X (x) &= integral_(a)^(x) f_(X)(y) dif y \
+    &= integral_(a)^(x) 1 / (b-a) dif y \
+    &= 1 / (b-a) integral_(a)^(x) 1 dif y \
+    &= 1 / (b-a) [y]^x_a = (x-a)/(b-a) $
+]
+
+/ Valore atteso:
+$ E[X] = mr((a + b) / 2) $
+
+#dimostrazione[
+  $ E[X] &= integral_a^b f_X (x) dif x \
+    &= integral_a^b x dot 1/(b-a) dif x \
+    &= 1/(b-a) integral_a^b x dif x \
+    &= 1/(b-a) dot [x^2 / 2]_a^b \
+    &= 1/(b-a) dot (b^2 - a^2)/2 \
+    &= 1/cancel(b-a) dot ((a+b)cancel((b-a)))/2 \
+    &= (a+b) / 2
+  $
+]
+
+#nota[
+  $ E[X^2] = (a^2 + a b + b^2) / 3  $
+]
+
+/ Varianza:
+$ "Var"(X) = mr(((b-a)^2)/12) $
+
+==== Modello geometrico $X tilde G(p)$
+
+Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = [0, ..., +infinity)$.
+// TODO: indipendenti ok, ma identicamente distribuiti cosa vuol dire? anche nel binomale devono iid o solo indipendenti?
+
+$ mr(X tilde G(p)) $
+
+/ Funzione di massa:
+$ p_X (x) = P(X = x) = mr(p(1-p)^x I_[0, +infinity) (x)) $
+
+#informalmente[
+  La funzione di massa equivale a calcolare le probabilità che accadano $x$ _insuccessi_, quindi $(1-p)^x$ a cui succede un _successo_ $dot p$, ottenenendo $p dot (1-p)^x$.
+]
+
+#figure(caption: [Funzione di massa modello geometrico], image("geometrico-massa.png", width: 40%))
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) = mr((1 - (1-p)^(floor(x)+1)) I_[0, +infinity) (x)) $
+
+#nota[
+  $ F_X (x) = F_X (floor(x)) $
+]
+
+#figure(caption: [Funzione di ripartizione modello geometrico], image("geometrico-ripartizione.png", width: 40%))
+
+#dimostrazione[
+  Possiamo calcolare la funzione di ripartizione $P(X <= x)$ come $1 - P(X > x)$:
+
+  $ mb(P(X > x)) &= sum_(i = x+1)^(+infinity) p_X (i) \
+    &= sum_(i = x+1)^(+infinity) p(1-p)^i \
+    &= p(1-p)^(x+1) dot sum_(i=x+1)^(+infinity) (1-p)^(i-(x+1)) \
+    &= p(1-p)^(x+1) sum_(i=0)^(+infinity) (1-p)^i \
+    &= p(1-p)^(x+1) dot 1/(cancel(1)-(cancel(1)-p)) \
+    &= cancel(p)(1-p)^(x+1) dot 1/cancel(p) = mb((1-p)^(x+1)) $
+
+  Quindi: $ P(X <= x) = 1 - mb(P(X > x)) = 1 - mb((1-p)^(x+1)) $
+]
+
+/ Valore atteso:
+
+$ E[X] = mr((1-p)/p) $
+
+#dimostrazione[
+  Usando la definizione:
+  $ E[X] &= sum_(i=0)^(+infinity) i dot p_X (i) \
+    &= sum_(i=0)^(+infinity) i p (1-p)^i \
+    &= p dot mb(sum_(i=0)^(+infinity) i (1-p)^i) \
+    &= cancel(p) dot mb((1-p)/p^cancel(2)) = (1-p)/p $
+
+  #nota[
+    Nel punto #text(blue)[evidenziato di blu] abbiamo usato il lemma:
+    $ limits(sum)_(i=0)^(+infinity) i alpha^i = alpha/(i-alpha)^2 $
+  ]
+]
+
+/ Varianza:
+$ "Var"(X) = mr((1-p)/p^2) $
+
+/ Proprietà di assenza di memoria:
+
+Il numero di _fallimenti consecutivi_ (anche se elevato) durante la ripetizione dell'#link(<bernoulliano>)[esperimento Bernoulliano] non ci fornisce _nessuna informazione_ sugli esperimenti successivi.
+
+Quindi la probabilità di costante insuccesso dell'$i + j$-esimo esperimento non è condizionata dalle probabilità di costante insuccesso dell'$i$-esimo:
+
+$ P(X >= x + y | X >= x) = P(X >= y) $
+
+#dimostrazione[
+  $ P(X >= x + y | X >= x) &= P(X >= x + y, X >= x) / P(X > x) \
+    &= P(X >= x + y) / P(X >= x) \
+    &= (1-p)^(cancel(floor(x)) + floor(y))/cancel((1-p)^floor(x)) \
+    &= (1-p)^(floor(y)) = P(X >= y) $
+]
+
+==== Modello di Poisson $X tilde P(lambda)$
+
+È un tipo di distribuzione *discreta* che esprime le probabilità che un certo *numero di eventi* si verificano *contemporaneamente* in un dato intervallo di tempo, sapendo che *mediamente* se ne verifica un numero $lambda$. Tutti gli eventi sono *indipendenti*.
+Il modello ha supporto $D_X = [0, +infinity)$ e $lambda in (0, +infinity)$
+
+$ mr(X tilde P(lambda)) $
+
+#informalmente[
+  Ad esempio, si utilizza una distribuzione di Poisson per misurare il numero di chiamate ricevute in un call-center in un determinato arco temporale.
+]
+
+Un dataset segue il _modello di Poisson_ se possiede le seguenti _caratteristiche_:
+- la distribuzione ha una forma _asimmetrica_ con una lunga _coda verso destra_
+- al crescere di $lambda$ corrisponde _maggiore concentrazione_ di dati intorno al parametro
+- la _media_ campionaria è vicina al parametro $lambda$ e la _varianza_ è uguale a $lambda$
+
+/ Funzione di massa:
+$ p_X (x) = P(X = x)= mr(e^(-lambda) dot (lambda^x)/x! I_[0, +infinity] (x)) $
+
+#figure(caption: [Funzione di massa modello di Poisson], image("poisson-massa.png", width: 40%))
+
+/ Valore atteso:
+
+$ E[X] = mr(lambda) $
+
+#dimostrazione[
+  Usando la definizione:
+  $ E[X] &= sum_(i=0)^(+infinity) i dot p_X (i) \
+    &= sum_(i=1)^(+infinity) i e^(-lambda) (lambda^i)/i! \
+    &= e^(-lambda) sum_(i=1)^(+infinity) i (lambda^i)/i! \
+    &= e^(-lambda) sum_(i=1)^(+infinity) cancel(i) (lambda^i)/(cancel(i)(i-1)!) \
+    &= e^(-lambda) sum_(i=1)^(+infinity) (lambda (lambda^(i-1)))/(i-1)! \
+    &= lambda e^(-lambda) sum_(i=1)^(+infinity) (lambda^(i-1))/(i-1)! $
+
+  Poniamo $j = i-1$ e applichiamo lo sviluppo in serie di Taylor:
+
+  $ &= lambda e^(-lambda) sum_(j=0)^(+infinity) (lambda^j)/(j!) \
+    &= lambda e^(-lambda) e^lambda = lambda $
+
+  #nota[
+    Dal secondo passaggio in poi l'indice della sommatoria $i$ parte da 1 e non da 0. Questo perché moltiplicando tutto per $i$ se $i = 0$ il contributo alla sommatoria sarà nullo.
+  ]
+]
+
+/ Varianza:
+$ "Var"(X) = mr(lambda) $
+
+#dimostrazione[
+  $ E[X^2] = sum_(i=1)^(+infinity) i^2 e^(-lambda) (lambda^i)/i! = mb(lambda^2 + lambda) $
+
+  $ "Var"(X) = mb(E[X^2]) - E[X]^2 = mb(lambda^2 + lambda) - (lambda)^2 = lambda $
+]
+
+/ Relazione tra il modello di Poisson e il #link(<binomiale>)[modello binomiale]:
+// TODO: fare approssimazione binomiale
+
+/ Proprietà di riproducibilità:
+Date due variabili aleatorie $X_1 tilde P(lambda_1)$ e $X_2 tilde P(lambda_2)$ indipendenti, allora: $ X_1 + X_2 tilde P(lambda_1 + lambda_2) $
+
+Se le due variabili aleatorie sono anche identicamente distribuite allora: $ X_1 + X_2 tilde P(2lambda) $
+
+==== Modello ipergeometrico $X tilde H(n, M, N)$
+
+Descrive l'*estrazione* di oggetti binari da un'urna *senza reimmissioni* (in caso ci fossero reimmissioni, potremmo usare il #link(<binomiale>)[modello binomiale]). I parametri sono:
+- $n$: numero di estrazioni
+- $N$: numero di oggetti _"corretti"_
+- $M$: numero di oggetti _"errati"_
+
+Il supporto del modello è $[max(0, n-M), min(n, N)]$.
+
+$ mr(X tilde H(n, M, N)) $
+
+#informalmente[
+  Il #text(blue)[minor numero] di oggetti _corretti_ estraibili è: $max(0, "estrazioni" - "errati") = mb(max(0, n - M))$.
+
+  Il #text(purple)[massimo numero] di oggetti _corretti_ estraibili è: $min("estrazioni", "corretti") = mp(min(n, N))$.
+
+  Di conseguenza, il supporto del modello è: $ [mb(max(0, n-M)), mp(min(n, N))] $
+]
+
+#nota[
+  È possibile indicare il modello anche come $X tilde I(n, M, N)$
+]
+
+/ Funzione di massa:
+
+$ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_[0, n] (x)) $
+
+#figure(caption: [Funzione di massa modello ipergeometrico], image("ipergeometrica-massa.png", width: 40%))
+
+#dimostrazione[
+  Per dimostrare la funzione di massa di basiamo sul calcolo delle disposizioni semplici di $T$ _oggetti_ su $w$ _posti_.
+  #nota[
+    Stiamo usando nuovi nomi per le variabili, che andremo a riconvertire alla fine:
+    - Oggetti totali: $T = N+M$
+    - Posti totali (estrazioni): $w = n$
+    - Oggetti corretti: $C = N$
+    - Oggerri errati: $T-C = M$
+    - Posti oggetti corretti: $g = x$
+    - Posti oggetti errati: $w-g = n-x$
+  ]
+  Dato che siamo in uno #link(<spazio-probabilita>)[spazio equiprobabile], vale la legge: $ P(E) = (|E|) / mo(|Omega|) $
+  Dove l'insieme degli eventi possibili è:
+  $ mo(|Omega|) = T! / (T-w)! $
+  E tutte le possibili sequenze di $w$ oggetti di cui $g$ corretti:
+  $ |E| = mb(o_1) dot mp(o_2) dot mg(o_3) $
+  Dove:
+  - $o_1$ sono tutti i modi di scegliere le $g$ posizioni in cui compare un oggetto corretto
+    $ mb(o_1) = binom(w, g) $
+  - $o_2$ è il numero di scelte possibili per gli oggetti corretti da destinare alle $g$ posizioni senza che siano reimmessi
+    $ mp(o_2) = C! / (C-g)! $
+  - $o_3$ è il numero di scelte possibili per gli oggetti errati da destinare alle posizioni rimanenti
+    $ mg(o_3) = (T-C)! / ((T-C) - (w-g))! $
+  Quindi:
+  $ P(E) = (|E|) / mo(|Omega|) &= mb(binom(w, g)) dot mp(C! / (C-g)!) dot mg((T-C)! / ((T-C) - (w-g))!) dot mo((T-w)! / T!) \
+    &= (binom(C, g) binom(T-C, w-g)) / binom(T, w) = (binom(N, i) binom(M, n-i)) / binom(N+M, n) $
+]
+
+/ Valore atteso:
+
+$ E[X] = n dot p = mr(n dot N/(N+M)) $
+
+#dimostrazione[
+  Scomponiamo la variabile in $n$ variabili #link(<bernoulliano>)[aleatorie bernoulliane] _NON indipendenti_ definite:
+  $ X_i = cases(1 quad "oggetto corretto", 0 quad "oggetto errato") $
+  Essendo bernoulliane, vale:
+  $ P(X_i = 1) = M / (N+M) = E[X_i] = p $
+  Quindi:
+  $ E[X] &= E[sum_(i=1)^n X_i] \
+    &= sum_(i=1)^n E[X_i] = n dot p $
+]
+
+/ Varianza:
+
+$ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
+  &= mr((n N/(N+M)) (1-(N/(N+M))) (1- (n-1)/(N+M-1))) $
+
+#nota[
+  Per $N+M -> infinity$ il modello si semplifica in un #link(<binomiale>)[modello binomiale]
+]
+
+#dimostrazione[
+  Scomponiamo la variabile in $n$ variabili #link(<bernoulliano>)[aleatorie bernoulliane] _NON indipendenti_ come per il valore atteso.
+  $ "Var"(X_i) &= E[X_i] (1-E[X_i]) \
+    &= (N/(N+M)) (1 - N / (N+M)) \
+    &= M / (N+M) dot M / (N+M) \
+    &= mo((N M) / (N+M)^2) $
+  Non essendo indipendenti, è necessario usare la #link(<multivariate-varianza>)[formula generale] della somma di variabili aleatorie:
+  $ mp("Var"(sum_(i=1)^n X_i)) = mg(sum_(i=1)^n) mo("Var"(X_i)) + mg(sum_i^n sum_(i != j)^n) mb("Cov"(X_i, X_j)) $
+  Sappiamo che:
+  $ mb("Cov"(X_i, X_j)) &= E[X_i dot X_j] - E[X_i] dot E[X_j] \
+   &= mr((N M) / ((N + M - 1)(N+M)^2)) $
+  Quindi:
+  $ mp("Var"(X)) &= mg(n) mo((N M)/(N+M)^2) - mg(n(n-1)) dot mr((-N M) / ((N+M-1)(N+M)^2)) \
+   &= n p (1-p) (1 - (n-1)/(N+M-1)) $
+]
 
 = Statistica inferenziale <inferenziale>
 

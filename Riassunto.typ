@@ -1339,7 +1339,7 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
   $
 ]
 
-=== Modelli di distribuzione
+=== Modelli di distribuzione discreti
 
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
@@ -1414,7 +1414,7 @@ $ E[X] = mr(n dot p) $
 / Varianza:
 $ "Var"(X) = mr(n dot p (1-p)) $
 
-/ Relazioni:
+/ Riproducibilità:
 Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
 $ X_1 + X_2 = sum_(i=1) ^n X_(1,i) + sum_(j=1)^m X_(2,j) = sum_(i=1)^(n+m) Y_i = Y $
 dove $Y tilde B(n+m, p)$
@@ -1468,67 +1468,7 @@ $ "Var"(X) = mr((n^2 - 1)/12) $
     &= (n+1)((n-1)/12) = (n^2 - 1)/12 $
 ]
 
-// TODO: finire modello
-
-==== Modello uniforme continuo $X tilde U(a,b)$
-
-// TODO: catu li fa in ordine diverso: prima tutti i discreti, poi tutti i continui
-
-Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*. Il supporto del modello è $D_X = [a, b]$.
-
-$ mr(X tilde U(a,b)) $
-
-/ Funzione di densità di probabilità:
-$ f_X (x) = P(X = x) = mr(1/(b-a) I_[a,b] (x)) $
-
-#figure(caption: [Funzione di densità modello uniforme continuo], image("uniforme-continuo-densita.png", width: 40%))
-
-#dimostrazione[
-  Sappiamo che la $limits(integral)_(-infinity)^(+infinity) f_X (x) dif x$ deve essere uguale a $1$, quindi possiamo ricavare la funzione di densità $f_X$, sostituendola con l'incognita $alpha$:
-
-  $ integral_(-infinity)^(+infinity) a &= integral_(a)^(b) alpha dif x \
-     &= alpha integral_(a)^(b) 1 dif x \
-     &= alpha[x]^b_a \
-     &= alpha (b-a) \
-     &= alpha = 1/(b-a) $
-
-  Possiamo quindi ricavare $f_X$: $ f_X (x) = 1/(b-a) $
-]
-
-/ Funzione di ripartizione:
-$ F_X (x) = P(X <= x) = mr((x-a)/(b-a) I_[a,b] (x) + I_((b,+infinity)) (x)) $
-
-#figure(caption: [Funzione di ripartizione modello uniforme continuo], image("uniforme-continuo-ripartizione.png", width: 40%))
-
-#dimostrazione[
-  $ F_X (x) &= integral_(a)^(x) f_(X)(y) dif y \
-    &= integral_(a)^(x) 1 / (b-a) dif y \
-    &= 1 / (b-a) integral_(a)^(x) 1 dif y \
-    &= 1 / (b-a) [y]^x_a = (x-a)/(b-a) $
-]
-
-/ Valore atteso:
-$ E[X] = mr((a + b) / 2) $
-
-#dimostrazione[
-  $ E[X] &= integral_a^b f_X (x) dif x \
-    &= integral_a^b x dot 1/(b-a) dif x \
-    &= 1/(b-a) integral_a^b x dif x \
-    &= 1/(b-a) dot [x^2 / 2]_a^b \
-    &= 1/(b-a) dot (b^2 - a^2)/2 \
-    &= 1/cancel(b-a) dot ((a+b)cancel((b-a)))/2 \
-    &= (a+b) / 2
-  $
-]
-
-#nota[
-  $ E[X^2] = (a^2 + a b + b^2) / 3  $
-]
-
-/ Varianza:
-$ "Var"(X) = mr(((b-a)^2)/12) $
-
-==== Modello geometrico $X tilde G(p)$
+==== Modello geometrico $X tilde G(p)$ <geometrico>
 
 Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = [0, ..., +infinity)$.
 // TODO: indipendenti ok, ma identicamente distribuiti cosa vuol dire? anche nel binomale devono iid o solo indipendenti?
@@ -1586,7 +1526,7 @@ $ E[X] = mr((1-p)/p) $
 / Varianza:
 $ "Var"(X) = mr((1-p)/p^2) $
 
-/ Proprietà di assenza di memoria:
+/ Assenza di memoria:
 
 Il numero di _fallimenti consecutivi_ (anche se elevato) durante la ripetizione dell'#link(<bernoulliano>)[esperimento Bernoulliano] non ci fornisce _nessuna informazione_ sugli esperimenti successivi.
 
@@ -1601,7 +1541,7 @@ $ P(X >= x + y | X >= x) = P(X >= y) $
     &= (1-p)^(floor(y)) = P(X >= y) $
 ]
 
-==== Modello di Poisson $X tilde P(lambda)$
+==== Modello di Poisson $X tilde P(lambda)$ <poisson>
 
 È un tipo di distribuzione *discreta* che esprime le probabilità che un certo *numero di eventi* si verificano *contemporaneamente* in un dato intervallo di tempo, sapendo che *mediamente* se ne verifica un numero $lambda$. Tutti gli eventi sono *indipendenti*.
 Il modello ha supporto $D_X = [0, +infinity)$ e $lambda in (0, +infinity)$
@@ -1654,15 +1594,31 @@ $ "Var"(X) = mr(lambda) $
   $ "Var"(X) = mb(E[X^2]) - E[X]^2 = mb(lambda^2 + lambda) - (lambda)^2 = lambda $
 ]
 
-/ Relazione tra il modello di Poisson e il #link(<binomiale>)[modello binomiale]:
-// TODO: fare approssimazione binomiale
+/ Approssimazione #link(<binomiale>)[binomiale]:
 
-/ Proprietà di riproducibilità:
+È possibile usare una variabile aleatoria di Poisson per approssimare una variabile aleatoria #link(<binomiale>)[binomiale] di parametri $(n, p)$, quando $n$ è molto grande e $p$ molto piccolo.
+
+$ X tilde B(n, p) approx X tilde P(n dot p) $
+
+#dimostrazione[
+  Poniamo $lambda = n p$.
+  $ P(X = i) &= binom(n, i) p^i (1-p)^(n-i) \
+    &= binom(n, i)(lambda/n)^i (1- lambda/n)^(n-i) \
+    &= (n(n-1)...(n-i+1)cancel((n-i)!))/(cancel((n-i)!) dot i!) dot lambda^i / n^i (1-lambda/n)^(n-i) \
+    &= (n(n-1)...(n-i+1))/n^i dot lambda^i / i! dot (1-lambda/n)^(n-i) \
+    &= mo(n/n dot (n-1)/n dot ... dot (n-i+1)/n) dot lambda^i / i! dot (1-lambda/n)^(mb(n)-mp(i)) $
+  Dato che $n -> +infinity$ allora $mb((1-lambda/n)^n) approx e^(-lambda)$, $mp((1-lambda/n)^i) approx 1$, $mo(n/n dot (n-1)/n dot ... dot (n-i+1)/n) approx 1 $
+  Allora:
+  $ &= mo(1) dot lambda^i/i! dot mb(e^(-lambda)) dot mp(1) \
+  &= P(X = i) approx lambda^i/i! e^(-lambda) $
+]
+
+/ Riproducibilità:
 Date due variabili aleatorie $X_1 tilde P(lambda_1)$ e $X_2 tilde P(lambda_2)$ indipendenti, allora: $ X_1 + X_2 tilde P(lambda_1 + lambda_2) $
 
 Se le due variabili aleatorie sono anche identicamente distribuite allora: $ X_1 + X_2 tilde P(2lambda) $
 
-==== Modello ipergeometrico $X tilde H(n, M, N)$
+==== Modello ipergeometrico $X tilde H(n, M, N)$ <ipergeometrico>
 
 Descrive l'*estrazione* di oggetti binari da un'urna *senza reimmissioni* (in caso ci fossero reimmissioni, potremmo usare il #link(<binomiale>)[modello binomiale]). I parametri sono:
 - $n$: numero di estrazioni
@@ -1758,7 +1714,276 @@ $ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
    &= n p (1-p) (1 - (n-1)/(N+M-1)) $
 ]
 
+=== Modelli di distribuzione continui
+
+Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
+
+==== Modello uniforme continuo $X tilde U(a,b)$
+
+Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*. Il supporto del modello è $D_X = [a, b]$.
+
+$ mr(X tilde U(a,b)) $
+
+/ Funzione di densità di probabilità:
+$ f_X (x) = P(X = x) = mr(1/(b-a) I_[a,b] (x)) $
+
+#figure(caption: [Funzione di densità modello uniforme continuo], image("uniforme-continuo-densita.png", width: 40%))
+
+#dimostrazione[
+  Sappiamo che la $limits(integral)_(-infinity)^(+infinity) f_X (x) dif x$ deve essere uguale a $1$, quindi possiamo ricavare la funzione di densità $f_X$, sostituendola con l'incognita $alpha$:
+
+  $ integral_(-infinity)^(+infinity) a &= integral_(a)^(b) alpha dif x \
+     &= alpha integral_(a)^(b) 1 dif x \
+     &= alpha[x]^b_a \
+     &= alpha (b-a) \
+     &= alpha = 1/(b-a) $
+
+  Possiamo quindi ricavare $f_X$: $ f_X (x) = 1/(b-a) $
+]
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) = mr((x-a)/(b-a) I_[a,b] (x) + I_((b,+infinity)) (x)) $
+
+#figure(caption: [Funzione di ripartizione modello uniforme continuo], image("uniforme-continuo-ripartizione.png", width: 40%))
+
+#dimostrazione[
+  $ F_X (x) &= integral_(a)^(x) f_(X)(y) dif y \
+    &= integral_(a)^(x) 1 / (b-a) dif y \
+    &= 1 / (b-a) integral_(a)^(x) 1 dif y \
+    &= 1 / (b-a) [y]^x_a = (x-a)/(b-a) $
+]
+
+/ Valore atteso:
+$ E[X] = mr((a + b) / 2) $
+
+#dimostrazione[
+  $ E[X] &= integral_a^b f_X (x) dif x \
+    &= integral_a^b x dot 1/(b-a) dif x \
+    &= 1/(b-a) integral_a^b x dif x \
+    &= 1/(b-a) dot [x^2 / 2]_a^b \
+    &= 1/(b-a) dot (b^2 - a^2)/2 \
+    &= 1/cancel(b-a) dot ((a+b)cancel((b-a)))/2 \
+    &= (a+b) / 2
+  $
+]
+
+#nota[
+  $ E[X^2] = (a^2 + a b + b^2) / 3  $
+]
+
+/ Varianza:
+$ "Var"(X) = mr(((b-a)^2)/12) $
+
+
+==== Modello esponenziale $X tilde E(lambda)$ <esponenziale>
+
+Modello di variabili aleatorie continue, rappresenta una distribuzione in cui la funzione di densità ha *forma esponenziale*, spesso $X$ rappresenta il tempo tra il verificarsi di eventi. Il parametro $lambda in bb(R)^+$ indica la forma della _funzione esponenziale_ e il supporto è $D_X = bb(R)^+$.
+
+$ mr(X tilde E(lambda)) $
+
+#informalmente[
+  Il modello si usa spesso per modellare il tempo che intercorre tra eventi:
+
+  - $X$ è il _tempo effettivo_ che l'evento ci mette ad avvenire
+  - $lambda$ è la _forma della curva_, più è piccola, più è piatta
+]
+
+/ Funzione di densità:
+$ f_X (x) = mr(lambda e^(-lambda x) I_(bb(R)^+) (x)) $
+
+#figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-densita.png",  width: 40%))
+
+/ Funzione di ripartizione:
+$ F_X (x) = mr((1 - e^(-lambda x)) I_(bb(R)^+) (x)) $
+
+#dimostrazione[
+  $ F_X (x) &= integral_0^x f_X (u) dif u \
+    &= integral_0^x lambda e^(-lambda u) dif u $
+  Risolvo per sostituzione, con $z = lambda u$, quindi $u = z/lambda$ e $dif u = 1/lambda dif z$:
+  $ &= integral_0^(lambda x) cancel(lambda) e^(-z) 1/cancel(lambda) dif z \
+    &= [-e^(-z)]_0^(lambda x) \
+    &= -e^(-lambda x) - e^0 = 1 - e^(-lambda x) $
+]
+
+#figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-ripartizione.png",  width: 40%))
+
+/ Valore atteso:
+$ E[X] = mr(1/lambda) $
+
+#dimostrazione[
+  $ E[X] &= integral_0^(+infinity) x f_X (x) dif x $
+  Risolvo per parti:
+  $ &= [-x e^(-lambda x)]_0^(+infinity) + integral_0^(+infinity) e^(-lambda x) dif x \
+    &= integral_0^(+infinity) e^(-lambda x) dif x \
+    &= 1/lambda dot underbrace(integral_0^(+infinity) lambda e^(-lambda x) dif x, "per definizione di densità" =1) = 1/lambda $
+]
+
+#nota[
+  $ E[X^2] = 2/lambda^2 $
+]
+
+/ Varianza:
+$ "Var"(X) = mr(1/lambda^2) $
+
+#dimostrazione[
+  $ "Var"(X) = E[X^2] - E[X]^2 = 2/lambda^2 - 1/lambda^2 = 1/lambda^2 $
+]
+
+/ Assenza di memoria:
+
+Unica distribuzione continua con questa proprietà:
+$ P(X >= s + t | X >= s) = P(X >= t) $
+
+#dimostrazione[
+  $ P(X >= s + t | X >= s) &= P(X >= t) \
+    P(X >= s + t, X >= s)/P(X >= s) &= P(X >= t) \
+    P(X >= s + t)/P(X >= s) &= P(X >= t) \
+    P(X >= s + t) &= P(X >= t) dot P(X >= s) $
+  Ricordiamo che $P(X>= x) = 1- F_X (x) = e^(-lambda x)$
+  Quindi:
+  $ e^(-lambda (s+t)) = e^(-lambda t) dot e^(-lambda s) $
+  Che non è altro che l'identità, come volevasi dimostrare
+]
+
+/ Scalatura:
+Sia $X tilde E(lambda)$ e $Y = a X$ (scalatura con $a > 0$), allora $ Y tilde E(lambda/a) $
+
+#dimostrazione[
+  $ F_Y (x) &= P(Y <= x) \
+    &= P(a X <= x) \
+    &= P(X <= x/a) $
+  $ F_X (x/a) &= 1 - e^(-lambda x/a) \
+    &= 1 - e^(-lambda/a x) $
+  Sostituiamo $lambda' = lambda/a$, per cui:
+  $ F_Y (x) = 1-e^(-lambda' x) ==> Y tilde E(lambda') = E(lambda/a) $
+]
+
+/ Proprietà su massimo e minimo:
+Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Y$ il massimo di esse $Y = max_i X_i$, allora:
+$ F_Y (x) = product_(i=1)^n F_(X_i) (x) $
+
+Nel caso le variabili aleatorie siano #link(<iid>)[indipendenti identicamente distribuite], allora:
+$ F_Y (x) = F_X (x)^n $
+
+Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Z$ il minimo di esse $Z = min_i X_i$, allora:
+$ F_Z (x) = 1 - product_(i=1)^n (1 - F_(X_i) (x)) $
+
+Nel caso le variabili aleatorie siano #link(<iid>)[indipendenti identicamente distribuite], allora:
+$ F_Z (x) = 1- (1-F_X (x))^n $
+
+Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Z = min_i X_i$. Se $forall i, X_i tilde E(lambda_i)$, allora:
+$ Z tilde E(sum_(i=1)^n lambda_i) $
+
+Se $X tilde E(lambda)$ e $Y = c X$ con $c in R^+$, allora $Y$ è una variabile aleatoria esponenziale di parametro $lambda/c$:
+$ F_Y (x) = 1 - e^(-lambda/c x) $
+
+==== Modello Gaussiano (o normale) $X tilde N(mu, sigma)$ <gaussiano>
+
+Modello estremamente diffuso in natura, ha la classica forma a campana.
+
+#attenzione[
+  Questo modello non ha funzione indicatrice, è definito su tutto $bb(R)$
+]
+
+$ mr(X tilde N(mu, sigma)) $
+
+/ Funzione di densità:
+$ f_X (x) = P(X = x) = mr(1/(sqrt(2 pi) sigma) dot e^(-(x-mu)^2 / (2 sigma^2))) $
+
+/ Funzione di ripartizione:
+$ F_X (x) = P(X <= x) = mr(integral_(-infinity)^x 1 / (sqrt(2 pi) sigma) dot e^((- (u - mu)^2)/(2 sigma^2)) dif u) $
+
+/ Valore atteso:
+$ E[X] = mr(mu) $
+
+/ Varianza:
+$ "Var"(X) = mr(sigma^2) $
+
+/ Riproducibilità:
+Date le variabili aleatorie $X_1, ... X_n$ gaussiane e indipendenti, dove $forall i, X_i tilde N(mu_i, sigma_i)$, allora:
+$ Y tilde N(sum_(i=1)^n mu_i, sqrt(sum_(i=1)^n sigma^2_i)) $
+
+#nota[
+  Questa proprietà è condivisa dal modello #link(<binomiale>)[binomiale] e #link(<ipergeometrico>)[ipergeometrico]
+]
+
+/ Eventi simmetrici:
+Una qualsiasi variabile che segue la distribuzione normale ha una curva simmetrica rispetto al centro ($mu$), di conseguenza:
+$ F_X (-x) = 1 - F_X (x) $
+
+#figure(caption: [Le due parti non evidenziate della curva sono identiche, quindi $F(-1) = 1 - F(1)$], image("normale-simmetria.png",  width: 40%))
+
+===== Distribuzione normale standard
+
+Siano $X tilde N(mu, sigma^2)$ e $Y = a X + b$ con $a,b in bb(R), a != 0$, allora:
+$ Y tilde N(a mu +b, a^2, sigma^2) $
+
+Data una qualsiasi variabile aleatoria di distribuzione normale, possiamo calcolare la sua *standardizzazione*, indicata con $Z$:
+$ Z = (X - mu)/sigma = Z tilde N(0,1) $
+
+#dimostrazione[
+  Valore atteso:
+  $ E[Z] &= 1/sigma E[X] - mu/sigma \
+    &= 1/sigma (E[X] - mu) \
+    &= 1/sigma (mu - mu) = 0 $
+  Varianza:
+  $ "Var"(Z) &= 1/sigma^2 "Var"(X) \
+    &= 1/cancel(sigma^2) cancel("Var"(X)) = 1 $
+]
+
+/ Funzione di ripartizione $Phi$:
+
+La *funzione di densità* e la *funzione di ripartizione* di una variabile aleatoria normale standard si indicano con $phi_Z (x)$ e $Phi_Z (x)$:
+$ Phi_Z (x) = mr(1/sqrt(2 pi) integral_(-infinity)^x e^(-(u^2)/2) dif u) $
+
+/ Ricavare funzione di ripartizione:
+Data una qualsiasi variabile aleatoria $X tilde N(mu, sigma)$, è possibile trovare la funzione di ripartizione standard:
+$ F_X (x) = Phi((x-mu)/sigma) $
+
+#informalmente[
+  Portando una curva normale in una curva standard, _perdiamo informazione_ (la curva standard è appunto standard, sempre uguale). Per non perdere informazioni, viene applicata la _stessa trasformazione_ direttamente al parametro della funzione $Phi$ nota della variabile standardizzata:
+  $ F_X (x) = Phi_Z ((x-mu)/sigma) $
+
+  La dimostrazione non è altro che applicare la stessa trasformazione da entrambe le parti della funzione di probabilità, in modo da ricondurci alla funzione nota $F_Z$:
+  $ P(X <= x) = P((X-mu)/sigma <= (x-mu)/sigma) $
+]
+
+#dimostrazione[
+  $ F_X (x) &= P(X <= x) \
+    &= P((X-mu)/sigma <= (x-mu)/sigma) \
+    &= P(Z <= (x - mu)/sigma) \
+    &= F_Z ((x-mu)/sigma) = Phi((x-mu)/sigma) $
+]
+
+#nota[
+  Si può usare la stessa tecnica per calcolare la probabilità tra due insiemi:
+  $ P(a <= x <= b) = Phi((b-mu)/sigma) - Phi((a-mu)/sigma) $
+]
+
+=== Risultati notevoli e proprietà dei modelli
+
+Proprietà sui modelli:
+
+- #link(<binomiale>)[Modello binomiale]:
+  - riproducibilità
+- #link(<geometrico>)[Modello geometrico]:
+  - assenza di memoria
+- #link(<poisson>)[Modello di Poisson]:
+  - approssimazione binomiale
+  - riproducibilità
+- #link(<esponenziale>)[Modello esponenziale]:
+  - assenza di memoria
+  - scalatura
+  - proprietà su massimo e minimo
+- #link(<gaussiano>)[Modello Gaussiano]:
+  - standardizzazione
+  - riproducibilità
+
+// TODO: tabellone riassuntivo
+
 = Statistica inferenziale <inferenziale>
+
+// TODO: fare anche metodo di massima verosomiglianza
 
 = Cheatsheet Python <python>
 

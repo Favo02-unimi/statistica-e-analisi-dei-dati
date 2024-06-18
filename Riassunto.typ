@@ -73,9 +73,6 @@
 
   #text("Ultima modifica:")
   #datetime.today().display("[day]/[month]/[year]")
-  #text(" - ")
-  #link("https://github.com/Favo02/statistica-e-analisi-dei-dati")[Codice sorgente]
-
 ]))
 
 #set par(linebreaks: "optimized")
@@ -83,7 +80,14 @@
 // impostazioni pagine
 #set page(
   numbering: "1",
+  number-align: bottom + right,
   header: [
+    #set text(8pt)
+    _Statistica e Analisi dei dati_
+    #h(1fr)
+    _Luca Favini, Matteo Zagheno_
+  ],
+  footer: [
     #set text(8pt)
 
     #context {
@@ -95,7 +99,7 @@
         return
       }
 
-      let headings_shown = (1, 2)
+      let headings_shown = (1, 2, 3, 4)
       let heading_max_level = calc.max(..headings_shown)
 
       let number = level.display((..nums) => nums
@@ -117,9 +121,9 @@
       .filter(it => it != none)
       .join([ --- ])
 
-      [_Statistica e Analisi dei dati_]
-      h(1fr)
       [_ #number #h(0.4em) #heading_text _]
+      h(1fr)
+      text(12pt)[#counter(page).display("1")]
     }
   ],
 )
@@ -133,8 +137,8 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 - #link(<descrittiva>)[Statistica descrittiva]: esposizione e *condensazione* dei dati, cercando di limitarne l'incertezza;
 - #link(<probabilità>)[Calcolo delle probabilità]: creazione e analisi di modelli in situazioni di *incertezza*;
 - #link(<inferenziale>)[Statistica inferenziale]: *approssimazione* degli esiti mancanti, attraverso modelli probabilistici;
-- _Appendice: #link(<python>)[Cheatsheet Python]:_ raccolta funzioni/classi Python utili ai fini dell'esame _(e non)_.
-- _Appendice: #link(<integrali>)[Cheatsheet integrali]:_ come svolgere gli integrali.
+- _Appendice: #link(<python>)[Cheatsheet Python]:_ raccolta funzioni/classi Python utili ai fini dell'esame _(e non)_;
+- _Appendice: #link(<matematica>)[Cheatsheet matematica]:_ trucchi per risolvere/semplificare equazioni, serie, integrali.
 
 // indice
 #outline(
@@ -1981,10 +1985,28 @@ Proprietà sui modelli:
 
 // TODO: tabellone riassuntivo
 
+=== Teorema centrale del limite
+
+Siano $X_1, ... X_n$ variabili aleatorie #link(<iid>)[indipendenti identicamente distribuite], ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
+Allora, per $n -> +infinity$ le variabili sono distribuite in modo *approssimativamente normale*:
+$ sum_(i=1)^n X_i tilde.dot N(n dot mu, sigma sqrt(n)) $
+
+Questa distribuzione si può standardizzare:
+$ (limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
+
+Quindi per $n$ grande e $x$ qualsiasi, vale l'approssimazione:
+$ P((limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
+
+#nota[
+  È possibile approssimare una variabile #link(<binomiale>)[binomiale] $X tilde B(n, p)$ con $n$ grande utilizzando il teorema:
+  $ X = sum_(i=1)^n X_i tilde.dot N(n p, sqrt(n p (1-p))) \
+  (x - n p)/sqrt(n p (1-p)) tilde.dot N(0,1) $
+]
+
 = Statistica inferenziale <inferenziale>
 
 // TODO: fare anche metodo di massima verosomiglianza
 
 = Cheatsheet Python <python>
 
-= Cheatsheet integrali <integrali>
+= Cheatsheet matematica <matematica>

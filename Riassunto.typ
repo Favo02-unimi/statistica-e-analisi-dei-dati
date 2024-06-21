@@ -90,41 +90,29 @@
   footer: [
     #set text(8pt)
 
-    #context {
-      let selector = selector(heading).before(here())
-      let level = counter(selector)
-      let headings = query(selector)
-
-      if headings.len() == 0 {
-        return
-      }
-
-      let headings_shown = (1, 2, 3, 4)
-      let heading_max_level = calc.max(..headings_shown)
-
-      let number = level.display((..nums) => nums
-        .pos()
-        .slice(0, calc.min(heading_max_level, nums.pos().len()))
-        .map(str)
-        .join("."))
-
-      let heading_text = headings_shown.map((i) => {
-        let headings_at_this_level = headings
-          .filter(h => h.level == i)
-
-        if headings_at_this_level.len() == 0 { return none }
-
-        headings_at_this_level
-          .last()
-          .body
-      })
-      .filter(it => it != none)
-      .join([ --- ])
-
-      [_ #number #h(0.4em) #heading_text _]
-      h(1fr)
-      text(12pt)[#counter(page).display("1")]
+    #let numberingH(c)={
+      return numbering(c.numbering,..counter(heading).at(c.location()))
     }
+
+    #let currentH(level: 1)={
+      let elems = query(selector(heading).after(here()))
+
+      if elems.len() != 0 and elems.first().location().page() == here().page() {
+        return [#numberingH(elems.first()) #elems.first().body]
+      } else {
+        elems = query(selector(heading).before(here()))
+        if elems.len() != 0 {
+          return [#numberingH(elems.last()) #elems.last().body]
+        }
+      }
+      return ""
+    }
+
+    #context[
+      _ #currentH() _
+      #h(1fr)
+      #text(12pt)[#counter(page).display("1")]
+    ]
   ],
 )
 
@@ -137,6 +125,7 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 - #link(<descrittiva>)[Statistica descrittiva]: esposizione e *condensazione* dei dati, cercando di limitarne l'incertezza;
 - #link(<probabilità>)[Calcolo delle probabilità]: creazione e analisi di modelli in situazioni di *incertezza*;
 - #link(<inferenziale>)[Statistica inferenziale]: *approssimazione* degli esiti mancanti, attraverso modelli probabilistici;
+- _Appendice: #link(<modelli>)[Cheatsheet variabili aleatorie e modelli]:_ riassunto formule e proprietà delle variabili aleatorie e dei modelli;
 - _Appendice: #link(<python>)[Cheatsheet Python]:_ raccolta funzioni/classi Python utili ai fini dell'esame _(e non)_;
 - _Appendice: #link(<matematica>)[Cheatsheet matematica]:_ trucchi per risolvere/semplificare equazioni, serie, integrali.
 
@@ -295,19 +284,19 @@ Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1
 È un valore numerico che fornisce una misura di quanto le due variabili varino assieme.
 Dato un campione bivariato definiamo la *covarianza campionaria* come:
 
-$ op("Cov")(x, y) = 1/(n-1)sum_(i=1)^n (x_i-overline(x))(y_i-overline(y)) $
+$ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i-overline(x))(y_i-overline(y)) $
 
 Metodo alternativo di calcolo:
 
-$ op("Cov")(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
+$ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 
 #informalmente[
   Intuitivamente c'è una *correlazione diretta* se al crescere di $x$ cresce anche $y$ o al descrescere di $x$ decresce anche $y$, dato che il contributo del loro prodotto alla sommatoria sarà positivo. Quindi se $x$ e $y$ hanno segno concorde allora la correlazione sarà _diretta_, altrimenti _indiretta_.
 ]
 
-- $op("Cov")(x, y) > 0$ probabile correlazione diretta
-- $op("Cov")(x, y) tilde.eq 0$ correlazione improbabile
-- $op("Cov")(x, y) < 0$ probabile correlazione indiretta
+- $"Cov"(x, y) > 0$ probabile correlazione diretta
+- $"Cov"(x, y) tilde.eq 0$ correlazione improbabile
+- $"Cov"(x, y) < 0$ probabile correlazione indiretta
 
 #figure(caption: [Correlazione lineare _diretta_ (sinistra) e _indiretta_ (destra)],
 [
@@ -399,9 +388,9 @@ Dove $s$ è la varianza campionaria standard.
 
 #attenzione[
    La #link(<covarianza>)[covarianza campionaria] o l'#link(<correlazione-lineare>)[indice di correlazione lineare] $tilde.eq 0$ non implicano l'indipendenza del campione, ma è vero il contrario:
-  $ op("Cov")(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
-  $ rho(x, y) tilde.eq 0 quad arrow.r.double.not quad op("Indipendenza") $
-  $ op("Indipendenza") quad arrow.r.double quad rho(x, y) tilde.eq op("Cov")(x, y) tilde.eq 0 $
+  $ "Cov"(x, y) tilde.eq 0 quad arrow.r.double.not quad "Indipendenza" $
+  $ rho(x, y) tilde.eq 0 quad arrow.r.double.not quad "Indipendenza" $
+  $ "Indipendenza" quad arrow.r.double quad rho(x, y) tilde.eq "Cov"(x, y) tilde.eq 0 $
 ]
 
 == Indici di eterogeneità
@@ -450,7 +439,7 @@ Un indice di concentrazione è un indice statistico che misura in che modo un _b
 
 / Distruzione del bene: $a_1, a_2, ... a_n$ indica la quantità ordinata in modo *non decrescente*, del bene posseduta dall'individuo $i$
 / Media: $overline(a)$ indica la quantità media posseduta da un individuo
-/ Totale: $op("TOT") = n overline(a)$ indica il totale del bene posseduto
+/ Totale: $"TOT" = n overline(a)$ indica il totale del bene posseduto
 
 - Concentrazione _massima_ (*sperequato*): un individuo possiete tutta la quantità $a_(1..n-1) = 0, quad a_n = n overline(a)$
 - Concentrazione _minima_ (*equo*): tutti gli individui possiedono la stessa quantità $a_(1..n) = overline(a)$
@@ -461,7 +450,7 @@ La curva di Lorenz è una rappresentazione *grafica* della _distribuzione_ di un
 
 Dati:
 - $F_i = i/n$: posizione percentuale dell'osservazione i nell'insieme
-- $Q_i = 1/op("TOT") limits(sum)_(k=1)^i a_k$
+- $Q_i = 1/"TOT" limits(sum)_(k=1)^i a_k$
 
 La tupla $(F_i, Q_i)$ indica che il $100 dot F_i%$ degli individui detiene il $100 dot Q_i%$ della quantità totale.
 
@@ -1116,10 +1105,10 @@ $ E[X] = sum_i x_i dot P(X = x_i) = sum_i x_i dot p(x_i) $
 ==== Varianza
 
 Sia $X$ una variabile aleatoria di media $mu$, la varianza di $X$ è:
-$ op("Var")(X) = G_X^2 = E[(X - mu)^2] $
+$ "Var"(X) = G_X^2 = E[(X - mu)^2] $
 
 #nota[
-  Formula alternativa per la varianza: $ op("Var")(X) &= E[(X - mu)^2] \
+  Formula alternativa per la varianza: $ "Var"(X) &= E[(X - mu)^2] \
   &= E[X^2 - 2 mu X + mu^2] \
   &= E[X^2] - 2 mu E[X] + mu^2 \
   &= E[X^2] - 2mu^2 + mu^2 \
@@ -1129,10 +1118,10 @@ $ op("Var")(X) = G_X^2 = E[(X - mu)^2] $
 
 *Proprietà* varianza:
 
-- la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_ $ op("Var")(I) = P(A) dot P(overline(A)) $
-- la varianza non opera in modo lineare: $ op("Var")(a X + b) = a^2 op("Var")(X) $
+- la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_ $ "Var"(I) = P(A) dot P(overline(A)) $
+- la varianza non opera in modo lineare: $ "Var"(a X + b) = a^2 "Var"(X) $
 
-/ Deviazione standard: $sigma_X = sqrt(op("Var")(X))$
+/ Deviazione standard: $sigma_X = sqrt("Var"(X))$
 
 === Variabili aleatorie multivariate
 
@@ -1211,11 +1200,11 @@ $ E[product_i X_i] = product_i E[X_i] $
 ==== Covarianza
 
 Siano $X$ e $Y$ due variabili aleatorie di media $mu_X$ e $mu_Y$, la loro _covarianza_ è:
-$ op("Cov")(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
+$ "Cov"(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
 
 #nota[
   Formula alternativa:
-  $ op("Cov")(X, Y) &= [X Y - mu_X Y - mu_Y X + mu_X mu_Y] \
+  $ "Cov"(X, Y) &= [X Y - mu_X Y - mu_Y X + mu_X mu_Y] \
     &= E[X Y] - mu_X E[Y] - mu_y E[X] + mu_X mu_Y \
     &= E[X Y] - E[X] E[Y]
   $
@@ -1223,19 +1212,19 @@ $ op("Cov")(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
 
 *Proprietà* della covarianza:
 
-- simmetria: $op("Cov")(X, Y) = op("Cov")(Y, X)$
-- generalizzazione concetto di varianza: $op("Cov")(X, X) = op("Var")(X)$
+- simmetria: $"Cov"(X, Y) = "Cov"(Y, X)$
+- generalizzazione concetto di varianza: $"Cov"(X, X) = "Var"(X)$
 - linearità:
-  - $op("Cov")(a X, Y) = op("Cov")(X, a Y) = a op("Cov")(X, Y)$
-  - $op("Cov")(X + Y, Z) = op("Cov")(X, Z) + op("Cov")(Y, Z)$
+  - $"Cov"(a X, Y) = "Cov"(X, a Y) = a "Cov"(X, Y)$
+  - $"Cov"(X + Y, Z) = "Cov"(X, Z) + "Cov"(Y, Z)$
 
 ==== Varianza <multivariate-varianza>
 
 Siano $X$ e $Y$ due variabili aleatorie la loro _varianza_ della loro _somma_ è:
-$ op("Var")(X + Y) = op("Var")(X) + op("Var")(Y) + 2 op("Cov")(X, Y) $
+$ "Var"(X + Y) = "Var"(X) + "Var"(Y) + 2 "Cov"(X, Y) $
 
 È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
-$ op("Var")(sum_i^n X_i) = sum_i^n op("Var")(X_i) + sum_i^n sum_(j, j != i)^n op("Cov")(X_i, X_j) $
+$ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
 
 === Variabili aleatorie continue <aleatorie-continue>
 
@@ -1277,7 +1266,7 @@ $ E[X] = integral_(-infinity)^(+infinity) x dot f_(X)(x) dif x $
 ==== Varianza
 
 La _varianza_ di una variabile aleatoria continua vale:
-$ op("Var")(X) = E[(X - mu)^2] = integral_(-infinity)^(+infinity) (x - mu)^2 f_(X)(x) dif x $
+$ "Var"(X) = E[(X - mu)^2] = integral_(-infinity)^(+infinity) (x - mu)^2 f_(X)(x) dif x $
 
 ==== Disuguaglianza di Markov
 
@@ -1320,7 +1309,7 @@ $ P(X >= a) <= E[X] / a $
   Permette di ottenere un limite superiore alla probabilità che il valore di una variabile aleatoria si discosti dal suo valore atteso di una quantità maggiore o uguale a una soglia scelta
 ]
 
-Sia $X$ una _variabile aleatoria_ di valore atteso $E[X] = mu$ e varianza $op("Var")(X) = sigma^2$, allora:
+Sia $X$ una _variabile aleatoria_ di valore atteso $E[X] = mu$ e varianza $"Var"(X) = sigma^2$, allora:
 $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 
 #informalmente[
@@ -1371,7 +1360,7 @@ $ E[X] = mr(p) $
 ]
 
 / Varianza:
-$ op("Var")(X) = mr(p(1-p)) $
+$ "Var"(X) = mr(p(1-p)) $
 
 #dimostrazione[
   $ "Var"(X) &= E[(X - mu)^2] \
@@ -1423,7 +1412,7 @@ Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
 $ X_1 + X_2 = sum_(i=1) ^n X_(1,i) + sum_(j=1)^m X_(2,j) = sum_(i=1)^(n+m) Y_i = Y $
 dove $Y tilde B(n+m, p)$
 
-==== Modello uniforme discreto $X tilde U(n)$
+==== Modello uniforme discreto $X tilde U(n)$ <uniforme-discreto>
 
 Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Il supporto del modello è $D_X = [1, n]$.
 
@@ -1480,7 +1469,7 @@ Il numero di *insuccessi successivi* prima che si verifichi un esprimento positi
 $ mr(X tilde G(p)) $
 
 / Funzione di massa:
-$ p_X (x) = P(X = x) = mr(p(1-p)^x I_[0, +infinity) (x)) $
+$ p_X (x) = P(X = x) = mr(p(1-p)^x I_{0, ..., +infinity} (x)) $
 
 #informalmente[
   La funzione di massa equivale a calcolare le probabilità che accadano $x$ _insuccessi_, quindi $(1-p)^x$ a cui succede un _successo_ $dot p$, ottenenendo $p dot (1-p)^x$.
@@ -1647,7 +1636,7 @@ $ mr(X tilde H(n, M, N)) $
 
 / Funzione di massa:
 
-$ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_[0, n] (x)) $
+$ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_{0, ..., n} (x)) $
 
 #figure(caption: [Funzione di massa modello ipergeometrico], image("ipergeometrica-massa.png", width: 40%))
 
@@ -1680,8 +1669,8 @@ $ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_[0, n] 
 ]
 
 / Valore atteso:
-
-$ E[X] = n dot p = mr(n dot N/(N+M)) $
+// TODO: controllare che sia giusto
+$ E[X] = n dot p = mr(n^2 N/(N+M)) $
 
 #dimostrazione[
   Scomponiamo la variabile in $n$ variabili #link(<bernoulliano>)[aleatorie bernoulliane] _NON indipendenti_ definite:
@@ -1694,7 +1683,7 @@ $ E[X] = n dot p = mr(n dot N/(N+M)) $
 ]
 
 / Varianza:
-
+// TODO: controllare che sia giusto
 $ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
   &= mr((n N/(N+M)) (1-(N/(N+M))) (1- (n-1)/(N+M-1))) $
 
@@ -1722,7 +1711,7 @@ $ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
 
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
-==== Modello uniforme continuo $X tilde U(a,b)$
+==== Modello uniforme continuo $X tilde U(a,b)$ <uniforme-continuo>
 
 Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*. Il supporto del modello è $D_X = [a, b]$.
 
@@ -1793,12 +1782,12 @@ $ mr(X tilde E(lambda)) $
 ]
 
 / Funzione di densità:
-$ f_X (x) = mr(lambda e^(-lambda x) I_(bb(R)^+) (x)) $
+$ f_X (x) = mr(lambda e^(-lambda x) I_[0, +infinity) (x)) $
 
 #figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-densita.png",  width: 40%))
 
 / Funzione di ripartizione:
-$ F_X (x) = mr((1 - e^(-lambda x)) I_(bb(R)^+) (x)) $
+$ F_X (x) = mr((1 - e^(-lambda x)) I_[0, +infinity) (x)) $
 
 #dimostrazione[
   $ F_X (x) &= integral_0^x f_X (u) dif u \
@@ -1892,10 +1881,10 @@ Modello estremamente diffuso in natura, ha la classica forma a campana.
 $ mr(X tilde N(mu, sigma)) $
 
 / Funzione di densità:
-$ f_X (x) = P(X = x) = mr(1/(sqrt(2 pi) sigma) dot e^(-(x-mu)^2 / (2 sigma^2))) $
+$ f_X (x) = P(X = x) = mr(1/(sigma sqrt(2 pi)) dot e^(-(x-mu)^2 / (2 sigma^2))) $
 
 / Funzione di ripartizione:
-$ F_X (x) = P(X <= x) = mr(integral_(-infinity)^x 1 / (sqrt(2 pi) sigma) dot e^((- (u - mu)^2)/(2 sigma^2)) dif u) $
+$ F_X (x) = P(X <= x) = mr(integral_(-infinity)^x 1 / (sigma sqrt(2 pi)) dot e^((- (x - mu)^2)/(2 sigma^2)) dif x) $
 
 / Valore atteso:
 $ E[X] = mr(mu) $
@@ -1964,27 +1953,6 @@ $ F_X (x) = Phi((x-mu)/sigma) $
   $ P(a <= x <= b) = Phi((b-mu)/sigma) - Phi((a-mu)/sigma) $
 ]
 
-=== Risultati notevoli e proprietà dei modelli
-
-Proprietà sui modelli:
-
-- #link(<binomiale>)[Modello binomiale]:
-  - riproducibilità
-- #link(<geometrico>)[Modello geometrico]:
-  - assenza di memoria
-- #link(<poisson>)[Modello di Poisson]:
-  - approssimazione binomiale
-  - riproducibilità
-- #link(<esponenziale>)[Modello esponenziale]:
-  - assenza di memoria
-  - scalatura
-  - proprietà su massimo e minimo
-- #link(<gaussiano>)[Modello Gaussiano]:
-  - standardizzazione
-  - riproducibilità
-
-// TODO: tabellone riassuntivo
-
 === Teorema centrale del limite
 
 Siano $X_1, ... X_n$ variabili aleatorie #link(<iid>)[indipendenti identicamente distribuite], ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
@@ -2005,8 +1973,212 @@ $ P((limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
 
 = Statistica inferenziale <inferenziale>
 
+La statistica inferenziale vuole _analizzare_ e _trarre risultati_ da campioni selezionati da _grandi popolazioni_. Viene ipotizzato che i valori numerici del campione seguano dei _modelli_, quindi vengono trattati come *variabili aleatorie* di una distribuzione non conosciuta $F$.
+
+/ Inferenza: processo di induzione con cui si cerca di _formare delle ipotesi_, ovvero a partire da specifiche manifestazioni si cerca di determinare la verità generale
+
+/ Popolazione: grande insieme di oggetti descritti da una variabile aleatoria $X tilde F$
+
+/ Campione: _sottoinsieme_ della popolazione usato per studiare le leggi. Si estraggono i campioni in modo casuale (per questo motivo si assume indipendenza). Viene descritto come una successione di variabili aleatorie $X_1, ... X_n$ #link(<iid>)[indipendenti identicamente distribuite], con $n$ grandezza del campione
+
+La statistica inferenziale permette di capire quale distribuzione descrivere le osservazioni, attraverso due metodologie:
+
+- *Statistica inferenziale non parametrica* _(non trattata nel corso)_: la distribuzione $F$ è completamente sconosciuta
+
+- *Statistica inferenziale parametrica*: della distribuzione $F$ è conosciuta solo la famiglia, mentre sono sconosciuti i parametri. Indichiamo la distrbuzione con $F(theta)$, dove $theta$ è il parametro sconosciuto di cui stimiamo il valore:
+  - *stima puntuale*: forniamo un numero molto vicino a $theta$
+  - *stima per intervalli*: forniamo un intervallo di valori in cui ricade $theta$
+
+#nota[
+  Spesso ci interessa un valore che dipende dal parametro ignoto $theta$, non $theta$ stesso. Questo valore lo indichiamo come $tau(theta)$
+]
+
+/ Statistica / Stimatore: funzione $t : D_X^n -> bb(R)$ che dati dei valori, stima il valore che ci interessa: $ t(x_1, ..., x_n) = accent(tau, hat) approx tau(theta) $
+
+#nota[
+  Dato che il campionamento è casuale, diversi campioni $(x_1, ..., x_n)$ della stessa popolazione danno $accent(tau, hat)$ diversi, per cui $accent(tau, hat) approx tau(theta)$
+]
+
+/ Variabile aleatoria per stimatore: indichiamo con $T$ la variabile aleatoria che indica una stima, ricevendo delle variabili aleatorie (non più dei valori):
+$ T = t(X_1, ..., X_n) = accent(t, hat) approx tau(theta) $
+
+== Stimatori non deviati
+
+Uno stimatore $T$ è *non deviato* (*non distorto* o *corretto*) per $tau(theta)$ se e solo se:
+$ E[t(X_1, ..., X_n)] = tau(theta) $
+
+#nota[
+  $E[t(X_1, ..., X_n)]$ descrive la *centralità* della stima, quindi per essere corretta deve posizionarsi attorno a $tau(theta)$
+]
+
+#attenzione[
+  Quando due stimatori sono *non* deviati, allora si possono confrontare attraverso la loro *varianza*
+]
+
+=== Media campionaria
+
+Un ottimo stimatore *non deviato* per stimare il *valore atteso*, indipendentemente dalla distribuzione, è quello della media:
+$ t(x_1, ..., x_n) = 1/n sum_(i=1)^n x_i quad quad tau(theta) = E[X] $
+
+#dimostrazione[
+  $ E[T] &= E[1/n sum_(i=1)^n X_i] \
+    &= 1/n E[sum_(i=1)^n X_i] \
+    &= 1/n sum_(i=1)^n E[X_i] = cancel(n/n) dot E[X] $
+]
+
+$ "Var"(1/n sum_(i=1)^n X_i) $
+
+=== Consistenza in media quadratica
+
+Dato un campione ${X_1, ..., X_n}$ da una popolazione $X$ e $theta$ parametro di $X$, chiamiamo $T_n$ la famiglia di stimatori che sono costituiti dalla funzione $t_n$ applicata a $n$ argomenti.
+
+/ Mean Square Error:
+Definiamo il valore medio dell'errore quadratico come:
+$ "MSE"_tau(theta) = E[(T_n - tau(theta))^2] $
+
+L'MSE può essere definito come:
+$ "MSE"_tau(theta) (T_n) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
+
+
 // TODO: fare anche metodo di massima verosomiglianza
+
+// numerazione appendici
+#pagebreak()
+#set heading(numbering: "A.1.")
+#counter(heading).update(0)
+
+= Cheatsheet variabili aleatorie e modelli <modelli>
+
+== Variabili aleatorie
+
+=== Proprietà del valore atteso
+
+- il _valore atteso_ di una funzione indicatrice è uguale alla _probabilità dell'evento_:
+  $ E[I_A] = P(A) $
+- il _valore atteso_ di una variabile aleatoria discreta $X$ opera in modo _lineare_:
+  $ Y = a dot X + b quad quad  E[Y] = a dot E[X] + b $
+- data una qualsiasi _funzione_ reale $g$ e una variabile aleatoria $X$ con funzione di massa $p$, allora vale:
+  $ E[g(X)] = sum_i g(x_i) dot p(x_i) $
+  $ E[X^2] = sum_i x_i^2 dot p(x_i) $
+  $ E[ |X| ] = sum_i |x_i| dot p(x_i) $
+- data una qualsiasi _funzione_ reale $g$ di due variabili e due variabili aleatorie discrete $X, Y$, allora vale: $ E[g(X, Y)] = sum_x sum_y g(x,y) dot p(x,y) $
+- il valore atteso della _somma_ di variabili aleatorie discrete è:
+  $ E[sum_i X_i] = sum_i E[X_i] $
+- il valore atteso del _prodotto_ di variabili aleatorie discrete è:
+  $ E[product_i X_i] = product_i E[X_i] $
+
+=== Proprietà della varianza
+
+- la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_
+  $ "Var"(I) = P(A) dot P(overline(A)) $
+- la varianza non opera in modo lineare:
+  $ "Var"(a X + b) = a^2 "Var"(X) $
+- la varianza della somma di due variabili aleatorie $X$ e $Y$ vale:
+  $ "Var"(X + Y) = "Var"(X) + "Var"(Y) + 2 "Cov"(X, Y) $
+  $ "Var"(X - Y) = "Var"(X) + "Var"(Y) - 2"Cov"(X,Y) $
+  #attenzione[
+    Se le variabili sono #link(<iid>)[indipendenti identicamente distribuite], allora la covarianza vale $0$
+  ]
+- la varianza della somma di più variabili aleatorie vale:
+  $ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
+
+=== Proprietà della covarianza
+
+- la covarianza è simmetrica:
+  $ "Cov"(X, Y) = "Cov"(Y, X) $
+- la covarianza di una variabile aleatoria con sè stessa è uguale alla varianza:
+  $ "Cov"(X, X) = "Var"(X) $
+- opera in modo lineare:
+  $ "Cov"(a X, Y) = "Cov"(X, a Y) = a "Cov"(X, Y) $
+  $ "Cov"(X + Y, Z) = "Cov"(X, Z) + "Cov"(Y, Z) $
+
+== Modelli
+// TODO: sistemare nei modelli disreti la I, fare {0, ..., n} al posto di [0, n]
+
+- #link(<bernoulliano>)[Modello di Bernoulli]: $X tilde B(p)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$p^x (1-p)^((1-x)) I_{0, 1} (x)$],
+    [- Ripartizione:], [$(1-p) I_[0,1](x) + I_((1, +infinity)) (x)$],
+    [- Valore atteso:], [$p$],
+    [- Varianza:], [$p(1-p)$]
+  )
+
+- #link(<binomiale>)[Modello binomiale]: $X tilde B(n, p)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)$],
+    [- Ripartizione:], [$limits(sum)_(i=0)^floor(x) binom(n, i) p^i (1 - p)^((n-i)) I_[0, n] (x) + I_((n, +infinity)) (x)$],
+    [- Valore atteso:], [$n p$],
+    [- Varianza:], [$n p(1-p)$],
+    [- Proprietà:], [riproducibilità]
+  )
+
+- #link(<uniforme-discreto>)[Modello uniforme discreto]: $X tilde U(n)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$1/n I_{1, ..., n} (x)$],
+    [- Ripartizione:], [$floor(x)/n I_{1, ..., n} + I_((n, +infinity)) (x)$],
+    [- Valore atteso:], [$(n+1)/2$],
+    [- Varianza:], [$(n^2 - 1)/12$]
+  )
+
+- #link(<geometrico>)[Modello geometrico]: $X tilde G(p)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$p(1-p)^x I_{0, ..., +infinity} (x)$],
+    [- Ripartizione:], [$(1-(1-p) ^ (floor(x) + 1)) I_[0, +infinity) (x)$],
+    [- Valore atteso:], [$(1-p)/p$],
+    [- Varianza:], [$(1-p)/p^2$],
+    [- Proprietà:], [assenza di memoria]
+  )
+
+- #link(<poisson>)[Modello di Poisson]: $X tilde P(lambda)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$e^(-lambda) dot (lambda^x)/(x!) I_{0, ..., +infinity} (x)$],
+    [- Ripartizione:], [_non vista nel corso_],
+    [- Valore atteso:], [$lambda$],
+    [- Varianza:], [$lambda$],
+    [- Proprietà:], [approssimazione binomiale, riproducibilità]
+  )
+
+- #link(<ipergeometrico>)[Modello ipergeometrico]: $X tilde H(n, M, N)$
+// TODO: riguardare valore atteso e varianza (p)
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$(binom(N, x) binom(M, n-x)) / binom(N + M, n) I_{0, ..., n} (x)$],
+    [- Ripartizione:], [_non vista nel corso_],
+    [- Valore atteso:], [$n^2 N/(N+M)$],
+    [- Varianza:], [$(N M) / (N + M)^2$]
+  )
+
+- #link(<uniforme-continuo>)[Modello uniforme continuo]: $X tilde U(a,b)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$1 / (b-a) I_[a,b] (x)$],
+    [- Ripartizione:], [$(x-a) / (b-a) I_[a,b] (x) + I_((b, +infinity)) (x)$],
+    [- Valore atteso:], [$(b-a) / 2$],
+    [- Varianza:], [$(b-a)^2 / 12$]
+  )
+
+- #link(<esponenziale>)[Modello esponenziale]: $X tilde E(lambda)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$lambda e^(-lambda x) I_[0, +infinity) (x)$],
+    [- Ripartizione:], [$(1 - e^(-lambda x)) I_[0, +infinity) (x)$],
+    [- Valore atteso:], [$1/lambda$],
+    [- Varianza:], [$1/lambda^2$],
+    [- Proprietà:], [assenza di memoria, scalatura, proprietà su massimo e minimo]
+  )
+
+- #link(<gaussiano>)[Modello Gaussiano]: $X tilde G(mu, sigma)$
+  #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
+    [- Massa:], [$1 / (sigma sqrt(2 pi)) e^(-(x-mu)^2 / (2 sigma^2))$],
+    [- Ripartizione:], [$limits(integral)_(-infinity)^(x) 1 / (sigma sqrt(2 pi)) e^(-(x-mu)^2 / (2 sigma^2)) dif x$],
+    [- Valore atteso:], [$mu$],
+    [- Varianza:], [$sigma^2$],
+    [- Proprietà:], [standardizzazione, riproducibilità]
+  )
 
 = Cheatsheet Python <python>
 
 = Cheatsheet matematica <matematica>
+
+= Esercizi
+
+- Dimostrare / trovare se la funzione $f(x)$ è una massa/densità valida
+  - sommatoria / integrale = 1
+  - è possibile considerare la seconda incognita (quella su cui non si integra) come una costante, quindi portarla fuori dalla sommatoria/integrale

@@ -47,7 +47,7 @@
 #let dimostrazione(body) = { memo(title: "Dimostrazione")[#body] }
 
 // testo matematico colorato
-#let mg(body) = text(fill: green, $#body$)
+#let mg(body) = text(fill: olive, $#body$)
 #let mm(body) = text(fill: maroon, $#body$)
 #let mo(body) = text(fill: orange, $#body$)
 #let mr(body) = text(fill: red, $#body$)
@@ -78,6 +78,24 @@
 #set par(linebreaks: "optimized")
 
 // impostazioni pagine
+#let numberingH(c)={
+  return numbering(c.numbering,..counter(heading).at(c.location()))
+}
+
+#let currentH(level: 1)={
+  let elems = query(selector(heading).after(here()))
+
+  if elems.len() != 0 and elems.first().location().page() == here().page() {
+    return [#numberingH(elems.first()) #elems.first().body]
+  } else {
+    elems = query(selector(heading).before(here()))
+    if elems.len() != 0 {
+      return [#numberingH(elems.last()) #elems.last().body]
+    }
+  }
+  return ""
+}
+
 #set page(
   numbering: "1",
   number-align: bottom + right,
@@ -85,31 +103,13 @@
     #set text(8pt)
     _Statistica e Analisi dei dati_
     #h(1fr)
-    _Luca Favini, Matteo Zagheno_
+    #context[_ #currentH() _]
   ],
   footer: [
     #set text(8pt)
 
-    #let numberingH(c)={
-      return numbering(c.numbering,..counter(heading).at(c.location()))
-    }
-
-    #let currentH(level: 1)={
-      let elems = query(selector(heading).after(here()))
-
-      if elems.len() != 0 and elems.first().location().page() == here().page() {
-        return [#numberingH(elems.first()) #elems.first().body]
-      } else {
-        elems = query(selector(heading).before(here()))
-        if elems.len() != 0 {
-          return [#numberingH(elems.last()) #elems.last().body]
-        }
-      }
-      return ""
-    }
-
     #context[
-      _ #currentH() _
+      _Luca Favini, Matteo Zagheno - #datetime.today().display("[day]/[month]/[year]")_
       #h(1fr)
       #text(12pt)[#counter(page).display("1")]
     ]
@@ -374,11 +374,9 @@ $ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 
 Utilizziamo l'indice di correlazione di Pearson per avere un valore _adimensionale_ che esprime una correlazione. Possiamo definirlo anche come una misura normalizzata della covarianza nell'intervallo $[-1, +1]$. ρ è *insensibile* alle trasformazioni lineari.
 
-$ rho(x,y) = 1/(n-1)(sum_(i=1)^n (x_i-overline(x))(y_i-overline(y)))/(s_x s_y) = s_(X Y) / (s_X s_Y) $
+$ rho(x,y) = 1/(n-1)(limits(sum)_(i=1)^n (x_i-overline(x))(y_i-overline(y)))/(s_x s_y) $
 
 Dove $s$ è la varianza campionaria standard.
-
-// TODO: differenza tra s_x e s_X
 
 - $rho tilde.eq +1$ probabile correlazione linearmente diretta
 - $rho tilde.eq 0$ correlazione improbabile
@@ -802,7 +800,6 @@ Dati degli eventi, è possibile applicare le operazioni e proprietà degli insie
 / Approccio frequentista: la probabilità di un esito è una _proprietà_ dell'esito stesso: viene calcolata come il rapporto tra il numero di casi _favorevoli_ e il numero di casi _possibili_ ripetendo l'esperimento un numero di volte tendente all'infinito
 
 === Algebra di eventi
-// TODO: da rivedere e da riscrivere
 
 Un algebra di eventi $A$ è un insieme di eventi ${E_1, E_2, ...}$ a cui sono associate delle operazioni che soddisfa le proprietà:
 
@@ -817,15 +814,13 @@ Un algebra di eventi $A$ è un insieme di eventi ${E_1, E_2, ...}$ a cui sono as
 #nota[Se la chiusura sull'_unione_ vale anche per $|Omega| = infinity
 $, allora $A$ viene chiamata $sigma$-algebra]
 
-#informalmente[
+#attenzione[
   L'algebra degli eventi non è un _vero_ insieme di eventi, ma è un _"dizionario"_ che sfruttiamo per definire quali _operazioni_ e _variabili_ sono ammesse su un $Omega$
 ]
 
 === Assiomi di Kolmogorov
 
-Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabilità che un evento avvenga.
-
-$P : A -> [0,1]$ è una funzione di probabilità se e solo se:
+Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabilità che un evento avvenga. $P : A -> [0,1]$ è una funzione di probabilità se e solo se:
 
 1. $forall E in A, 0 <= P(E) <= 1$: la frequenza è sempre _positiva_ e compresa tra $0$ e $1$
 2. $P(Omega) = 1$: un evento che si verifica tutte le $n$ volte: $n/n = 1$
@@ -846,13 +841,38 @@ $P : A -> [0,1]$ è una funzione di probabilità se e solo se:
 
 / Probabilità del complemento: $ forall E in A, space P(overline(E)) = 1 - P(E) $
 
+#dimostrazione[
+  $ E sect overline(E) = emptyset, quad E union overline(E) &= Omega "(definizione complemenatre)" \
+  P(Omega) &= 1 "(per secondo assioma)" \
+  P(E union overline(E)) &= 1 \
+  P(E) + P(overline(E)) &= 1 "(per terzo assioma)" \
+  P(overline(E)) &= 1 - P(E) $
+]
+
 / Probabilità dell'evento impossibile: $ P(emptyset) = 0 $
+
+#dimostrazione[
+  $ P(Omega) &= 1 "(per secondo assioma)" \
+  P(emptyset) &= P(overline(Omega)) \
+  &= 1 - P(Omega) \
+  &= 1 - 1 = 0 $
+]
 
 / Proprietà di monotonicità: $ forall E, F in A |  E subset.eq F => P(E) <= P(F) $
 
+// TODO: non si dimostra? (catu non la dimostra)
+
 / Probabilità dell'unione di eventi: $ forall E, F in A, space P(E union F) = P (E) + P (F) − P(E sect F) $
 
-// TODO: fare dimostrazioni dei teoremi/proprietà
+#dimostrazione[
+  // TODO: sistemare questa dimostrazione, non torna
+  È possibile riscrivere $E union F$ come $E union (overline(E) sect F)$, quindi:
+  $ P(E union F) &= P(E) + P(overline(E) sect F) "(per terzo assioma)" \
+  &= P(E) + P(overline(E) sect F) - P(E sect F) + P(E sect F) "???" \
+  &= P(E) + P((overline(E) sect F) union (E sect F)) - P(E sect F) \
+  &= P(E) + P((overline(E) union E) sect F) - P(E sect F) \
+  &= P(E) + P(F) - P(E union F) $
+]
 
 === Spazi di probabilità ed Esiti equiprobabili <spazio-probabilita>
 
@@ -903,10 +923,24 @@ $ P(E) = sum_(i=1)^n P(F_i) dot P(E|F_i)  $
 #figure(caption: [
   Probabilità di $E$:
   $ P(E) =
-  (mr(P(F_1)) dot mb(P(E|F_1))) + (mr(P(F_2)) dot mb(P(E|F_2))) + (mr(P(F_3)) dot mb(P(E|F_3)))\
-  =(mr(1/3) dot mb(0)) + (mr(1/3) dot mb(1/6)) + (mr(1/3) dot mb(1/2)) = 2/9\
+  mp(P(F_1)) dot P(mr(E)|mp(F_1)) + mb(P(F_2)) dot P(mr(E)|mb(F_2)) + mg(P(F_3)) dot P(mr(E)|mg(F_3))\
+  =(mp(1/3) dot mr(0)) + (mb(1/3) dot mr(1/6)) + (mg(1/3) dot mr(1/2)) = 2/9\
    $
-], image("probabilita-totali.png", width: 40%))
+], [
+  #cetz.canvas({
+    import cetz.draw: *
+
+    rect((0, 0), (2,3), fill: rgb(255, 0, 255, 20))
+    rect((2, 0), (4,3), fill: rgb(0, 0, 255, 20))
+    rect((4, 0), (6,3), fill: rgb(0, 255, 0, 20))
+    circle((4.5,1.5), stroke: red, fill: rgb(255, 0, 0, 20), name: "E")
+    content((6.3,3.3), $ Omega $)
+    content("E", $ mr(E) $)
+    content((1, 0.3), $ mp(F_1) $)
+    content((3, 0.3), $ mb(F_2) $)
+    content((5, 0.3), $ mg(F_3) $)
+  })
+])
 
 È possibile esprimere $E$ come:
 
@@ -930,11 +964,26 @@ $ P(F_k | E) &= (P(E | F_k) P(F_k)) / mr(P(E)) \
 #figure(caption: [
   Probabilità di $F_2$:
   $ P(F_2) =
-  mr(P(E|F_2)) dot mb(P(F_2)) / mp(P(E)) \
-  = (mr(P(E sect F_2) / P(F_2)) mb(P(F_2))) / mp((P(F_1) dot P(E|F_1)) + (P(F_2) dot P(E|F_2)) + (P(F_3) dot P(E|F_3))) \
-  = (mr((1/6 dot 1/3) / (1/3)) mb(1/3)) / mp(2/9) = 1/4
+  (mp(P(E|F_2)) dot mb(P(F_2))) / mr(P(E)) \
+  = (mp(P(E sect F_2) / P(F_2)) mb(P(F_2))) / mr((P(F_1) dot P(E|F_1)) + (P(F_2) dot P(E|F_2)) + (P(F_3) dot P(E|F_3))) \
+  = (mp((1/6 dot 1/3) / (1/3)) mb(1/3)) / mr(2/9) = 1/4
    $
-], image("probabilita-totali.png", width: 40%))
+], [
+  #cetz.canvas({
+    import cetz.draw: *
+
+    rect((0, 0), (2,3))
+    rect((2, 0), (4,3), fill: rgb(0, 0, 255, 20))
+    rect((4, 0), (6,3))
+    circle((4.5,1.5), stroke: red, fill: rgb(255, 0, 0, 20), name: "E")
+    content((6.3,3.3), $ Omega $)
+    content("E", $ mr(E) $)
+    content((1, 0.3), $ F_1 $)
+    content((3, 0.3), $ mb(F_2) $)
+    content((5, 0.3), $ F_3 $)
+    content((3.8, 1.5), $ mp(E|F_2) $)
+  })
+])
 
 === Classificatore naive-Bayes
 
@@ -1050,7 +1099,69 @@ $ forall x in bb(R), space p_(X)(x) = P(X = x) dot I_(D)(x) $
 - $forall x in bb(R), f_(X)(x) >= 0$: non può essere negativa
 - $limits(sum)_(x in D) f_(X)(x) = 1$: la somma della funzione di massa per tutti i valori che $x$ può assumere deve fare $1$
 
-// TODO: grafico funzione massa
+#figure(caption: [Grafico funzione di massa di probabilità di un dado],
+  cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      name: "massa",
+      size: (4,4),
+      x-tick-step: 1,
+      y-tick-step: 0.1666,
+      x-min: 0,
+      x-max: 6,
+      y-min: 0,
+      y-max: 1,
+      axis-style: "school-book",
+      {
+        plot.add-anchor("1", (1, 0.1666))
+        plot.add-anchor("2", (2, 0.1666))
+        plot.add-anchor("3", (3, 0.1666))
+        plot.add-anchor("4", (4, 0.1666))
+        plot.add-anchor("5", (5, 0.1666))
+        plot.add-anchor("6", (6, 0.1666))
+
+        plot.add-anchor("01", (1, 0))
+        plot.add-anchor("02", (2, 0))
+        plot.add-anchor("03", (3, 0))
+        plot.add-anchor("04", (4, 0))
+        plot.add-anchor("05", (5, 0))
+        plot.add-anchor("06", (6, 0))
+
+        plot.add-anchor("00", (0, 0))
+        plot.add-anchor("inf", (7.5, 0))
+    })
+
+    draw.line("massa.00", "massa.06", stroke: red)
+    draw.line("massa.06", "massa.inf", stroke: (paint: red, dash: "dashed"))
+    draw.line("massa.01", "massa.1", stroke: (dash: "dashed"))
+    draw.line("massa.02", "massa.2", stroke: (dash: "dashed"))
+    draw.line("massa.03", "massa.3", stroke: (dash: "dashed"))
+    draw.line("massa.04", "massa.4", stroke: (dash: "dashed"))
+    draw.line("massa.05", "massa.5", stroke: (dash: "dashed"))
+    draw.line("massa.06", "massa.6", stroke: (dash: "dashed"))
+
+    draw.circle("massa.1", fill: red, radius: .07)
+    draw.circle("massa.2", fill: red, radius: .07)
+    draw.circle("massa.3", fill: red, radius: .07)
+    draw.circle("massa.4", fill: red, radius: .07)
+    draw.circle("massa.5", fill: red, radius: .07)
+    draw.circle("massa.6", fill: red, radius: .07)
+
+    draw.circle("massa.01", fill: white, radius: .07)
+    draw.circle("massa.02", fill: white, radius: .07)
+    draw.circle("massa.03", fill: white, radius: .07)
+    draw.circle("massa.04", fill: white, radius: .07)
+    draw.circle("massa.05", fill: white, radius: .07)
+    draw.circle("massa.06", fill: white, radius: .07)
+
+    draw.content("massa.1", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("massa.2", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("massa.3", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("massa.4", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("massa.5", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("massa.6", [$1/6$], anchor: "south", padding: 0.3)
+  }))
 
 ==== Funzione di ripartizione <funzione-ripartizione>
 
@@ -1079,7 +1190,63 @@ $ F(a) = sum_(x <= a) p(x) $
   Per una variabile aleatoria discreta, $F$ è una _funzione a gradini_, costante tra gli intervalli dei valori assunti da $X$, che salta di $p(x)$ ad ogni nuovo valore
 ]
 
-// grafico funzione di ripartizione
+#figure(caption: [Grafico funzione di ripartizione di un dado],
+  cetz.canvas({
+    import cetz: *
+
+    plot.plot(
+      name: "ripartizione",
+      size: (4,4),
+      x-tick-step: 1,
+      y-tick-step: 0.1666,
+      axis-style: "school-book",
+      x-min: 0,
+      x-max: 6,
+      y-min: 0,
+      y-max: 1,
+      {
+        plot.add-anchor("1", (1, 0.1666))
+        plot.add-anchor("2", (2, 0.3333))
+        plot.add-anchor("3", (3, 0.5))
+        plot.add-anchor("4", (4, 0.6666))
+        plot.add-anchor("5", (5, 0.8333))
+        plot.add-anchor("6", (6, 1))
+
+        plot.add-anchor("00", (0, 0))
+        plot.add-anchor("01", (1, 0))
+        plot.add-anchor("02", (2, 0.1666))
+        plot.add-anchor("03", (3, 0.3333))
+        plot.add-anchor("04", (4, 0.5))
+        plot.add-anchor("05", (5, 0.6666))
+        plot.add-anchor("06", (6, 0.8333))
+
+        plot.add-anchor("66", (6.5, 1))
+        plot.add-anchor("6inf", (7.2, 1))
+    })
+
+    draw.line("ripartizione.00", "ripartizione.01", stroke: red)
+    draw.line("ripartizione.1", "ripartizione.02", stroke: red)
+    draw.line("ripartizione.2", "ripartizione.03", stroke: red)
+    draw.line("ripartizione.3", "ripartizione.04", stroke: red)
+    draw.line("ripartizione.4", "ripartizione.05", stroke: red)
+    draw.line("ripartizione.5", "ripartizione.06", stroke: red)
+    draw.line("ripartizione.6", "ripartizione.66", stroke: red)
+    draw.line("ripartizione.66", "ripartizione.6inf", stroke: (paint: red, dash: "dashed"))
+
+    draw.circle("ripartizione.1", fill: red, radius: .07)
+    draw.circle("ripartizione.2", fill: red, radius: .07)
+    draw.circle("ripartizione.3", fill: red, radius: .07)
+    draw.circle("ripartizione.4", fill: red, radius: .07)
+    draw.circle("ripartizione.5", fill: red, radius: .07)
+    draw.circle("ripartizione.6", fill: red, radius: .07)
+
+    draw.content("ripartizione.1", [$1/6$], anchor: "south", padding: 0.3)
+    draw.content("ripartizione.2", [$2/6$], anchor: "south", padding: 0.3)
+    draw.content("ripartizione.3", [$3/6$], anchor: "south", padding: 0.3)
+    draw.content("ripartizione.4", [$4/6$], anchor: "south", padding: 0.3)
+    draw.content("ripartizione.5", [$5/6$], anchor: "south", padding: 0.3)
+    draw.content("ripartizione.6", [$1$], anchor: "south", padding: 0.3)
+  }))
 
 ==== Valore atteso
 
@@ -1464,7 +1631,6 @@ $ "Var"(X) = mr((n^2 - 1)/12) $
 ==== Modello geometrico $X tilde G(p)$ <geometrico>
 
 Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = [0, ..., +infinity)$.
-// TODO: indipendenti ok, ma identicamente distribuiti cosa vuol dire? anche nel binomale devono iid o solo indipendenti?
 
 $ mr(X tilde G(p)) $
 
@@ -1971,6 +2137,10 @@ $ P((limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
   (x - n p)/sqrt(n p (1-p)) tilde.dot N(0,1) $
 ]
 
+#informalmente[
+  Quando abbiamo una *generica* variabile aleatoria $X$ che segue una _distribuzione ignota_, allora possiamo vederla come la *somma di tante osservazioni* $X_1, ..., X_n$. Ogni osservazione è una variabile aleatoria *indipendente e identicamente distribuita*. Tante più osservazioni $n$ facciamo, migliore sarà l'approssimazione usando il teorema centrale del limite
+]
+
 = Statistica inferenziale <inferenziale>
 
 La statistica inferenziale vuole _analizzare_ e _trarre risultati_ da campioni selezionati da _grandi popolazioni_. Viene ipotizzato che i valori numerici del campione seguano dei _modelli_, quindi vengono trattati come *variabili aleatorie* di una distribuzione non conosciuta $F$.
@@ -2026,24 +2196,42 @@ $ t(x_1, ..., x_n) = 1/n sum_(i=1)^n x_i quad quad tau(theta) = E[X] $
     &= 1/n sum_(i=1)^n E[X_i] = cancel(n/n) dot E[X] $
 ]
 
+// TODO: finire questa parte dagli appunti di Catu
 $ "Var"(1/n sum_(i=1)^n X_i) $
 
-=== Consistenza in media quadratica
+== Bias e Scarto quadratico medio (MSE)
+
+Definiamo il *bias* come:
+$ b_tau(theta) (T) = E[T] - tau(theta) $
+
+Definiamo il valore medio dell'errore quadratico come:
+$ "MSE"_tau(theta) (T) = E[(T_n - tau(theta))^2] $
+
+Definiamo lo *scarto quadratico medio* (MSE) come:
+$ "MSE"_tau(theta) (T) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
+
+#informalmente[
+  Lo scarto quadratico medio e il bias sono due metodi per calcolare la _bontà_ di uno _stimatore_.
+
+  Se immaginiamo la quantità da stimare come un bersaglio, possiamo vedere:
+  - il _bias_ come la distanza tra centro del bersaglio e il punto in cui "mira" lo stimatore
+  - lo _scarto quadratico medio_, la precisione dei "colpi" attorno al punto "mirato"
+]
+
+== Consistenza in media quadratica
 
 Dato un campione ${X_1, ..., X_n}$ da una popolazione $X$ e $theta$ parametro di $X$, chiamiamo $T_n$ la famiglia di stimatori che sono costituiti dalla funzione $t_n$ applicata a $n$ argomenti.
 
-/ Mean Square Error:
-Definiamo il valore medio dell'errore quadratico come:
-$ "MSE"_tau(theta) = E[(T_n - tau(theta))^2] $
-
-L'MSE può essere definito come:
-$ "MSE"_tau(theta) (T_n) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
+Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ lim_(n->infinity) "MSE"_tau(theta) (T_n) = 0 $
 
 
-// TODO: fare anche metodo di massima verosomiglianza
+// TODO: metodo di massima verosomiglianza
+// TODO: metodo plugin
+// TODO: legge grandi numeri
+// TODO: guardare cosa manca incrociando appunti
 
-// numerazione appendici
 #pagebreak()
+// numerazione appendici
 #set heading(numbering: "A.1.")
 #counter(heading).update(0)
 
@@ -2177,8 +2365,25 @@ $ "MSE"_tau(theta) (T_n) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
 
 = Cheatsheet matematica <matematica>
 
+$ sum_(i=1)^n = (n(n+1))/2 $
+
+
+
 = Esercizi
 
 - Dimostrare / trovare se la funzione $f(x)$ è una massa/densità valida
   - sommatoria / integrale = 1
   - è possibile considerare la seconda incognita (quella su cui non si integra) come una costante, quindi portarla fuori dalla sommatoria/integrale
+
+- dimostrare stimatore distorto per $tau(theta)$: $E[T] != tau(theta)$
+
+- calcolare bias: $E[T] - tau(theta)$
+
+- calcolare MSE: $"Var"(T) + "bias"^2$
+  - attenzione: quando lo stimatore è ad esempio la media campionaria $overline(X)$, allora calcolare la varianza come $E[T^2] - E[T]^2 = E[overline(X)^2] - E[overline(X)]^2$ è un suicidio, meglio usare direttamente $"Var"(T) = "Var"(overline(X)) = "Var"(X) / n$ dove $n$ è la grandezza dei campioni
+
+- gode della proprietà di consistenza in media quadratica? $lim_(n -> infinity) "MSE" = 0$
+
+- metodo plug-in: lo stimatore è distorto, va "raddrizzato":
+  - $E[T] = a/2 + 6 != a$
+  - risolviamo per $a$: $T = a/2 + 6$, quindi $T*2 - 6$ è non distorto

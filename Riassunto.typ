@@ -1,6 +1,7 @@
 #import "@preview/gentle-clues:0.8.0": *
 #import "@preview/cetz:0.2.2"
 #import "@preview/codly:0.2.0": *
+#import "@preview/equate:0.2.0": equate
 
 // pdf metadata
 #set document(
@@ -36,9 +37,10 @@
 }
 
 // settings box colorati
-#show: gentle-clues.with(
-  breakable: true
-)
+#show: gentle-clues.with(breakable: true)
+
+// settings equazioni
+#show: equate.with(breakable: true)
 
 // box colorati
 #let nota(body) = { info(title: "Nota")[#body] }
@@ -118,8 +120,6 @@
 
 #heading(outlined: false, bookmarked: false, numbering: none, "Statistica e Analisi dei dati")
 
-_Insegnamento del corso di laurea triennale in Informatica, Università degli studi di Milano. Tenuto dal Professore Dario Malchiodi, anno accademico 2023-2024._
-
 La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati, attraverso vari strumenti:
 
 - #link(<descrittiva>)[Statistica descrittiva]: esposizione e *condensazione* dei dati, cercando di limitarne l'incertezza;
@@ -127,7 +127,8 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 - #link(<inferenziale>)[Statistica inferenziale]: *approssimazione* degli esiti mancanti, attraverso modelli probabilistici;
 - _Appendice: #link(<modelli>)[Cheatsheet variabili aleatorie e modelli]:_ riassunto formule e proprietà delle variabili aleatorie e dei modelli;
 - _Appendice: #link(<python>)[Cheatsheet Python]:_ raccolta funzioni/classi Python utili ai fini dell'esame _(e non)_;
-- _Appendice: #link(<matematica>)[Cheatsheet matematica]:_ trucchi per risolvere/semplificare equazioni, serie, integrali.
+- _Appendice: #link(<matematica>)[Cheatsheet matematica]:_ trucchi per risolvere/semplificare equazioni, serie, integrali;
+- _Appendice: #link(<esercizi>)[Esercizi]:_ come svolegere gli esercizi dell'esame.
 
 // indice
 #outline(
@@ -139,9 +140,10 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 
 = Statistica descrittiva <descrittiva>
 
-/ Popolazione: insieme di elementi da analizzare, spesso troppo numerosa per essere analizzata tutta
-/ Campione: parte della popolazione estratta per essere analizzata, deve essere rappresentativo
-/ Campione casuale (semplice): tutti i membri della popolazione hanno la stessa possibilità di essere selezionati
+/ Popolazione: insieme di elementi da _analizzare_, spesso troppo numerosa per essere analizzata tutta
+/ Campione: _parte_ della popolazione estratta per essere analizzata, deve essere rappresentativo
+/ Campione casuale (semplice): tutti i membri della popolazione hanno la _stessa probabilità_ di essere selezionati
+/ Campione stratificato: vengono individuate delle _categorie_ e si forma un campione facendo in modo che tutte le categorie siano proporzionalmente rappresentate
 
 == Classificazione dei dati: qualitativi e quantitativi <quantitativi>
 
@@ -151,28 +153,79 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 
 / Dati qualitativi \/ Categorici \/ Nominali: l'esito della misurazione è un'etichetta
   / Booleani \/ Binari: due valori possibili, ad esempio: _sesso_
-  / Nominali \/ Sconnessi: valori *non* ordinabili, ad esempio: _nome_
   / Ordinali: valori ordinabili, ad esempio: _livello di soddisfazione_
+  / Nominali \/ Sconnessi: valori *non* ordinabili, ad esempio: _nome_
 
-#nota[Spesso alcuni dati _numerici_ vengono considerati _qualitativi_, dato che non ha senso effettuare su di essi considerazioni algebriche o numeriche. Un esempio potrebbe essere la data di nascita. ]
+#nota[
+  Spesso alcuni dati _numerici_ vengono considerati _qualitativi_, dato che non ha senso effettuare su di essi considerazioni algebriche o numeriche. Un esempio potrebbe essere la data di nascita
+]
 
-== Frequenze
+== Frequenze <frequenze>
 
-=== Frequenze assolute e relative <frequenze>
+/ Frequenza assoluta: _occorrenza assoluta di un carattere_, ovvero il numero di volte che un certo valore appare in un campione di dati
 
-=== Frequenze cumulate <cumulata>
+/ Frequenza relativa: rapporto tra la _frequenza assoluta_ di un dato e il la _dimensione del campione_ (quindi è sempre compresa tra $0$ e $1$)
 
-==== Funzione cumulativa empirica
+=== Frequenze cumulate e Funzione cumulativa empirica
 
-=== Frequenze congiunte e marginali
+/ Frequenza cumulata: somma delle _frequenze assolute_ di tutti i valori _inferiori o uguali_ a un determinato valore, rappresenta il numero totale di osservazioni fino a quel valore
 
-=== Stratificazione
+#attenzione[
+  È possibile calcolare la _frequenza cumulata_ solo in caso di dati _ordinabili_
+]
 
-== Grafici
+/ Funzione cumulativa (o di ripartizione) empirica: funzione $hat(F) : bb(R) -> [0,1]$ che, per ogni valore, mostra la proporzione del campione che è minore o uguale a quel valore
+$ hat(F)(x) = (\#{x_i <= x})/n = 1/n sum_(i=1)^n I_(-infinity, x] (x_i) $
+
+#nota[
+  $I_A : bb(R) -> {0,1}$ indica la #link(<indicatrice>)[funzione indicatrice] dell'insieme $A$, ovvero vale $0 space forall a in.not A$ e $1 space forall a in A$
+]
+
+#nota[
+  È possibile vedere la funzione cumulativa empirica come una stima della #link(<funzione-ripartizione>)[funzione di ripartizione], infatti ne è un buon #link(<stimatore>)[stimatore] consistente in media quadratica
+]
+
+=== Frequenze conguinte e marginali
+
+Prendiamo in considerazione due caratteri dell'insieme di osservazioni:
+
+/ Frequenza congiunta assoluta/relativa: numero di osservazioni in cui i due caratteri assumono dei determinati valori _(dati in corsivo nella tabella sottostante)_
+
+/ Frequenze marginali: somme delle frequenze congiunte lungo le righe o le colonne di una tabella di contingenza, rappresentando la frequenza totale di ciascuna variabile _(dati in giallo nella tabella sottostante)_
+
+#figure(caption: "Tabella di contingenza")[
+  #table(
+    columns: 5,
+    inset: 10pt,
+    align: horizon,
+
+    table.cell(colspan: 2, rowspan: 2, []),
+
+    table.cell(colspan: 2, fill: silver, [*Capelli*]), [],
+    table.cell(fill: silver, [*Chiari*]), table.cell(fill: silver, [*Scuri*]),
+
+    table.cell(fill: yellow, [*Tot Occhi*]),
+
+    table.cell(rowspan: 3, fill: silver, [*Occhi*]),
+    table.cell(fill: silver, [*Verdi*]), [_5_], [_3_],
+    table.cell(fill: yellow, [8]),
+
+    table.cell(fill: silver, [*Marroni*]), [_2_], [_42_],
+    table.cell(fill: yellow, [44]),
+
+    table.cell(fill: silver, [*Azzurri*]), [_8_], [_1_],
+    table.cell(fill: yellow, [9]),
+
+    [], table.cell(fill: yellow, [*Tot Capelli*]),
+    table.cell(fill: yellow, [15]),
+    table.cell(fill: yellow, [46]),
+    table.cell(fill: yellow, [61])
+  )
+]
 
 == Indici di centralità <indice-centralita>
 
-Sono indici che danno un'idea approssimata dell'ordine di grandezza (quindi dove ricadono) dei valori esistenti.
+Sono indici che danno un'idea approssimata dell'_ordine di grandezza_, intorno a quale valore si colloca l'insieme dei valori esistenti.
 
 === Media campionaria <media>
 
@@ -184,114 +237,164 @@ La media opera linearmente, quindi può essere scalata ($dot a$) e/o traslata ($
 
 $ forall i space y_i = a x_i + b => overline(y) = a overline(x) + b $
 
-Non è un stimatore robusto rispetto agli outlier.
-Può essere calcolata solo con #link(<quantitativi>)[dati quantitativi].
+#nota[
+  Può essere calcolata solo con #link(<quantitativi>)[dati quantitativi].
+]
+
+#attenzione[
+  La media non è un indice robusto rispetto agli *outlier* <outlier>, ovvero i dati fuori scala, che la influenzano pesantemente
+]
 
 === Mediana campionaria
 
-È il valore a *metà* di un dataset ordinato in ordine crescente, ovvero un valore $>=$ e $<=$ di almeno la metà dei dati.
+È il valore nella *posizione di mezzo* di un dataset ordinato in ordine crescente, ovvero un valore $>=$ e $<=$ di almeno la metà dei dati.
 
 Dato un dataset di dimensione $n$ la mediana è:
   - l'elemento in posizione $(n+1)/2$ se n è dispari
   - la media aritmetica tra gli elementi in posizione $n/2$ e $n/2 + 1$ se n è pari
 
-È robusta rispetto agli outlier ma può essere calcolata solo su _campioni ordinabili_.
+#nota[
+  È robusta rispetto agli #link(<outlier>)[_outlier_] ma può essere calcolata solo su _campioni ordinabili_
+]
 
 === Moda campionaria
 
-È l'osservazione che compare con la maggior frequenza. Se più di un valore compare con la stessa frequenza allora tutti quei valori sono detti modali.
+È l'osservazione che compare con la *maggior frequenza*. Se più di un valore compare con la stessa frequenza allora tutti quei valori sono detti modali.
 
-== Indici di dispersione
+== Quantili
 
-Sono indici che misurano quanto i valori del campione si discostano da un valore centrale.
-
-=== Scarto assoluto medio
-
-Per ogni osservazione, lo scarto è la distanza dalla media: $x_i - overline(x)$.
-La somma di tutti gli scarti farà sempre $0$.
-
-$ sum_(i=1)^n x_i - overline(x) quad = quad sum_(i=1)^n x_i - sum_(i=1)^n overline(x) quad = quad n overline(x) - n overline(x) quad = 0 $
-
-=== Varianza campionaria
-
-Misura di quanto i valori si discostano dalla media campionaria
-
-$ s^2 = 1/(n-1)sum_(i=1)^n (x_i - overline(x))^2 $
-
-Metodo alternativo per calcolare la varianza:
-
-$ s^2 = 1/(n-1)sum_(i=1)^n (x_i^2 - n overline(x)^2) $
-
-#nota[Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva.]
-
-La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta: $ s_y^2 = a^2 s_x^2 $
-
-==== Varianza campionaria standard <varianza-standard>
-
-È possibile applicare alla varianza campionaria la radice quadrata, ottenendo la varianza campionaria standard.
-
-$ s = sqrt(s^2) $
-
-#attenzione[Applicando la radice quadrata solo dopo l'elevamento a potenza, non abbiamo reintrodotto il problema dei valori negativi: $sqrt(a^2) quad != quad (sqrt(a))^2 = a$]
-
-=== Coefficiente di variazione
-
-Valore *adimensionale*, utile per confrontare misure di fenomeni con unità di misura differenti.
-
-$ s^* = frac(s, |overline(x)|) $
-
-#nota[Sia la #link(<varianza-standard>)[varianza campionaria standard] che la #link(<media>)[media campionaria] sono dimensionali, ovverro hanno unità di misura. Dividendoli tra loro otteniamo un valore adimensionale.]
-
-=== Quantile
-
-Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1]$) è un valore $q_alpha$ che divide la popolazione in due parti, proporzionali in numero di elementi ad $alpha$ e (1-$alpha$) e caratterizzate da valori rispettivamente minori e maggiori di $q_alpha$.
+Il quantile di ordine $alpha$ (con $alpha$ un numero reale nell'intervallo $[0,1]$) è un valore $q_alpha$ che *divide* la popolazione in due parti, proporzionali in numero di elementi ad $alpha$ e (1-$alpha$) e caratterizzate da valori rispettivamente *minori* e *maggiori* di $q_alpha$.
 
 / Percentile: quantile descritto in percentuale
 / Decile: popolazione divisa in 10 parti con ugual numero di elementi
 / Quartile: popolazione divisa in 4 parti con ugual numero di elementi
 
-#nota[
-  È possibile visualizzare un campione attraverso un *box plot*, partendo dal basso composto da:
-  - eventuali _outliers_, rappresentati con le `x` prima del baffo
-  - il _baffo_ "inferiore", che parte dal valore minimo e raggiunge il primo quartile
-  - il _box_ (scatola), che rappresenta le osservazioni comprese tra il primo e il terzo quartile
-  - la linea che divide in due il box, che rappresenta la _mediana_
-  - il _baffo_ "superiore", che parte terzo quartile e raggiunge il massimo
-  - eventuali _outliers_ "superiori", rappresentati con le `x` dopo il baffo
+#attenzione[
+  È richiesto un ordinamento totale nel campione
+]
 
-  #figure(caption: [Grafico boxplot],
-    cetz.canvas({
-      import cetz: *
-      plot.plot(size: (4,4), x-tick-step: none, y-tick-step: none, {
-        plot.add-boxwhisker((
-          x: 1,
-          outliers: (7, 65, 69),
-          min: 20, max: 60,
-          q1: 25,
-          q2: 33,
-          q3: 50))
-      })
-    })
-  )]
+/ Range: distanza tra il punto minimo e il punto massimo
+/ Range interquartile (IQR): distanza tra il primo e il terzo quartile
+
+== Indici di dispersione
+
+Sono indici che misurano quanto i valori del campione si _discostano_ da un _valore centrale_.
+
+=== Scarto assoluto medio
+
+Per ogni osservazione, lo *scarto* è la distanza dalla media: $x_i - overline(x)$.
+La somma di tutti gli scarti farà sempre $0$:
+
+$ sum_(i=1)^n x_i - overline(x) quad = quad sum_(i=1)^n x_i - sum_(i=1)^n overline(x) quad = quad n overline(x) - n overline(x) quad = 0 $
+
+#informalmente[
+  Questo indice è ovviamente _inutile_, dato che vale sempre $0$, è utile per introdurre il concetto di _scarto_, ovvero la distanza di un'osservazione dalla media
+]
+
+=== Varianza campionaria
+
+Misura di quanto i valori si _discostano_ dalla media campionaria
+
+$ s^2 = 1/(n-1) sum_(i=1)^n (x_i - overline(x))^2 $
+
+Metodo alternativo per calcolare la varianza:
+
+$ s^2 = 1/(n-1) sum_(i=1)^n (x_i^2 - n overline(x)^2) $
+
+#dimostrazione[
+  $ sum^n_(i=1) (x_i - overline(x))^2 &= sum_(i=1)^n (x^2_i - 2x_i overline(x) + overline(x)^2) \
+    &= sum_(i=1)^n x_i^2 - 2 overline(x) sum_(i=1)^n x_i + sum_(i=1)^n overline(x)^2 \
+    &= sum_(i=1)^n x_i^2 - 2n overline(x)^2 + n overline(x)^2 \
+    &= sum_(i=1)^n x_i^2 - n overline(x)^2 $
+]
+
+#informalmente[
+  Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva
+]
+
+La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta: $ s_y^2 = a^2 s_x^2 $
+
+==== Correzione di Bessel <bessel>
+
+Perchè si divide per $mr(n-1)$ e non $n$?
+
+Introduciamo la formula della *varianza* (NON campionaria):
+$ sigma^2 = 1/mr(n) sum_(i=1)^n  (x_i - overline(x))^2 $
+
+Se calcoliamo la _varianza_ di tutti i possibili _campioni_ di una popolazione e poi facciamo la media, *non* otteniamo la _varianza_ di tutta la _popolazione_. Questo invece avviene calcolando la varianza campionaria:
+
+$ s^2 = sigma^2 n/(n-1) $
+$ s^2 = 1/mr(n-1) sum_(i=1)^n (x_i - overline(x))^2 $
+
+#informalmente[
+  Un campione è composto da un _minore_ numero di elementi rispetto all'intera popolazione, quindi la dispersione rispetto al valore medio è _inferiore_. Per questo motivo è necessario _correggere_ la varianza
+]
+
+==== Varianza campionaria standard (deviazione standard campionaria) <varianza-standard>
+
+È possibile applicare alla varianza campionaria la radice quadrata, ottenendo la *varianza campionaria standard*. Questo è utile per portare la varianza nella stessa _unità di misura_ dei dati del campione
+
+$ s = sqrt(s^2) $
+
+#attenzione[
+  Applicando la radice quadrata solo dopo l'elevamento a potenza, non abbiamo reintrodotto il problema dei valori negativi: $sqrt(a^2) quad != quad (sqrt(a))^2 = a$
+]
+
+=== Coefficiente di variazione (deviazione standard relativa)
+
+Valore *adimensionale*, utile per confrontare misure di fenomeni con _unità di misura differenti_.
+
+$ s^* = s / (|overline(x)|) $
+
+#nota[
+  Sia la #link(<varianza-standard>)[varianza campionaria standard] che la #link(<media>)[media campionaria] sono dimensionali, ovverro hanno unità di misura. Dividendoli tra loro otteniamo un valore adimensionale
+]
+
+=== Altri indici di dispersione
+
+/ Intervallo di varianzione: differenza tra il _più grande_ e il _più piccolo_ valore del campione
+
+/ Scarto interquartile: lunghezza dell'intervallo in cui è presente la _metà centrale dei dati_, ovvero la differenza tra il _25-esimo_ e il _75-esimo_ percentile
 
 == Indici di correlazione
 
-/ Campione bivariato: campione formato da coppie ${ (x_1, y_1), ..., (x_n, y_n) }$.
-/ Correlazione: relazione tra due variabili tale che a ciascun valore della prima corrisponda un valore della seconda seguendo una certa regolarità.
+/ Campione bivariato: campione formato da coppie ${ (x_1, y_1), ..., (x_n, y_n) }$
+
+/ Relazione/Correlazione: relazione tra due variabili tale che a ciascun valore della prima corrisponda un valore della seconda seguendo una certa regolarità
+  - *diretta*: a _piccoli_ valori di $x$ corrispondono _piccoli_ valori di $y$ e viceversa
+  - *indiretta*: a _piccoli_ valori di $x$ corrispondono _grandi_ valori di $y$ e viceversa
 
 === Covarianza campionaria <covarianza>
 
-È un valore numerico che fornisce una misura di quanto le due variabili varino assieme.
+È un valore numerico che fornisce una misura di quanto le due variabili _varino assieme_.
 Dato un campione bivariato definiamo la *covarianza campionaria* come:
 
 $ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i-overline(x))(y_i-overline(y)) $
+
+#nota[
+  Si divide per $n-1$ per lo stesso motivo della _varianza_: la #link(<bessel>)[correzione di Bessel]
+]
 
 Metodo alternativo di calcolo:
 
 $ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 
-#informalmente[
-  Intuitivamente c'è una *correlazione diretta* se al crescere di $x$ cresce anche $y$ o al descrescere di $x$ decresce anche $y$, dato che il contributo del loro prodotto alla sommatoria sarà positivo. Quindi se $x$ e $y$ hanno segno concorde allora la correlazione sarà _diretta_, altrimenti _indiretta_.
+#dimostrazione[
+  - *diretta*: _piccoli con piccoli_ e _grandi con grandi_
+  $ (x_i <= overline(x) and y_i <= overline(y)) or (x_i > overline(x) and y_i > overline(y)) $
+  da cui:
+  - $ x_i - overline(x) <= 0 and y_i - overline(y) <= 0 quad => quad (x_i - overline(x))(y_i - overline(y)) >= 0 $
+  - $ x_i - overline(x) > 0 and y_i - overline(y) > 0 quad => quad (x_i - overline(x))(y_i - overline(y)) > 0 $
+  quindi in entrambi i casi: $ (x_i - overline(x))(y_i - overline(y)) >= 0 $
+
+  - *indiretta*: _piccoli con grandi_ e _grandi con piccoli_
+  $ (x_i <= overline(x) and y_i >= overline(y)) or (x_i > overline(x) and y_i < overline(y)) $
+  da cui:
+  - $ x_i - overline(x) <= 0 and y_i - overline(y) >= 0 quad => quad (x_i - overline(x))(y_i - overline(y)) <= 0 $
+  - $ x_i - overline(x) > 0 and y_i - overline(y) < 0 quad => quad (x_i - overline(x))(y_i - overline(y)) < 0 $
+  quindi in entrambi i casi: $ (x_i - overline(x))(y_i - overline(y)) <= 0 $
+
+  Quindi dal osservando _il segno_ è possibile capire la _relazione_ del campione.
 ]
 
 - $"Cov"(x, y) > 0$ probabile correlazione diretta
@@ -372,7 +475,7 @@ $ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 
 === Indice di correlazione di Pearson (indice di correlazione lineare) <correlazione-lineare>
 
-Utilizziamo l'indice di correlazione di Pearson per avere un valore _adimensionale_ che esprime una correlazione. Possiamo definirlo anche come una misura normalizzata della covarianza nell'intervallo $[-1, +1]$. ρ è *insensibile* alle trasformazioni lineari.
+Utilizziamo l'indice di correlazione di Pearson per avere un valore _adimensionale_ che esprime una correlazione. Possiamo definirlo anche come una _misura normalizzata_ della covarianza nell'intervallo $[-1, +1]$.
 
 $ rho(x,y) = 1/(n-1)(limits(sum)_(i=1)^n (x_i-overline(x))(y_i-overline(y)))/(s_x s_y) $
 
@@ -382,7 +485,9 @@ Dove $s$ è la varianza campionaria standard.
 - $rho tilde.eq 0$ correlazione improbabile
 - $rho tilde.eq -1$ probabile correlazione linearmente indiretta
 
-#attenzione[L'#link(<correlazione-lineare>)[indice di correlazione lineare] ($rho$) cattura *solo* relazioni dirette/indirette _lineari_ ed è insensibile alle trasformazioni lineari.]
+#attenzione[
+  L'#link(<correlazione-lineare>)[indice di correlazione lineare] ($rho$) cattura *solo* relazioni dirette/indirette _lineari_ ed è insensibile alle trasformazioni lineari
+]
 
 #attenzione[
    La #link(<covarianza>)[covarianza campionaria] o l'#link(<correlazione-lineare>)[indice di correlazione lineare] $tilde.eq 0$ non implicano l'indipendenza del campione, ma è vero il contrario:
@@ -391,31 +496,34 @@ Dove $s$ è la varianza campionaria standard.
   $ "Indipendenza" quad arrow.r.double quad rho(x, y) tilde.eq "Cov"(x, y) tilde.eq 0 $
 ]
 
-== Indici di eterogeneità
+Formula alternativa:
+$ rho = (limits(sum)_(i=1)^n x_i y_i - n overline(x) overline(y)) / (sqrt((limits(sum)_(i=1)^n x_i^2 - n overline(x)^2) (limits(sum)_(i=1)^n y_i^2 - n overline(y)^2))) $
 
-/ Massima eterogeneità: il campione è composto da tutti elementi diversi
-/ Minima eterogeneità: il campione non contiene due elementi uguali _(campione omogeneo)_
+== Indici di eterogeneità <eterogeneita>
 
-L'eterogeneità può essere calcolata anche su un insieme di dati qualitativi.
+Non ha senso analizzare concentrazione o dispersione per dati #link(<quantitativi>)[qualitativi], ma possiamo analizzare l'eterogeneità:
+
+/ Massima eterogeneità: il campione è composto da tutti elementi _diversi_
+/ Minima eterogeneità: il campione contiene solo elementi _uguali_ (campione _omogeneo_)
 
 === Indice di Gini (per l'eterogeneità) <gini>
 
-$ I = 1 - sum_(j=1)^n f_j^2 $
+$ I = 1 - sum_(i=1)^n f_i^2 $
 
-Dove $f_j$ è la #link(<frequenze>)[frequenza relativa] di $j$ ed $n$ è il numero di elementi distinti. Quindi $forall j, 0 <= f_j <= 1$. Prendiamo in considerazione i due estremi:
+Dove $f_i$ è la #link(<frequenze>)[frequenza relativa] di $i$ ed $n$ è il numero di elementi distinti. Quindi $forall i, 0 <= f_i <= 1$. Prendiamo in considerazione i due estremi:
 
 - eterogeneità _minima_ (solo un valore con frequenza relativa 1): $ I = 1 - 1 = 0 $
-- eterogeneità _massima_ (tutti i valori hanno la stessa frequenza relativa $1/n$ dove $n$ è la dimensione del campione): $ I = quad 1 - sum_(j=1)^n (1/n)^2 quad =  quad 1 - n/n^2 quad = quad (n-1)/n $
+- eterogeneità _massima_ (tutti i valori hanno la stessa frequenza relativa $1/n$ dove $n$ è la dimensione del campione): $ I = quad 1 - sum_(i=1)^n (1/n)^2 quad =  quad 1 - n/n^2 quad = quad (n-1)/n $
 
 Generalizzando, $I$ non raggiungerà mai $1$: $ 0 <= I <= (n-1)/n < 1 $
 
-Dal momento che l'indice di Gini tende a $1$ senza mai arrivarci introduciamo l'*indice di Gini normalizzato*, in modo da arrivare a $1$ nel caso di eterogeneità massima: $ I' = n/(n-1)I $
+Dal momento che l'indice di Gini tende a $1$ senza mai arrivarci ($n-1$ è sempre minore di $n$) introduciamo l'*indice di Gini normalizzato*, in modo da arrivare a $1$ nel caso di eterogeneità massima, con dominio $[0, 1]$: $ I' = n/(n-1)I $
 
 === Entropia <entropia>
 
-$ H = quad sum_(j=1)^n f_j log(1/f_j) quad = quad sum_(j=1)^n - f_j log(f_j) $
+$ H = quad sum_(i=1)^n f_i log(1/f_i) quad = quad - sum_(i=1)^n f_i log(f_i) $
 
-Dove $f_j$ è la #link(<frequenze>)[frequenza relativa] e $n$ è il numero di elementi distinti.
+Dove $f_i$ è la #link(<frequenze>)[frequenza relativa] e $n$ è il numero di elementi distinti.
 L'entropia assume valori nel range $[0, log(n)]$ quindi utilizziamo l'*entropia normalizzata* per confrontare due misurazioni con diverso numero di elementi distinti $n$.
 
 $ H' = 1/log(n) H $
@@ -431,24 +539,23 @@ $ H' = 1/log(n) H $
   Intuitivamente sia l'#link(<gini>)[indice di Gini] che l'#link(<entropia>)[entropia] sono una _"media pesata"_ tra la frequenza relativa di ogni elemento ed un peso: la _frequenza stessa_ nel caso di Gini e il _logaritmo del reciproco_ nell'entropia. La frequenza relativa è già nel range $[0, 1]$, quindi non c'è bisogno di dividere per il numero di elementi.
 ]
 
-== Indici di concentriazione
+== Indici di concentrazione
 
-Un indice di concentrazione è un indice statistico che misura in che modo un _bene_ è distribuito nella _popolazione_.
+Un indice di concentrazione misura in che modo un _bene_ è distribuito nella _popolazione_.
 
-/ Distruzione del bene: $a_1, a_2, ... a_n$ indica la quantità ordinata in modo *non decrescente*, del bene posseduta dall'individuo $i$
+/ Distribuzione del bene: $a_1, a_2, ... a_n$ indica la quantità ordinata in modo *non decrescente*, del bene posseduta dall'individuo $i$
 / Media: $overline(a)$ indica la quantità media posseduta da un individuo
 / Totale: $"TOT" = n overline(a)$ indica il totale del bene posseduto
-
-- Concentrazione _massima_ (*sperequato*): un individuo possiete tutta la quantità $a_(1..n-1) = 0, quad a_n = n overline(a)$
-- Concentrazione _minima_ (*equo*): tutti gli individui possiedono la stessa quantità $a_(1..n) = overline(a)$
+/ Caso sperequo: concentrazione _massima_, un individuo possiete tutta la quantità $ a_(1..n-1) = 0, quad a_n = n overline(a) $
+/ Caso equo: concentrazione _minima_, tutti gli individui possiedono la stessa quantità $ a_(1..n) = overline(a) $
 
 === Curva di Lorentz <lorenz>
 
 La curva di Lorenz è una rappresentazione *grafica* della _distribuzione_ di un bene nella popolazione.
 
 Dati:
-- $F_i = i/n$: posizione percentuale dell'osservazione i nell'insieme
-- $Q_i = 1/"TOT" limits(sum)_(k=1)^i a_k$
+- $F_i = i/n$: posizione percentuale dell'i-esima nell'insieme
+- $Q_i = 1/"TOT" limits(sum)_(k=1)^i a_k$: quantità di bene cumulata fino all'i-esima osservazione
 
 La tupla $(F_i, Q_i)$ indica che il $100 dot F_i%$ degli individui detiene il $100 dot Q_i%$ della quantità totale.
 
@@ -456,7 +563,7 @@ Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
 
 #informalmente[
   Possiamo vedere $F_i$ come _"quanta"_ popolazione è stata analizzata fino all'osservazione $i$, espressa nel range $[0, 1]$.
-  $Q_i$ è invece una #link(<cumulata>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$.
+  $Q_i$ è invece una #link(<frequenze>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$.
 ]
 
 #figure(caption: [Curva di Lorentz],
@@ -464,6 +571,7 @@ Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
     import cetz: *
 
     plot.plot(
+      name: "lorentz",
       size: (4,4),
       x-tick-step: 1,
       y-tick-step: 1,
@@ -471,40 +579,50 @@ Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
       {
         plot.add(((0,0), (1,1)), line: "spline", style: (stroke: 2pt + green), label: "Minima")
         plot.add(((0,0), (0.6, 0.2), (1,1)), line: "spline", style: (stroke: 2pt + orange), label: "Media")
-        plot.add(((1,0), (1,1)), line: "spline", style: (stroke: 2pt + red), label: "Massima")
+        plot.add(((0,0), (0.98,0)), line: "spline", style: (stroke: 2pt + red), label: "Massima")
+        plot.add-anchor("11", (1,1))
+        plot.add-anchor("10", (1,0))
     })
+    draw.circle("lorentz.11", fill: red, stroke: none, radius: .1)
+    draw.circle("lorentz.10", fill: white, stroke: red, radius: .1)
   })
 )
 
 === Indice di Gini (per la concentrazione)
 
-Dato che la #link(<lorenz>)[curva di Lorenz] non assume mai alcun valore nella parte di piano superiore alla retta che collega $(0,0)$ a $(1,1)$, allora introduciamo l'*indice di Gini*, che invece assume valori nel range $[0, 1]$.
+Dato che la #link(<lorenz>)[curva di Lorenz] _non assume mai_ alcun valore nella parte di piano superiore alla _bisettrice_, allora introduciamo l'*indice di Gini*, che trasforma la rappresentazione grafica in un _indice numerico_ che assume valori nel range $[0, 1]$.
 
 Anche esso indica la _concetrazione_ di un bene nella popolazione.
 
-$ G = quad (limits(sum)_(i=1)^(n-1) F_i - Q_i) / (limits(sum)_(i=1)^(n-1) F_i) $
+$ G = (limits(sum)_(i=1)^(n-1) F_i - Q_i) / (limits(sum)_(i=1)^(n-1) F_i) $
 
-È possibile riscrivere il denominatore come:
+#nota[
+  È possibile riscrivere il denominatore come:
+  $ sum_(i=1)^(n-1) F_i quad = quad 1/n sum_(i=1)^(n-1) i quad = quad 1/cancel(n) (cancel(n)(n-1))/2 quad = quad (n-1) / 2 $
+]
 
-$ sum_(i=1)^(n-1) F_i quad = quad 1/n sum_(i=1)^(n-1) i quad = quad 1/n (n(n-1))/2 quad = quad (n-1) / 2 $
 
-Ottendendo come formula alternatica:
+Ottendendo come formula alternativa:
 
-$ G = quad 2 / (n-1) sum_(i=1)^(n-1) F_i - Q_i $
+$ G = 2 / (n-1) sum_(i=1)^(n-1) F_i - Q_i $
 
 #informalmente[
-  Facendo un parallelo con la #link(<lorenz>)[curva di Lorenz], possiamo vedere $F_i - Q_i$ come la distanza tra la bisettrice ($F_i$) e la ricchezza dell'osservazione $i$ ($Q_i$). La somma di queste distanze viene poi _"normalizzata"_, dividendo per $(n-1) / 2$.
+  Facendo un parallelo con la #link(<lorenz>)[curva di Lorenz], possiamo vedere $F_i - Q_i$ come la distanza tra la bisettrice ($F_i$) e la ricchezza dell'osservazione $i$ ($Q_i$). La somma di queste distanze viene poi _"normalizzata"_, dividendo per $(n-1) / 2$
 ]
 
 === Analisi della varianza (ANOVA)
 
-Dato un campione, è possibile suddividerlo in più _gruppi_ ed effettuare delle analisi sulle _diversità_ tra i vari gruppi. Ad esempio, dato un campione di dati sulla natalità, si potrebbe analizzare formando gruppi per regione o per reddito.
+L'analisi della varianza (*ANOVA* - ANalysis Of VAriance) permette di analizzare un campione suddiviso in due o più _gruppi_ e capire se ci sono sostanziali differenze di un'attributo nei vari gruppi.
 
-L'analisi della varianza (*ANOVA* - ANalysis Of VAriance) è un insieme di tecniche statistiche che permettono, appunto, di confrontare due o più _gruppi_ di dati. Definiamo a questo scopo:
+#informalmente[
+  Ad esempio, dato un campione di dati sulla _natalità_, si potrebbe analizzare formando gruppi per _regione_ o per _reddito_ e cercare l'influenza di questi fattori sulla natalità stessa
+]
 
 / Numerosità dei gruppi: dato un campione diviso in $G$ gruppi, ognuno ha numerosità $n_1, ..., n_G$
-
+/ Numerosità totale: numero totale delle osservazioni $n_1 + ... + n_G = n$
 / Osservazione: viene definita $x_i^g$ come l'$i$-esima osservazione del $g$-esimo gruppo
+
+Possiamo calcolare alcuni indici e analizzarne i risultati:
 
 / Media campionaria di tutte le osservazioni: la media del campione $ overline(x) = 1/n sum_(g=1)^G  sum_(i=1)^n_g x_i^g $
 
@@ -518,54 +636,43 @@ L'analisi della varianza (*ANOVA* - ANalysis Of VAriance) è un insieme di tecni
 
 Vale la seguente regola: $"SS"_T = "SS"_W + "SS"_B$.
 
-/ Indici di variazione:
+/ Varianza:
 
-  - *Total* (la varianza totale del campione):  $ ("SS"_T)/(n-1) $
-  - *Within* (la varianza di ogni elemento del gruppo): $ ("SS"_W)/(n-G) $
-  - *Between* (la varianza tra ogni gruppo e il campione completo): $ ("SS"_B)/(G-1) $
+  - *Total* (la varianza totale del campione): $ s_T^2 = ("SS"_T)/(n-1) $
+  - *Within* (la varianza di ogni elemento del gruppo): $ s_W^2 = ("SS"_W)/(n-G) $
+  - *Between* (la varianza tra ogni gruppo e il campione completo): $ s_B^2 = ("SS"_B)/(G-1) $
 
 L'ipotesi alla base è che dati $G$  gruppi, sia possibile scomporre la varianza in due componenti: _Varianza interna ai gruppi_ (varianza *Within*) e _Varianza tra i gruppi_ (varianza *Between*).
 
 #informalmente[
   Analizzando diversi gruppi attraverso l'ANOVA, si possono raggiungere due conclusioni:
-  - i gruppi risultano significativamente *diversi* tra loro: la _varianza between_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di ciascun gruppo)
-  - i gruppi risultano *omogenei*: la _varianza within_ contribuisce più significativamente alla varianza totale (il fenomeno è legato a caratteristiche proprie di tutti i gruppi)
+  - i gruppi risultano significativamente *diversi* tra loro: la _varianza between_ $s_W^2$ contribuisce più significativamente alla varianza totale $s_T^2$ (il fenomeno è legato a caratteristiche proprie di ciascun gruppo)
+  - i gruppi risultano *omogenei*: la _varianza within_ $s_W^2$ contribuisce più significativamente alla varianza totale $s_T^2$ (il fenomeno è legato a caratteristiche proprie di tutti i gruppi)
 ]
-
-```python
-import numpy as np
-
-def anova(groups):
-    all_elements = pd.concat(groups)
-    sum_total = sum((all_elements - all_elements.mean())**2)
-    sum_within = sum([sum((g - g.mean())**2) for g in groups])
-    sum_between = sum([len(g) * (g.mean()-all_elements.mean())**2 for g in groups])
-    assert(np.abs(sum_total - sum_within - sum_between) < 10**-5)
-    n = len(all_elements)
-    total_var = sum_total / (n-1)
-    within_var = sum_within / (n-len(groups))
-    return (total_var, within_var*(n-len(groups))/(n-1))
-```
 
 == Alberi di decisione
 
-// TODO: fare la parte sugli alberi
+Un albero di decisione è un *classificatore* (ovvero un processo che assegna una classe ad un oggetto) che sfrutta gli indici di #link(<eterogeneita>)[eterogeneità] per costruire la propria struttura efficacemente. Sono composti da:
+- *nodi interni*: domanda sull'osservazione _(anche su più attributi)_ con risposta binaria
+- *foglie*: classe a cui l'oggetto viene assegnato
 
-== Classificatori
+Le domande vengono scelte e valutate in base all'_omogenetità_ dei _sottoinsiemi_ creati da essa, più i gruppi sono omogenei, _migliore_ è la domanda.
 
-Dato un _classificatore binario_ che divide in due classi (positiva e negativa) e un _insieme di oggetti_ di cui è *nota* la classificazione, possiamo valutare la sua bontà tramite il numero di casi classificati in modo errato. La classificazione errata può essere:
-- *Falso negativo*: oggetto _positivo_ classificato come _negativo_
-- *Falso positivo*: oggetto _negativo_ classificato come _positivo_
+== Analisi dei classificatori
+
+Dato un _classificatore binario_ che divide in due classi (positiva e negativa) e un _insieme di oggetti_ di cui è *nota* la classificazione, possiamo valutare la sua _bontà_ tramite il numero di casi classificati in modo _errato_. La classificazione errata può essere:
+- *falso negativo*: oggetto _positivo_ classificato come _negativo_
+- *falso positivo*: oggetto _negativo_ classificato come _positivo_
 
 #nota[
-  Il peso di un falso positivo può *non* essere lo stesso di un falso negativo, si pensi al caso di una malattia contagiosa: un _falso negativo_ sarà molto più pericoloso di un _falso positivo_ (che verrà scoperto con ulteriori analisi).
+  Il peso di un falso positivo può *non* essere lo stesso di un falso negativo, si pensi al caso di una malattia contagiosa: un _falso negativo_ (ignaro della malattia) sarà molto più pericoloso di un _falso positivo_ (che verrà scoperto con ulteriori analisi)
 ]
 
 Introduciamo la *matrice di confusione*, che riassume la bontà del classificatore:
 
-#figure(caption: [Matrice di confusione],
-  table(
-    columns: (auto, auto, auto, auto, auto),
+#figure(caption: [Matrice di confusione])[
+  #table(
+    columns: 5,
     inset: 10pt,
     align: horizon,
 
@@ -574,7 +681,7 @@ Introduciamo la *matrice di confusione*, che riassume la bontà del classificato
     table.cell(rowspan: 2, stroke: none, []),
 
     [Positivo],
-    [Negativi],
+    [Negativo],
 
     table.cell(rowspan: 2, fill: silver, [*Predizione del classificatore*]),
 
@@ -583,7 +690,7 @@ Introduciamo la *matrice di confusione*, che riassume la bontà del classificato
     [Falsi positivi (FP)],
     [_Totali classificati positivi (TOT CP)_],
 
-    [Negativi],
+    [Negativo],
     [Falsi negativi (FN)],
     [Veri negativi (VN)],
     [_Totali classificati negativi (TOT CN)_],
@@ -593,25 +700,21 @@ Introduciamo la *matrice di confusione*, che riassume la bontà del classificato
     [_Totale negativi (TN)_],
     [_Totale casi (TOT casi)_],
   )
-)
-
-```python
-pd.DataFrame(metrics.confusion_matrix(Y_test, preds))
-```
+]
 
 / Sensibilità: capacità del classificatore di predire bene i positivi $"VP"/"TP"$
 / Specificità: capacità del classificatore di predire bene i negativi $"VN"/"TN"$
 
-È possibile valutare la bontà di un classificatore attraverso il punto:
+È possibile valutare la *bontà* di un classificatore _graficamente_ attraverso il _punto_:
 
 $ (1 - "Specifità", "Sensibilità") quad = quad (1 - "VN"/"TN", "VP"/"TP") quad = quad ("FP"/"TN", "VP"/"TP") $
 
 === Casi particolari
 
-/ Classificatore costante: associa indiscriminatamente gli oggetti ad una classe (positiva o negativa)
-/ Classificatori positivi (CP): tutti i casi sono classificati come positivi
+/ Classificatori costanti: associano indiscriminatamente gli oggetti ad una classe (positiva o negativa)
+/ Classificatore positivo (CP): tutti i casi sono classificati come positivi
   - _Sensibilità_: $1$, _Specificitià_: $0$, _Punto_ $(1,1)$ #box(circle(radius: 2.5pt, fill: green, stroke: 1pt + black))
-/ Classificatori negativi (CN): tutti i casi sono classificati come negativi
+/ Classificatore negativo (CN): tutti i casi sono classificati come negativi
   - _Sensibilità_: $0$, _Specificitià_: $1$, _Punto_ $(0, 0)$ #box(circle(radius: 2.5pt, fill: red, stroke: 1pt + black))
 / Classificatore ideale (CI): tutti i casi sono classificati correttamente
     - _Sensibilità_: $1$, _Specificitià_ $1$, _Punto_ $(0,1)$ #box(circle(radius: 2.5pt, fill: blue, stroke: 1pt + black))
@@ -651,14 +754,19 @@ $ (1 - "Specifità", "Sensibilità") quad = quad (1 - "VN"/"TN", "VP"/"TP") quad
     draw.content("classificatori.55", [*Casuale*], anchor: "west", padding: .2)
   }))
 
+Un classificatore è tanto più efficace quanto più si avvicina al classificatore ideale.
+
+#attenzione[
+  Il classificatore peggiore è, in realtà, un classificatore ideale: basta invertirlo
+]
+
 === Classificatori a soglia (Curva ROC)
 
 Un classificatore a soglia discrimina un caso in base ad una *soglia* stabilita a priori, in caso la misurazione sia _superiore_ alla soglia allora verrà classificato _positivamente_, altrimenti _negativamente_.
 
 Per trovare il valore con cui _fissare_ la soglia, possiamo sfruttare questo metodo:
 
-- definiamo $theta$ come una generica soglia
-- è necessario stabilire un intervallo $[theta_min, theta_max]$
+- definiamo $theta$ come una generica soglia, che ha intervallo $[theta_min, theta_max]$
   - utilizzando $theta_min$ tutti i casi saranno positivi, ottenento un classificatore positivo #box(circle(radius: 2.5pt, fill: green, stroke: 1pt + black))
   - utilizzando $theta_max$ tutti i casi saranno negativi, ottenento un classificatore negativo #box(circle(radius: 2.5pt, fill: red, stroke: 1pt + black))
 - definiamo $D$ come una discretizzazione di questo intervallo continuo
@@ -667,7 +775,7 @@ Per ogni soglia $theta in D$ è possibile calcolare la _sensibilità_ e _specifi
 
 Il risultato è una *curva*, detta *ROC* (Receiver Operator Carapteristic) #box(line(length: 10pt, stroke: 2pt + red), inset: (bottom: 3pt)), che ha sempre come estremi in $(0,0)$ (caso in cui viene usato $theta_max$) e $(1,1)$ (caso in cui viene usato $theta_min$).
 
-Per misurare la _bontà_ del classificatore viene misurata l'area di piano sotto la curva (*AUC* - Area Under the ROC Curve #box(rect(height: 7pt, width: 15pt, fill: rgb("#FFCDD2")))), più si avvicina a $1$, _migliore_ è il classificatore.
+Per misurare la _bontà_ del classificatore (in modo _indipendente_ dalla soglia scelta) viene misurata l'area di piano sotto la curva (*AUC* - Area Under the ROC Curve #box(rect(height: 7pt, width: 15pt, fill: rgb("#FFCDD2")))), più si avvicina a $1$, _migliore_ è il classificatore.
 
 #figure(caption: [Curva ROC],
   cetz.canvas({
@@ -702,9 +810,80 @@ Per misurare la _bontà_ del classificatore viene misurata l'area di piano sotto
     draw.content("curvaroc.55", [*Casuale*], anchor: "west", padding: .2)
   }))
 
+#attenzione[
+  La curva è "spezzettata" dato che le soglie provate sono un _numero finito_, una discretizzazione dell'intervallo $[theta_min, theta_max]$
+]
+
+#informalmente[
+  Per trovare la _soglia migliore_, proviamo diversi valori della soglia $theta$, calcoliamo per ognuna il punto sul piano e teniamo la _migliore_.
+
+  I diversi tentativi disegnano la _curva ROC_, maggiore è l'_area sotto la curva AUC_, migliore è il _classificatore_ (indipendentemente dalla soglia scelta)
+]
+
+#nota[
+  Un _caso particolare _dei classificatori a soglia sono i *classificatori probabilistici*, dove la quantità assegnata agli oggetti (il valore con cui viene confrontata la soglia) è la _probabilità_ di appartenere ad una data _classe_
+]
+
 == Trasformazione dei dati
 
-// TODO: trasformazione dei dati
+Dato un insieme di dati $X = {x_1, ..., x_n}$, trasformare significa trovare una funzione $g : X -> X'$ che trasforma $X$ in $Y = {x_1', ..., x_n'}$, dove $g(x_i) = x_i'$.
+
+#attenzione[
+  La funzione $g$ che effettua la trasformazione *deve* essere *iniettiva*, altrimenti più dati distinti potrebbero essere mappati sullo stesso valore, causando una modifica alle frequenze
+]
+
+=== Trasformazioni lineari
+
+Date due costanti $a, b in bb(R)$, allora $g(x) = a x + b$, da cui possiamo derivare:
+
+/ Cambiamento di origine (traslazione):
+  - per $k>0$, viene traslata a sinistra con $x -> x - k$ e a destra con $x -> x + k$
+  - _media_, _mediana_ e _quantili_ vengono traslati della stessa quantità
+  - _range_, _distanza interquartile_, _varianza_, _deviazione standard_ rimangono invariati
+
+/ Cambiamento di scala (dilatazione o concentrazione):
+  - per $h in bb(R)^+$, applichiamo $x -> x/h$:
+    - se $h > 1$ allora è una concentrazione
+    - se $h < 1$ allora è una dilatazione
+    - se $h < x_min$ allora $forall x_i > 1$
+    - se $h > x_max$ allora $forall x_i < 1$
+  - _media_, _mediana_, _quantili_, _range_, _distanza interquartile_ e _deviazione standard_ vengono scalati della stessa quantità $1/h$
+  - _varianza_ viene scalata di $1/(h^2)$
+
+/ Cambiamento di origine e scala: se i nostri valori sono nel _range_ $(a,b)$ e li vogliamo nell'_intervallo_ $(c, d)$ allora possiamo:
+  $ x -> c + (d-c)/(b-a) (x-a) $
+
+/ Standardizzazione: caso particolare del cambiamento di origine e scala: si scala rispetto alla _deviazione standard_ e si trasla a sinistra rispetto alla _media_, in modo da ottenere un insieme di _media_ $0$ e _deviazione_ $1$:
+  $ x -> (x - overline(x))/(sigma_x) $
+
+#figure(caption: "Effetti delle trasformazioni sugli indici")[
+  #table(
+    columns: 4,
+    inset: 10pt,
+    align: horizon,
+
+    table.cell(colspan: 2, fill: silver, [*Indice*]),
+    table.cell(fill: silver, [$g(x) = x + k$]),
+    table.cell(fill: silver, [$g(x) = h x$]),
+
+    [Media], [$overline(x)$], [$overline(x) + k$], [$h overline(x)$],
+    [Mediana], [$m_x$], [$m_x + k$], [$h m_x$],
+    [Moda], [$M_x$], [$M_x + k$], [$h M_x$],
+    [Quantile], [$q_x$], [$q_x + k$], [$h q_x$],
+    [Varianza], [$s^2_x$], [$s^2_x$], [$h^2 s^2_x$],
+    [Dev. std.], [$s_x$], [$s_x$], [$|h| s_x$],
+    [Range], [$r_x$], [$r_x$], [$h r_x$],
+    [IQR], [$"IQR"_x$], [$"IQR"_x$], [$h "IQR"_x$],
+  )
+]
+
+=== Trasformazioni logaritmiche
+
+Quando i valori di un campione sono molto grandi oppure molto distanti è possibile trasformali in maniera logaritmica: $x -> log x$
+
+#nota[
+  Può risultare utile anche perchè eventuali prodotti/quozienti diventano somme/sottrazioni tra i rispettivi logaritmi
+]
 
 == Grafici
 
@@ -1073,7 +1252,7 @@ Una variabile aleatoria si dice discreta se il suo supporto è finito e numerabi
 
 $ 1 = P(Omega) = P(union.big_(i=m)^n {X = i}) = sum_(i=m)^n P(X = i) $
 
-==== Funzione indicatrice
+==== Funzione indicatrice <indicatrice>
 
 Dati $A, B$ due insiemi tali che $A subset.eq B$, la funzione indicatrice di $A$ rispetto a $B$ è la funzione $I : B -> {0, 1}$ che vale:
 

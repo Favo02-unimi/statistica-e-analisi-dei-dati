@@ -2365,11 +2365,111 @@ Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ li
 
 = Cheatsheet matematica <matematica>
 
+== Varie
+
 $ sum_(i=1)^n = (n(n+1))/2 $
 
+== Derivate
 
+L'operatore derivata è un _operatore lineare_, ovvero è possibile:
+$ (a dot f(x) + b dot g(x))' = a dot f'(x) + b dot g'(x) $
 
-= Esercizi
+=== Derivate immediate
+
+#table(
+  columns: 2,
+  inset: 5pt,
+  align: horizon,
+  table.cell(fill: silver, [$ f(x) $]),
+  table.cell(fill: silver, [$ f'(x) $]),
+  [$ n in bb(R) $], [$ 0 $],
+  [$ x $], [$ 1 $],
+  [$ x^a $], [$ a x^(a-1) $],
+  [$ e^x $], [$ e^x $],
+  [$ a^x $], [$ a^x ln(a) $],
+  [$ ln(x) $], [$ 1/x, x > 0 $],
+  [$ ln|x| $], [$ 1/x, x != 0 $],
+  [$ log_a (x) $], [$ 1/(x ln(a)), x > 0 $],
+  [$ |x| $], [$ (|x|) / x, x != 0 $],
+  [$ sin(x) $], [$ cos(x) $],
+  [$ cos(x) $], [$ -sin(x) $],
+  [$ tan(x) $], [$ 1/(cos^2(x)), x != pi/2 + k pi $],
+  [$ cot(x) $], [$ - 1 / (sin^2(x)), x != k pi $],
+  [$ arcsin(x) $], [$ 1 / sqrt(1-x^2), x in [-1,1] $],
+  [$ arccos(x) $], [$ - 1 / sqrt(1-x^2), x in [-1,1] $],
+  [$ arctan(x) $], [$ 1/(1+x^2) $]
+)
+
+=== Derivate "avanzate"
+
+#table(
+  columns: 2,
+  inset: 5pt,
+  align: horizon,
+  table.cell(fill: silver, [$ f(x) $]),
+  table.cell(fill: silver, [$ f'(x) $]),
+  [$ f(g(x)) $], [$ f'(g(x)) dot g'(x) $],
+  [$ f(x) dot g(x) $], [$ f'(x) dot g(x) + f(x) dot g'(x) $],
+  [$ f(x)/g(x) $], [$ (f'(x) dot g(x) - f(x) dot g'(x))/(g^2(x)) $]
+)
+
+== Integrali
+
+=== Integrali immediati
+
+#table(
+  columns: 2,
+  inset: 5pt,
+  align: horizon,
+  table.cell(fill: silver, [$ g'(x) $]),
+  table.cell(fill: silver, [$ g(x) $]),
+  [$ integral 1 dif x $], [$ x + c $],
+  [$ integral a dif x $], [$ a x + c $],
+  [$ integral x^n dif x $], [$ (x^(n+1))/(n+1) + c $],
+  [$ integral 1/x dif x $], [$ ln|x| + c $],
+  [$ integral e^x dif x $], [$ e^x + c $],
+  [$ integral a^x dif x $], [$ (a^x)(ln(a)) + c $],
+  [$ integral sin(x) dif x $], [$ -cos(x) + c $],
+  [$ integral cos(x) dif x $], [$ sin(x) + c $],
+  [$ integral 1/(cos^2(x)) dif x $], [$ tan(x) + c $],
+  [$ integral 1/(1+x^2) dif x $], [$ arctan(x) + c $],
+  [$ integral 1/(sqrt(1-x^2)) dif x $], [$ arcsin(x) + c $],
+)
+
+=== Integrali "avanzati"
+
+Trucchi per risolvere integrali "composti" (termine improprio):
+
+- controllare se è presente la derivata $f'(x)$ della funzione $f(x)$ nella parte più complessa dell'integrale (quasi sempre a denominatore):
+  $ integral (f(x)) / (f'(x)) dif x = ln(|f(x)|) + c $
+	 $ integral (f(x))/(1 + f'(x)^2) dif x = arctan(f(x)) + c $
+
+- cercare sempre di portare a numeratore le somme, in modo da poter dividere l'integrale
+  $ integral a + b dif x = integral a dif x + integral b dif x $
+  $ integral x/(sqrt(x+1)) dif x = integral (t-1)/(sqrt(t)) dif t "(sostituzione)" $
+
+=== Integrazione per sostituzione
+
+- sostituire una certa quantità con $t$
+- sostituire tutte le occorrenze rimanenti di $x$, calcolandone il nuovo valore
+- sostituire $dif x$, calcolandone il nuovo valore risolvendo l'equazione $dif t = D(t) dif x$
+- calcolare l'integrale per $t$
+- riportare la soluzione in $x$, sostituendo in modo inverso $t$
+
+$ integral mr(sqrt(x)) / (1 + x) mb(dif x) quad quad t = mr(sqrt(x)) quad quad x = t^2 \
+dif t = D(sqrt(x)) mb(dif x) quad quad dif t = 1/(2mr(sqrt(x))) mb(dif x) quad quad dif t = 2mr(sqrt(x)) mb(dif x) quad quad mb(dif x) = 2mr(t) dif t \
+= integral t / (1 + t^2) mb(2 t dif t) = ... = 2 mr(t) - 2 arctan(mr(t)) + c = 2 mr(sqrt(x)) - 2 arctan(mr(sqrt(x))) + c $
+
+=== Integrazione per parti
+
+- portare l'integrale nella forma:
+  $ integral f(x) dot  g(x) dif x $
+- scegliere una funzione da derivare $f$ e una da integrare $g'$
+- calcolare derivata $f'$ e integrale $g$
+- applicare la formula:
+  $ f(x) dot g(x) - integral f'(x) dot g(x) dif x $
+
+= Esercizi <esercizi>
 
 - Dimostrare / trovare se la funzione $f(x)$ è una massa/densità valida
   - sommatoria / integrale = 1

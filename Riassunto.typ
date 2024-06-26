@@ -1465,7 +1465,18 @@ $ "Var"(X) = G_X^2 = E[(X - mu)^2] $
 *Proprietà* varianza:
 
 - la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_ $ "Var"(I) = P(A) dot P(overline(A)) $
-- la varianza non opera in modo lineare: $ "Var"(a X + b) = a^2 "Var"(X) $
+- la varianza non opera in modo _lineare_: $ "Var"(a X + b) = a^2 "Var"(X) $
+- la varianza della _media campionaria_ : $ "Var"(overline(X)) = "Var"(X)/n $
+  #dimostrazione[
+    $ "Var"(overline(X)) &= "Var"(1/n sum_(i=1)^n X_i) \
+      &= 1/n^2 "Var"(sum_(i=1)^n X_i) \
+      &= 1/n^cancel(2) dot cancel(n) "Var"(X) \
+      &= "Var"(X)/n $
+    infatti
+    $ "Var"(sum_(i=1)^n X_i) &= "Var"(X_1 + ... + X_n) \
+      &= "Var"(X_1) + ... + "Var"(X_n) \
+      &= n "Var"(X) != "Var"(n X) $
+  ]
 
 / Deviazione standard: $sigma_X = sqrt("Var"(X))$
 
@@ -1568,6 +1579,7 @@ $ "Cov"(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
 
 Siano $X$ e $Y$ due variabili aleatorie la loro _varianza_ della loro _somma_ è:
 $ "Var"(X + Y) = "Var"(X) + "Var"(Y) + 2 "Cov"(X, Y) $
+$ "Var"(X - Y) = "Var"(X) + "Var"(Y) - 2 "Cov"(X, Y) $
 
 È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
 $ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
@@ -1680,6 +1692,8 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 
 === Modelli di distribuzione discreti
 
+// TODO: controlalre e aggiungere descrizione a parole per ogni modello
+
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
 ==== Modello di Bernoulli $X tilde B(p)$ <bernoulliano>
@@ -1719,7 +1733,7 @@ $ "Var"(X) = mr(p(1-p)) $
 
 ==== Modello binomiale $X tilde B(n, p)$ <binomiale>
 
-Il modello ripete $n$ volte un *esperimento bernulliano indipendente* di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. Il supporto del modello è $D_X = {0, 1, ..., n}$.
+Il modello ripete $n$ volte un *esperimento bernulliano indipendente* di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. La variabile aleatoria $X$ assume il numero di successi e il supporto è $D_X = {0, ..., n}$.
 
 $ mr(X tilde B(n, p)) $
 
@@ -1760,7 +1774,7 @@ dove $Y tilde B(n+m, p)$
 
 ==== Modello uniforme discreto $X tilde U(n)$ <uniforme-discreto>
 
-Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Il supporto del modello è $D_X = [1, n]$.
+Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Il supporto del modello è $D_X = {1, ..., n}$.
 
 $ mr(X tilde U(n)) $
 
@@ -1809,7 +1823,7 @@ $ "Var"(X) = mr((n^2 - 1)/12) $
 
 ==== Modello geometrico $X tilde G(p)$ <geometrico>
 
-Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = [0, ..., +infinity)$.
+Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = {0, ..., +infinity}$.
 
 $ mr(X tilde G(p)) $
 
@@ -1882,7 +1896,7 @@ $ P(X >= x + y | X >= x) = P(X >= y) $
 ==== Modello di Poisson $X tilde P(lambda)$ <poisson>
 
 È un tipo di distribuzione *discreta* che esprime le probabilità che un certo *numero di eventi* si verificano *contemporaneamente* in un dato intervallo di tempo, sapendo che *mediamente* se ne verifica un numero $lambda$. Tutti gli eventi sono *indipendenti*.
-Il modello ha supporto $D_X = [0, +infinity)$ e $lambda in (0, +infinity)$
+Il modello ha supporto $D_X = {0, ..., +infinity}$ e $lambda in (0, +infinity)$
 
 $ mr(X tilde P(lambda)) $
 
@@ -1896,7 +1910,7 @@ Un dataset segue il _modello di Poisson_ se possiede le seguenti _caratteristich
 - la _media_ campionaria è vicina al parametro $lambda$ e la _varianza_ è uguale a $lambda$
 
 / Funzione di massa:
-$ p_X (x) = P(X = x)= mr(e^(-lambda) dot (lambda^x)/x! I_[0, +infinity] (x)) $
+$ p_X (x) = P(X = x)= mr(e^(-lambda) dot (lambda^x)/x! I_{0, ..., +infinity} (x)) $
 
 #figure(caption: [Funzione di massa modello di Poisson], image("poisson-massa.png", width: 40%))
 
@@ -1958,12 +1972,12 @@ Se le due variabili aleatorie sono anche identicamente distribuite allora: $ X_1
 
 ==== Modello ipergeometrico $X tilde H(n, M, N)$ <ipergeometrico>
 
-Descrive l'*estrazione* di oggetti binari da un'urna *senza reimmissioni* (in caso ci fossero reimmissioni, potremmo usare il #link(<binomiale>)[modello binomiale]). I parametri sono:
-- $n$: numero di estrazioni
-- $N$: numero di oggetti _"corretti"_
-- $M$: numero di oggetti _"errati"_
+Descrive l'*estrazione* di oggetti binari da un'urna *senza reimmissioni* (in caso ci fossero reimmissioni, potremmo usare il #link(<binomiale>)[modello binomiale]). $X$ assume il numero di _oggetti "corretti" estratti_ dopo $n$ estrazioni. I parametri sono:
+- $n in bb(N)^+$: numero di estrazioni
+- $N in {0, ..., n}$: numero di oggetti _"corretti"_
+- $M in {0, ..., n}$: numero di oggetti _"errati"_
 
-Il supporto del modello è $[max(0, n-M), min(n, N)]$.
+Il supporto del modello è ${max(0, n-M), ..., min(n, N)}$.
 
 $ mr(X tilde H(n, M, N)) $
 
@@ -1972,7 +1986,7 @@ $ mr(X tilde H(n, M, N)) $
 
   Il #text(purple)[massimo numero] di oggetti _corretti_ estraibili è: $min("estrazioni", "corretti") = mp(min(n, N))$.
 
-  Di conseguenza, il supporto del modello è: $ [mb(max(0, n-M)), mp(min(n, N))] $
+  Di conseguenza, il supporto del modello è: $ {mb(max(0, n-M)), ..., mp(min(n, N))} $
 ]
 
 #nota[
@@ -2342,16 +2356,16 @@ La statistica inferenziale permette di capire quale distribuzione descrivere le 
   Spesso ci interessa un valore che dipende dal parametro ignoto $theta$, non $theta$ stesso. Questo valore lo indichiamo come $tau(theta)$
 ]
 
-/ Statistica / Stimatore: funzione $t : D_X^n -> bb(R)$ che dati dei valori, stima il valore che ci interessa: $ t(x_1, ..., x_n) = accent(tau, hat) approx tau(theta) $
+/ Statistica / Stimatore: funzione $t : D_X^n -> bb(R)$ che dati dei valori, stima il valore che ci interessa: $ t(x_1, ..., x_n) = hat(tau) approx tau(theta) $
 
 #nota[
-  Dato che il campionamento è casuale, diversi campioni $(x_1, ..., x_n)$ della stessa popolazione danno $accent(tau, hat)$ diversi, per cui $accent(tau, hat) approx tau(theta)$
+  Dato che il campionamento è casuale, diversi campioni $(x_1, ..., x_n)$ della stessa popolazione danno $hat(tau)$ diversi, per cui $hat(tau) approx tau(theta)$
 ]
 
 / Variabile aleatoria per stimatore: indichiamo con $T$ la variabile aleatoria che indica una stima, ricevendo delle variabili aleatorie (non più dei valori):
-$ T = t(X_1, ..., X_n) = accent(t, hat) approx tau(theta) $
+$ T = t(X_1, ..., X_n) = hat(t) approx tau(theta) $
 
-== Stimatori non deviati
+== Stimatori non deviati <stimatore>
 
 Uno stimatore $T$ è *non deviato* (*non distorto* o *corretto*) per $tau(theta)$ se e solo se:
 $ E[t(X_1, ..., X_n)] = tau(theta) $
@@ -2448,6 +2462,7 @@ Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ li
   ]
 - la varianza della somma di più variabili aleatorie vale:
   $ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
+- la varianza della media campionaria è: $ "Var"(overline(X)) = "Var"(1/n sum_(i=1)^n X_i) = 1/n^2 "Var"(sum_(i=1)^n X_i) = 1/n^2 dot n "Var"(X) = mr("Var"(X)/n) $
 
 === Proprietà della covarianza
 

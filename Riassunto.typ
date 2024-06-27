@@ -913,7 +913,18 @@ Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezi
 
 / Disposizione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ d_(n,k) = n! / (n-k)! $
 
-/ Disposizione con ripetizione: gli oggetti di $A$ possono essere usati più di una volta $ D_(n,k) = n^k $
+#dimostrazione[
+  $ d_(n,k) &= n(n-1)(n-2)...(n-k+1) \
+    &= mb(n(n-1)(n-2)...(n-k+1)) dot mb((n-k)(n-k-1)...(1))/mo((n-k)(n-k-1)...(1)) \
+    &= mb(n!) / mo((n-k)!)
+  $
+]
+
+/ Disposizione con ripetizione: gli oggetti di $A$ possono essere usati più di una volta $ D_(n,k) = underbrace(n dot n dot ... dot n, k "volte") = n^k $
+
+#attenzione[
+  In questo caso $k$ può essere $> n$
+]
 
 === Combinazioni
 
@@ -923,21 +934,33 @@ Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezi
   Il numero di combinazioni $c_(n,k)$ è sempre minore del numero di disposizioni $d_(n,k)$, dato che l'ordine non conta.
 ]
 
-/ Combinazione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ c_(n,k) = d_(n,k) / k! = n!/(k! dot (n-k)!) = vec(n, k) $
+/ Combinazione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ c_(n,k) = binom(n, k) $
 
-#nota[$vec(n, k)$ viene detto *coefficiente binomiale*]
+#nota[
+  $binom(n, k)$ viene detto *coefficiente binomiale*, ovvero il numero _sottoinsiemi_ $k$ che si possono formare da un _insieme_ di $n$ elementi
+]
 
-/ Combinazione con ripetizioni: gli oggetti di $A$ possono venir usati più di una volta $ C_(n,k) = (n+k-1)! / (k! dot (n-1)!) = vec(n + k - 1, k) $
+#dimostrazione[
+  $ c_(n,k) = d_(n,k) / k! = n!/(k! dot (n-k)!) = binom(n, k) $
+]
+
+/ Combinazione con ripetizioni: gli oggetti di $A$ possono venir usati più di una volta $ C_(n,k) = (n+k-1)! / (k! dot (n-1)!) = binom(n + k - 1, k) $
+
+#attenzione[
+  In questo caso $k$ può essere $> n$
+]
 
 === Permutazioni
 
 Dato un insieme di $n$ oggetti $A = { a_1, ..., a_n }$, una *permutazione* è una sequenza _ordinata_ in cui compaiono _tutti_ gli oggetti (quindi vogliamo selezionare $k$ elementi).
 
-/ Permutazioni semplici (senza ripetizioni): l'insieme $A$ non contiene elementi duplicati $ P_n = n! $
+/ Permutazioni semplici (senza ripetizioni): l'insieme $A$ non contiene elementi duplicati $ P_n = n(n-1)(n-2)...(1) = n! $
 
-/ Permutazioni di oggetti distinguibili a gruppi (con ripetizioni): l'insieme $A$ contiene $k$ gruppi di oggetti indistinguibili, ognuno con numerosità $n_1, ..., n_k$ (con $sum_(i=1)^k n_i = n)$, allora dobbiamo disporre tutti questi elementi $ P_(n:n_1, ..., n_k) = n! / (n_1 ! dot ... dot n_k !) = vec(n, (n_1, ..., n_k)) $
+/ Permutazioni di oggetti distinguibili a gruppi (con ripetizioni): l'insieme $A$ contiene $k$ gruppi di oggetti indistinguibili, ognuno con numerosità $n_1, ..., n_k$ (con $limits(sum)_(i=1)^k n_i = n)$, allora dobbiamo disporre tutti questi elementi $ P_(n:n_1, ..., n_k) = n! / (n_1 ! dot ... dot n_k !) = binom(n, (n_1, ..., n_k)) $
 
-#nota[$vec(n, (n_1, ..., n_k))$ viene detto *coefficiente multinomiale*]
+#nota[
+  $binom(n, (n_1, ..., n_k))$ viene detto *coefficiente multinomiale*
+]
 
 == Elementi di probabilità
 
@@ -965,7 +988,6 @@ Dati degli eventi, è possibile applicare le operazioni e proprietà degli insie
 / Differenza $E - F$: si verifica l'evento $E$, ma l'evento $F$ non si verifica (l'operazione di sottrazione non è commutativa, $E - F != F - E$)
 / Complemento $Omega - E = E^c = overline(E)$: quando l'evento $E$ non si verifica
 / Sottoinsieme $E subset.eq F = E -> F$: quando si verifica $E$, allora si verifica anche $F$
-
 / Proprietà per unione e intersezione:
   / Commutatività: $E union F = F union E$
   / Associatività: $(D union E) union F = D union (F union E)$
@@ -1001,19 +1023,19 @@ $, allora $A$ viene chiamata $sigma$-algebra]
 
 Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabilità che un evento avvenga. $P : A -> [0,1]$ è una funzione di probabilità se e solo se:
 
-1. $forall E in A, 0 <= P(E) <= 1$: la frequenza è sempre _positiva_ e compresa tra $0$ e $1$
-2. $P(Omega) = 1$: un evento che si verifica tutte le $n$ volte: $n/n = 1$
-3. $forall E, F in A, space (E sect F) = emptyset space => space P(E union F) = P(E) + P(F)$
+1. La probabilità di un evento è sempre _positiva_ $ forall E in A, quad P(E) >= 0 $
+  #attenzione[
+    Grazie al secondo assioma, viene imposto il limite superiore di $1$, quindi: $ forall E in A, quad 0 <= P(E) <= 1 $
+  ]
+2. Lo spazio degli esiti contiene necessariamente tutti i possibili esiti: $ P(Omega) = 1 $
+3. La probabilità che avvengano due eventi disguinti è la somma delle loro probabilità: $ forall E, F in A, quad (E sect F) = emptyset quad => quad P(E union F) = P(E) + P(F) $
+  #nota[
+    Il terzo assioma è generalizzabile come la probabilità che accadano diversi eventi _distinti_ $E_i, E_j$ e _disgiunti_ $E_i sect E_j = emptyset$ è la _somma_ delle loro probabilità:
+    $ P(limits(union.big)_(i=1)^n E_i) = sum_(i=1)^n P(E_i) $
+  ]
 
-#nota[
-  La probabilità che accadano diversi eventi _distinti_ $E_i, E_j$ e _disgiunti_ $E_i sect E_j = emptyset$ è la _somma_ delle loro probabilità:
-  $ P(limits(union.big)_(i=1)^n E_i) = sum_(i=1)^n P(E_i) $
-]
-
-#nota[
-  Formalmente la funzione probabilità è definita $P : A -> bb(R)^+$ (numeri _reali positivi_), applicando gli assiomi il _codominio_ viene ristretto a $[0, 1]$.
-
-  In modo analogo, il _primo assioma_ stabilisce che il risultato dell'applicazione della funzione debba essere _positiva_, senza imporre un _limite superiore_, che poi viene aggiunto dal _secondo assioma_
+#attenzione[
+  Formalmente la funzione probabilità è definita $P : A -> bb(R)^+$ (numeri _reali positivi_), applicando gli assiomi il _codominio_ viene ristretto a $[0, 1]$
 ]
 
 === Teoremi derivati dagli assiomi
@@ -1023,8 +1045,7 @@ Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabi
 #dimostrazione[
   $ E sect overline(E) = emptyset, quad E union overline(E) &= Omega "(definizione complemenatre)" \
   P(Omega) &= 1 "(per secondo assioma)" \
-  P(E union overline(E)) &= 1 \
-  P(E) + P(overline(E)) &= 1 "(per terzo assioma)" \
+  P(E union overline(E)) = P(E) + P(overline(E)) &= 1 "(per terzo assioma)" \
   P(overline(E)) &= 1 - P(E) $
 ]
 
@@ -1039,18 +1060,17 @@ Definiamo la funzione *probabilità* $P : A -> [0,1]$, che stabilisce la probabi
 
 / Proprietà di monotonicità: $ forall E, F in A |  E subset.eq F => P(E) <= P(F) $
 
-// TODO: non si dimostra? (catu non la dimostra)
-
 / Probabilità dell'unione di eventi: $ forall E, F in A, space P(E union F) = P (E) + P (F) − P(E sect F) $
 
 #dimostrazione[
-  // TODO: sistemare questa dimostrazione, non torna
   È possibile riscrivere $E union F$ come $E union (overline(E) sect F)$, quindi:
-  $ P(E union F) &= P(E) + P(overline(E) sect F) "(per terzo assioma)" \
-  &= P(E) + P(overline(E) sect F) - P(E sect F) + P(E sect F) "???" \
-  &= P(E) + P((overline(E) sect F) union (E sect F)) - P(E sect F) \
-  &= P(E) + P((overline(E) union E) sect F) - P(E sect F) \
-  &= P(E) + P(F) - P(E union F) $
+  $ mb(P(E union F) &= P(E) + P(overline(E) sect F)) "(per terzo assioma)" $
+  È possibile riscrivere $F$ come $(E sect F) union (overline(E) sect F)$, quindi:
+  $ mo(P(F) = P(E sect F) + P(overline(E) sect F)) "(per terzo assioma)" $
+  Sottraendo membro a membro le due equazioni otteniamo:
+  $ mb(P(E union F)) - mo(P(F)) = mb(P(E) + cancel(P(overline(E) sect F))) - mo(P(E sect F) - cancel(P(overline(E) sect F))) $
+  Quindi:
+  $ P(E union F) = P(E) + P(F) - P(E sect F) $
 ]
 
 === Spazi di probabilità ed Esiti equiprobabili <spazio-probabilita>
@@ -1059,15 +1079,18 @@ Definiamo lo *spazio di probabilità* come la tripla $(Omega, A, P)$ composta da
 
 / Spazio equiprobabile: uno spazio è _equiprobabile_ se gli eventi elementari (gli elementi $Omega$) hanno tutti la _stessa_ probabilità: $ P(E) = 1/N quad quad P({E_1, ..., E_k}) = k/N $
 
-Si dimostra con il secondo assioma di _Kolmogorov_:
+#dimostrazione[
+  Si dimostra con il secondo assioma di _Kolmogorov_:
+  $ P(Omega) = 1 = P({e_1}) + ... + P({e_N}) = sum_(i=1)^N P({e_i}) $
+]
 
-$ P(Omega) = 1 = P({e_1}) + ... + P({e_N}) = sum_(i=1)^N P({e_i}) $
-
-#nota[Uno spazio può essere _equiprobabile_ solo se $Omega$ è un _insieme finito_]
+#nota[
+  Uno spazio può essere _equiprobabile_ solo se $Omega$ è un _insieme finito_
+]
 
 == Probabilità condizionata
 
-Dati due eventi $E, F$, la probabilità che si verifichi l'evento $E$ sapendo che _si è verificato_ l'evento $F$ è detta *probabilità condizionata*: $ P(E|F) = P(E sect F) / P(F) $
+Dati due eventi $E, F$, la probabilità che si verifichi l'evento $E$ _sapendo_ che _si è verificato_ l'evento $F$ è detta *probabilità condizionata*: $ P(E|F) = P(E sect F) / P(F) $
 
 #nota[
   - $P(E|F)$ si legge _"probabilità di $E$ dato $F$"_
@@ -1075,7 +1098,9 @@ Dati due eventi $E, F$, la probabilità che si verifichi l'evento $E$ sapendo ch
   - $F$ si dice evento _condizionante_
 ]
 
-#attenzione[In caso $P(F) = 0$, ovvero $F = emptyset$, allora $P(E|F) = "indefinita"$]
+#attenzione[
+  In caso $P(F) = 0$, ovvero $F = emptyset$, allora $P(E|F) = "indefinita"$
+]
 
 #informalmente[
   Intuitivamente $P(E|F)$ è la probabilità che preso un punto qualsiasi all'interno di $F$, il punto appartenga a $E sect F$, quindi $(E sect F) / F$
@@ -1135,10 +1160,10 @@ $ (E sect F) sect (E sect overline(F)) = E sect (F union overline(F)) = E sect e
 
 === Teorema di Bayes
 
-Dato $Omega$ partizionato in $F_1, ..., F_n$ partizioni disguinte, e un evento $E$, la probabilità che accada una certa $F_k subset.eq Omega $ è:
+Dato $Omega$ partizionato in $F_1, ..., F_n$ partizioni disguinte, e un evento $E$, la probabilità che accada una certa $F_i subset.eq Omega $ è:
 
-$ P(F_k | E) &= (P(E | F_k) P(F_k)) / mr(P(E)) \
- &= (P(E | F_k) P(F_k)) / mr(limits(sum)_(i=1)^n P(E | F_i) P(F_i)) $
+$ P(F_i | E) &= (P(E | F_i) P(F_i)) / mr(P(E)) \
+ &= (P(E | F_i) P(F_i)) / mr(limits(sum)_(i=1)^n P(E | F_i) P(F_i)) $
 
 #figure(caption: [
   Probabilità di $F_2$:
@@ -1184,9 +1209,9 @@ $ = (P(Y = y_k) dot limits(product)_(i=1)^n P(X_i = x_i | Y = y_k)) / P(X_1 = x_
   Come capire _formalmente_ se due eventi (o più) eventi sono _indipendenti_ è descritto nel #link(<eventi-indipendenti>)[paragrafo successivo].
 ]
 
-Per trovare la classe alla quale _assegnare_ l'oggetto, bisogna calcolare la probabilità per ogni possibile $y_k$ e trovare il massimo:
+Per trovare la classe alla quale _assegnare_ l'oggetto, bisogna calcolare la probabilità per ogni possibile $y_k$ e trovare il massimo $k^*$:
 
-$ = arg max_k P(Y = y_k) dot product_i^n P(X_i = x_i | Y = y_k) $
+$ k^* = arg max_k P(Y = y_k) dot product_i^n P(X_i = x_i | Y = y_k) $
 
 #nota[
   Dato che ci interessa solo $y_k$ massimo e il _denominatore_ non dipende da $k$, allora possiamo _ignorarlo_ dato che non influenzerà la scelta del masssimo
@@ -1231,7 +1256,7 @@ $ P(sect.big_(i=1)^r E_(a i)) = product_(i=1)^r P(E_a_i) $
 
 == Variabili aleatorie
 
-Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che assume un valore _diverso_ ogni osservazione. Permettono di codificare gli _eventi_ in termini di numeri reali.
+Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che assume un valore _diverso_ ogni osservazione. Permettono di codificare gli _eventi_ numericamente.
 
 Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, una variabile aleatoria è $X : Omega -> bb(R)$ che associa ad ogni _esito_ un _numero reale_.
 
@@ -1246,12 +1271,6 @@ Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, un
   È possibile calcolare il _supporto_ di una variabile aleatoria *discreta* calcolando l'_insieme_ di punti in cui la #link(<funzione-massa>)[funzione di massa] non assuma valore nullo
 ]
 
-=== Variabili aleatorie discrete <aleatorie-discrete>
-
-Una variabile aleatoria si dice discreta se il suo supporto è finito e numerabile (ovvero ha un numero finito di valori possibili). Dato $[m,n]$ il range di valori che possono _essere assunti_ dalla variabile $X$, vale:
-
-$ 1 = P(Omega) = P(union.big_(i=m)^n {X = i}) = sum_(i=m)^n P(X = i) $
-
 ==== Funzione indicatrice <indicatrice>
 
 Dati $A, B$ due insiemi tali che $A subset.eq B$, la funzione indicatrice di $A$ rispetto a $B$ è la funzione $I : B -> {0, 1}$ che vale:
@@ -1264,19 +1283,23 @@ $ I_(A(x)) = cases(1 "se" x in A, 0 "se" x in.not A) $
   Ad esempio, la probabilità di un _dado_ è: $P(X = x) = 1/6 dot mr(I_({1, ..., 6}(x)))$, la funzione indicatrice _annulla_ la probabilità di $1/6$ in caso $x$ non sia nel "dominio" del dado ($1 <= x <= 6$)
 ]
 
+=== Variabili aleatorie discrete <aleatorie-discrete>
+
+Una variabile aleatoria si dice discreta se il suo supporto è finito e numerabile (ovvero ha un numero finito di valori possibili). Dato $[m,n]$ il range di valori che possono _essere assunti_ dalla variabile $X$, vale:
+
+$ 1 = P(Omega) = P(union.big_(i=m)^n {X = i}) = sum_(i=m)^n P(X = i) $
+
 ==== Funzione di massa di probabilità <funzione-massa>
 
 Data una variabile aleatoria discreta $X$ con supporto $D$, la sua _funzione di massa di probabilità_ $P_X : bb(R) -> [0,1]$ è la funzione che associa ad ogni valore $x in bb(R)$ la probabilità che l'esito di $X$ ne sia uguale:
-$ forall x in bb(R), space p_(X)(x) = P(X = x) dot I_(D)(x) $
-
-#attenzione[
-  La funzione di massa di probabilità *NON* vale per le #link(<aleatorie-continue>)[variabili aleatorie continue]
-]
+$ forall x in bb(R), quad p_(X)(x) = P(X = x) dot I_(D)(x) $
 
 *Proprietà* che la funzione di massa di probabilità deve _rispettare_:
 
-- $forall x in bb(R), f_(X)(x) >= 0$: non può essere negativa
-- $limits(sum)_(x in D) f_(X)(x) = 1$: la somma della funzione di massa per tutti i valori che $x$ può assumere deve fare $1$
+- non può essere *negativa*:
+  $ forall x in bb(R), f_(X)(x) >= 0 $
+- la *somma* della funzione di massa per tutti i valori che $x$ può assumere deve fare $1$:
+  $ sum_(x in D) f_(X)(x) = 1 $
 
 #figure(caption: [Grafico funzione di massa di probabilità di un dado],
   cetz.canvas({
@@ -1345,29 +1368,20 @@ $ forall x in bb(R), space p_(X)(x) = P(X = x) dot I_(D)(x) $
 ==== Funzione di ripartizione <funzione-ripartizione>
 
 Data una variabile aleatoria $X$, la sua _funzione di ripartizione_ o _distribuzione cumulativa_ $F_X : bb(R) -> [0, 1]$ è la funzione che associa ad ogni valore $x in bb(R)$ la probabilità che l'esito di $X$ ne sia minore o uguale:
-$ forall x in bb(R), space F_(X)(x) = P(X <= x) $
+$ forall x in bb(R), quad F_(X)(x) = P(X <= x) $
 
-#attenzione[
-  La funzione di ripartizione è _valida_ sia per le #link(<aleatorie-discrete>)[variabili aleatorie discrete] che per le #link(<aleatorie-continue>)[variabili aleatorie continue]
-]
+*Proprietà* che la funzione di ripartizione deve _rispettare_:
 
-#nota[
-  È possibile calcolare la probabilità per un _valore maggiore_ di una certa soglia sfruttando il complementare:
+- è una funzione a scalini con punti di discontinuità sul supporto della variabile
+- è una funzione monotona crescente:
+  $ forall x_1 < x_2, space F(x_1) <= F(x_2) $
+- probabilità per un _valore maggiore_ di una certa soglia o compreso tra due estremi sfruttando il complementare:
   $ P(X>x) = 1 - P(X <= x) = 1 - F(x) $
-]
-
-#nota[
-  È possibile calcolare la probabilità per un valore _compreso_ tra due estremi:
   $ P(a < X <= b) = P(X <= b) - P(X <= a) = F(b) - F(a) $
-]
-
-La funzione di ripartizione può essere vista come la _somma_ applicando alla _funzione di massa_ tutti i valori minori uguali di un certo valore $a$:
-
-$ F(a) = sum_(x <= a) p(x) $
-
-#informalmente[
-  Per una variabile aleatoria discreta, $F$ è una _funzione a gradini_, costante tra gli intervalli dei valori assunti da $X$, che salta di $p(x)$ ad ogni nuovo valore
-]
+- può essere riscritta come la somma della _funzione di massa_ di tutti i valori minori o uguali:
+  $ F(a) = sum_(x <= a) p(x) $
+- assume $0$ e $1$ come estremi:
+  $ lim_(x -> -infinity) F(x) = 0, quad lim_(x -> +infinity) F(x) = 1 $
 
 #figure(caption: [Grafico funzione di ripartizione di un dado],
   cetz.canvas({
@@ -1438,35 +1452,64 @@ $ E[X] = sum_i x_i dot P(X = x_i) = sum_i x_i dot p(x_i) $
 ]
 
 #nota[
-  Il valore atteso può essere indicato con $E$ o con $mu$
+  - $mu$: media dell'intera popolazione
+  - $overline(X)$: media di un campione (media campionaria)
+  - $E[overline(X)] = mu$: il valore atteso della media campionaria stima $mu$
+  - $E[X] = E[overline(X)] = mu$: il valore attesso della variabile aleatoria stima il valore atteso della media campionaria, quindi stima $mu$
 ]
 
-*Proprietà* del valore atteso:
+*Proprietà* del valore atteso: <proprieta-valore-atteso>
 
 - il _valore atteso_ di una funzione indicatrice è uguale alla _probabilità dell'evento_: $ E[I_A] = P(A) $
+  #dimostrazione[
+    $ E[I] &= 1 dot P(I=1) + 0 dot P(I=0) \
+      &= P(I=1) = P(A) $
+  ]
 - il _valore atteso_ di una variabile aleatoria discreta $X$ opera in modo _lineare_: $ Y = a dot X + b quad quad  E[Y] = a dot E[X] + b $
+  #dimostrazione[
+    $ E[Y] &= sum_i (a x_i +b) P(X = x_i) \
+      &= a sum_i x_i P(X = x_i) + b sum_i P(X = x_i) \
+      &= a E[X] + b sum_i p(x_i) \
+      &= a E[X] + b dot 1 $
+  ]
 - data una qualsiasi _funzione_ reale $g$ e una variabile aleatoria $X$ con funzione di massa $p$, allora vale: $ E[g(X)] = sum_i g(x_i) dot p(x_i) $
 - data una qualsiasi _funzione_ reale $g$ di due variabili e due variabili aleatorie discrete $X, Y$, allora vale: $ E[g(X, Y)] = sum_x sum_y g(x,y) dot p(x,y) $
 
 ==== Varianza
 
-Sia $X$ una variabile aleatoria di media $mu$, la varianza di $X$ è:
+Sia $X$ una variabile aleatoria di media $mu$, la varianza $sigma^2$ di $X$ è:
 $ "Var"(X) = G_X^2 = E[(X - mu)^2] $
+$ "Var"(X) = E[X^2] - E[X]^2 $
 
-#nota[
-  Formula alternativa per la varianza: $ "Var"(X) &= E[(X - mu)^2] \
+#dimostrazione[
+  $ "Var"(X) &= E[(X - mu)^2] \
   &= E[X^2 - 2 mu X + mu^2] \
   &= E[X^2] - 2 mu E[X] + mu^2 \
   &= E[X^2] - 2mu^2 + mu^2 \
   &= E[X^2] - E[X]^2 \
-  &= sum_i x_i^2 dot P(X = x_i) - (sum_i x_i dot P(X = x_i))^2 $
+  &= (sum_i x_i^2 dot P(X = x_i)) - E[X]^2 $
 ]
 
 *Proprietà* varianza:
 
 - la varianza della funzione indicatrice è la probabilità dell'_evento_ moltiplicata per la probabilità dell'_evento complementare_ $ "Var"(I) = P(A) dot P(overline(A)) $
+  #dimostrazione[
+    $ "Var"(I) &= E[I^2] - E[I]^2 \
+      &= E[I] - E[I]^2 \
+      &= E[I](1 - E[I]) \
+      &= P(A)[1 - P(A)] \
+      &= P(A) P(overline(A)) $
+  ]
 - la varianza non opera in modo _lineare_: $ "Var"(a X + b) = a^2 "Var"(X) $
-- la varianza della _media campionaria_ : $ "Var"(overline(X)) = "Var"(X)/n $
+  #dimostrazione[
+    $ "Var"(a X + b) &= E[(a X +b - mu)^2] \
+      &= E[(a X + b - E[a X + b])^2] \
+      &= E[(a X + cancel(b) - a mu - cancel(b))^2] \
+      &= E[a^2 (X - mu)^2] \
+      &= a^2 E[(X - mu)^2] \
+      &= a^2 "Var"(X) $
+  ]
+- la varianza della _media campionaria_ vale: $ "Var"(overline(X)) = "Var"(X)/n $
   #dimostrazione[
     $ "Var"(overline(X)) &= "Var"(1/n sum_(i=1)^n X_i) \
       &= 1/n^2 "Var"(sum_(i=1)^n X_i) \
@@ -1478,9 +1521,13 @@ $ "Var"(X) = G_X^2 = E[(X - mu)^2] $
       &= n "Var"(X) != "Var"(n X) $
   ]
 
-/ Deviazione standard: $sigma_X = sqrt("Var"(X))$
+/ Deviazione standard: la deviazione standard $sigma$ è calcolata come la radice quadrata della _varianza_: $ sigma_X = sqrt("Var"(X)) $
+
+Anche la deviazione standard non opera in modo lineare:
+$ sigma_(a X + b) = sqrt(a^2 "Var"(X)) = |a| sigma_X $
 
 === Variabili aleatorie multivariate
+// TODO: rivedere proprietà valore atteso, varianza, covarianza tra più variabili
 
 Oltre alle #link(<aleatorie-discrete>)[variabili aleatorie *univariate*], è possibile utilizzare un _vettore_ di lunghezza arbitraria, ottenendo una variabile aleatoria *multivariata*.
 
@@ -1501,17 +1548,20 @@ $ F_"X,Y" (x,y) = P(X <= x, Y <= y) $
 È possibile _estendere_ a variabili aleatorie _multivariate_ di dimensione arbitraria:
 $ F_(X_1, ..., X_n)(x_1, ..., x_n) = P(X_1 <= x_1, ..., X_n <= x_n) $
 
-#nota[
+#informalmente[
   Si dice _funzione di ripartizione (o massa)_ *marginale* quando da una _funzione di ripartizione (o massa)_ *congiunta* estraggo una _funzione di ripartizione (o massa)_ di una variabile *univariata*
 ]
 
-Possiamo ottenere una $F_(X)(x)$ *funzione di ripartizione marginale* di $X$ nel seguente caso:
+Possiamo ottenere una $F_(X)(x)$ *funzione di ripartizione marginale* di $X$:
+$ lim_(y -> +infinity) F_"X,Y" (x,y) =  F_X (x) $
 
-$ lim_(y -> +infinity) F_"X,Y" (x,y) &= mr(lim_(y -> +infinity)) P(X <= x, mr(Y <= y)) \
-&= P(X <= x) space dot mr(lim_(y -> +infinity) P(Y <= y)) \
-&= P(X <= x) dot mr(Omega) \
-&= P(X <= x) \
-&= F_X (x) $
+#dimostrazione[
+  $ lim_(y -> +infinity) F_"X,Y" (x,y) &= mr(lim_(y -> +infinity)) P(X <= x, mr(Y <= y)) \
+  &= P(X <= x) space dot mr(lim_(y -> +infinity) P(Y <= y)) \
+  &= P(X <= x) dot mr(Omega) \
+  &= P(X <= x) \
+  &= F_X (x) $
+]
 
 ==== Funzione di massa di probabilità congiunta
 
@@ -1523,12 +1573,15 @@ $ p_(X,Y) (x,y) = P(X = x, Y = y) $
 $ p_(X_1, ..., X_n)(x_1, ..., x_n) = P(X_1 = x_1, ..., X_n = x_n) $
 
 Possiamo ottenere una $p_(X)(x)$ *funzione di massa di probabilità marginale* di $X$ nel seguente caso:
+$ sum_(y_i in D) p_(X,Y) (x,y) = p_X (x) $
 
-$ sum_(y_i in D) p_(X,Y) (x,y) &= mr(sum_(y_i in D)) P({X = x} sect mr({Y = y})) \
-  &= P({X = x} sect space mr(union.big_(y_i in D) {Y = y})) \
-  &= P({X = x} dot mr(Omega)) \
-  &= P({X = x}) \
-  &= p_X (x) $
+#dimostrazione[
+  $ sum_(y_i in D) p_(X,Y) (x,y) &= mr(sum_(y_i in D)) P({X = x} sect mr({Y = y})) \
+    &= P({X = x} sect space mr(union.big_(y_i in D) {Y = y})) \
+    &= P({X = x} dot mr(Omega)) \
+    &= P({X = x}) \
+    &= p_X (x) $
+]
 
 ==== Indipendenza
 
@@ -1558,22 +1611,28 @@ $ E[product_i X_i] = product_i E[X_i] $
 
 Siano $X$ e $Y$ due variabili aleatorie di media $mu_X$ e $mu_Y$, la loro _covarianza_ è:
 $ "Cov"(X, Y) = E[(X - mu_X)(Y - mu_Y)] $
+$ "Cov"(X, Y) = E[X Y] - E[X] E[Y] $
 
-#nota[
-  Formula alternativa:
+#dimostrazione[
   $ "Cov"(X, Y) &= [X Y - mu_X Y - mu_Y X + mu_X mu_Y] \
     &= E[X Y] - mu_X E[Y] - mu_y E[X] + mu_X mu_Y \
-    &= E[X Y] - E[X] E[Y]
-  $
+    &= E[X Y] - E[X] E[Y] $
 ]
 
 *Proprietà* della covarianza:
 
-- simmetria: $"Cov"(X, Y) = "Cov"(Y, X)$
-- generalizzazione concetto di varianza: $"Cov"(X, X) = "Var"(X)$
-- linearità:
-  - $"Cov"(a X, Y) = "Cov"(X, a Y) = a "Cov"(X, Y)$
+- simmetria: $ "Cov"(X, Y) = "Cov"(Y, X) $
+- generalizzazione concetto di varianza: $ "Cov"(X, X) = "Var"(X) $
+- non è lineare, è possibile solo scalarla:
+  - $"Cov"(a X + b, Y) = a "Cov"(X, Y)$
+    #dimostrazione[
+      $ "Cov"(a X + b, Y) &= E[(a X + b) Y] - E[a X + b] E[Y] \
+        &= a E[X Y] + cancel(b) - a E[X] E[Y] - cancel(b) \
+        &= a(E[X Y] - E[X] E[Y]) \
+        &= a "Cov"(X, Y) $
+    ]
   - $"Cov"(X + Y, Z) = "Cov"(X, Z) + "Cov"(Y, Z)$
+  - $"Cov"(limits(sum)_i X_i, limits(sum)_j X_j) = limits(sum)_i limits(sum)_j "Cov"(X_i, Y_j)$
 
 ==== Varianza <multivariate-varianza>
 
@@ -1594,7 +1653,7 @@ Una variabile aleatoria si dice *continua* quando ha un _supporto *non* numerabi
   La #link(<funzione-massa>)[funzione di massa] (come spiegato sotto) non ha più senso per le _variabili aleatorie continue_, quindi lo stesso concetto prende il nome di _funzione densità di probabilità_
 ]
 
-Siccome $X$ deve per forza assumere un valore in $bb(R)$, allora la _funzione di densità_ ( $f_"X" (x)$ ) deve rispettare:
+Siccome $X$ deve per forza assumere un valore in $bb(R)$, allora la _funzione di densità_ $f_"X" : bb(R) -> bb(R)^+$ deve rispettare:
 $ P(X in bb(R)) = integral_(-infinity)^(+infinity) f_(X)(x) dif x = 1 $
 
 Per variabili aleatorie _continue_ non ha senso cercare la probabilità assunta da un _singolo valore_, infatti:
@@ -1603,13 +1662,29 @@ $ P(X = a) = integral_a^a f_(X)(x) dif x = 0 $
 Per questo motivo si ragiona in termini di _intervalli_ di probabilità:
 $ P(a <= X <= b) = integral_a^b f_(X)(x) dif x $
 
-Esiste una relazione tra la #link(<funzione-ripartizione>)[funzione di ripartizione] $F$ (che *vale anche* per le variabili aleatorie continue) con la funzione di densità $f$:
-$ F(a) &= P(X <= a) \
-  &= P(X in (-infinity, a]) \
-  &= integral_(-infinity)^a f_(X)(x) dif x $
+==== Funzione di ripartizione
 
-Quindi la *funzione di densità* è uguale alla derivata della #link(<funzione-ripartizione>)[funzione di ripartizione] $F$:
+Data una variabile aleatoria $X$, la sua _funzione di ripartizione_ o _distribuzione cumulativa_ $F_X : bb(R) -> [0, 1]$ è la funzione che associa ad ogni valore $x in bb(R)$ la probabilità che l'esito di $X$ ne sia minore o uguale:
+$ forall x in bb(R), quad F_(X)(x) = P(X <= x) $
+
+La funzione di ripartizione $F$ viene calcolata come l'_integrazione_ della funzione di densità $f$ fino ad una soglia:
+$ F(a) &= P(X <= a) = integral_(-infinity)^a f_(X)(x) dif x $
+
+Quindi la *funzione di densità* è uguale alla derivata della funzione di ripartizione $F$:
 $ f_(X)(a) = F'(a) $
+
+*Proprietà* che la funzione di ripartizione deve _rispettare_:
+
+- è una funzione monotona crescente continua:
+  $ forall x_1 < x_2, space F(x_1) <= F(x_2) $
+  #attenzione[
+    Non è più una funzione a scalini, non ha discontinuità
+  ]
+- probabilità per un _valore maggiore_ di una certa soglia o compreso tra due estremi sfruttando il complementare:
+  $ P(X>x) = 1 - P(X <= x) = 1 - F(x) $
+  $ P(a < X <= b) = P(X <= b) - P(X <= a) = F(b) - F(a) $
+- assume $0$ e $1$ come estremi:
+  $ lim_(x -> -infinity) F(x) = 0, quad lim_(x -> +infinity) F(x) = 1 $
 
 ==== Valore atteso
 
@@ -1619,6 +1694,12 @@ $ E[X] = integral_(-infinity)^(+infinity) x dot f_(X)(x) dif x $
 #nota[
   Formula alternativa per il valore atteso:
   $ E(X) = integral_0^(+infinity) 1 - F_(X)(x) dif x $
+]
+
+#nota[
+  Valgono le stesse proprietà del valore atteso per le #link(<proprieta-valore-atteso>)[variabili aleatorie discrete]:
+  - opera in modo _lineare_: $ Y = a dot X + b quad quad  E[Y] = a dot E[X] + b $
+  - data una qualsiasi _funzione_ reale $g$ e una variabile aleatoria $X$ con funzione di densità $f$, allora vale: $ E[g(X)] = sum_i g(x_i) dot f(x_i) $
 ]
 
 ==== Varianza
@@ -1643,7 +1724,7 @@ $ P(X >= a) <= E[X] / a $
 #dimostrazione[
   Variabili aleatorie *discrete*:
   $ E[X] &= mr(sum_(x>=0) x dot p(x)) \
-    &= mr(sum_(x <= a) x dot p(x) + sum_(x >= a) x dot p(x)) &>= mb(sum_(x >= a) x dot p(x)) = \
+    &= mr(sum_(x < a) x dot p(x) + sum_(x >= a) x dot p(x)) &>= mb(sum_(x >= a) x dot p(x)) = \
     & &>= mb(sum_(x >= a) a dot p(x)) = \
     & &>= mb(a dot sum_(x >= a) p(x)) = \
     & &>= mb(a dot P(X >= a)) $
@@ -1685,7 +1766,7 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
   dunque:
 
   $ mr(P( |X - mu| >= r)) &= mb(P((X - mu)^2 >= r^2)) \
-     mb(P((X - mu)^2 >= r^2)) &<= E[(X - mu)^2 / r^2] text("per Markov") \
+     mb(P((X - mu)^2 >= r^2)) &<= E[(X - mu)^2] / r^2 "per Markov" \
      mr(P( |X - mu| >= r)) &<= sigma^2 / r^2
   $
 ]
@@ -1693,12 +1774,13 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 === Modelli di distribuzione discreti
 
 // TODO: controlalre e aggiungere descrizione a parole per ogni modello
+// TODO: per ogni modello scrivere come riconoscerlo
 
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
 ==== Modello di Bernoulli $X tilde B(p)$ <bernoulliano>
 
-La variabile aleatoria può assumere solo due specificazioni: *fallimento* o *successo*, ovvero il loro supporto è $D_X = { 0, 1 }$ Il parametro $p$ indica la probabilità che $X = 1$ con $p in [0, 1]$
+La variabile aleatoria può assumere solo due specificazioni: *fallimento* o *successo*, ovvero il loro supporto è $D_X = { 0, 1 }$. Il parametro $p$ indica la probabilità che $X = 1$ con $p in [0, 1]$
 
 $ mr(X tilde B(p)) $
 
@@ -1733,7 +1815,7 @@ $ "Var"(X) = mr(p(1-p)) $
 
 ==== Modello binomiale $X tilde B(n, p)$ <binomiale>
 
-Il modello ripete $n$ volte un *esperimento bernulliano indipendente* di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. La variabile aleatoria $X$ assume il numero di successi e il supporto è $D_X = {0, ..., n}$.
+Il modello ripete $n$ volte un *esperimento bernulliano indipendente* di probabilità $p$, dove $n$ e $p$ sono i due parametri del modello. La variabile aleatoria $X$ assume il *numero di successi*, quindi il supporto è $D_X = {0, ..., n}$.
 
 $ mr(X tilde B(n, p)) $
 
@@ -1744,9 +1826,10 @@ $ p_X (x) = P(X = x) = mr(binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)) $
 
 / Funzione di ripartizione:
 $ F_X (x) &= P(X <= x) = \
-  &= mr(sum_(i=0)^x p_X (i) dot I_[0, n](x) + I_((n, +infinity))(x)) \
+  &= sum_(i=0)^floor(x) p_X (i) dot I_[0, n](x) + I_((n, +infinity))(x) \
+  &= mr(sum_(i=0)^floor(x) binom(n, i) p^i (1-p)^(n-i) dot I_[0,n] (x) + I_((n, +infinity)) (x)) \
   &= cases(
-    limits(sum)_(i=0)^x p_X (i) quad "per " x <= n,
+    limits(sum)_(i=0)^floor(x) p_X (i) quad "per " x <= n,
     1 quad "per " x > n
   )
 $
@@ -1756,7 +1839,7 @@ $
 ]
 
 / Valore atteso:
-$ E[X] = mr(n dot p) $
+$ E[X] = mr(n p) $
 
 #dimostrazione[
   $ E[X] &= E[sum_i^n X_i] \
@@ -1765,7 +1848,7 @@ $ E[X] = mr(n dot p) $
 ]
 
 / Varianza:
-$ "Var"(X) = mr(n dot p (1-p)) $
+$ "Var"(X) = mr(n p (1-p)) $
 
 / Riproducibilità:
 Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
@@ -1774,7 +1857,7 @@ dove $Y tilde B(n+m, p)$
 
 ==== Modello uniforme discreto $X tilde U(n)$ <uniforme-discreto>
 
-Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Il supporto del modello è $D_X = {1, ..., n}$.
+Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*, dove il parametro $n$ è il numero dei possibili esiti, con $n in bb(N) backslash {0}$. Ogni esito possibile viene mappato su un numero naturale, la variabile assume il numero associato all'*esito dell'esperimento*, quindi il supporto del modello è $D_X = {1, ..., n}$.
 
 $ mr(X tilde U(n)) $
 
@@ -1823,7 +1906,7 @@ $ "Var"(X) = mr((n^2 - 1)/12) $
 
 ==== Modello geometrico $X tilde G(p)$ <geometrico>
 
-Il numero di *insuccessi successivi* prima che si verifichi un esprimento positivo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.<iid>) di parametro $p$ $in (0, 1]$. Il supporto del modello è $D_X = {0, ..., +infinity}$.
+La variabile assume il *numero di insuccessi consecutivi* prima che si verifichi un successo in una serie di #link(<bernoulliano>)[esperimenti Bernoulliani] *indipendenti* e *identicamente distribuiti* (i.i.d.) di parametro $p in (0, 1]$. Il supporto del modello è $D_X = {0, ..., +infinity}$.
 
 $ mr(X tilde G(p)) $
 
@@ -1895,19 +1978,10 @@ $ P(X >= x + y | X >= x) = P(X >= y) $
 
 ==== Modello di Poisson $X tilde P(lambda)$ <poisson>
 
-È un tipo di distribuzione *discreta* che esprime le probabilità che un certo *numero di eventi* si verificano *contemporaneamente* in un dato intervallo di tempo, sapendo che *mediamente* se ne verifica un numero $lambda$. Tutti gli eventi sono *indipendenti*.
-Il modello ha supporto $D_X = {0, ..., +infinity}$ e $lambda in (0, +infinity)$
+La variabile assume il *numero di eventi* che si verificano in un dato intervallo di tempo _(ignoto, non contribuisce al modello)_, sapendo che *mediamente* se ne verificano un numero $lambda in (0, +infinity)$. Tutti gli eventi sono *indipendenti*.
+Il modello ha supporto $D_X = {0, ..., +infinity}$.
 
 $ mr(X tilde P(lambda)) $
-
-#informalmente[
-  Ad esempio, si utilizza una distribuzione di Poisson per misurare il numero di chiamate ricevute in un call-center in un determinato arco temporale.
-]
-
-Un dataset segue il _modello di Poisson_ se possiede le seguenti _caratteristiche_:
-- la distribuzione ha una forma _asimmetrica_ con una lunga _coda verso destra_
-- al crescere di $lambda$ corrisponde _maggiore concentrazione_ di dati intorno al parametro
-- la _media_ campionaria è vicina al parametro $lambda$ e la _varianza_ è uguale a $lambda$
 
 / Funzione di massa:
 $ p_X (x) = P(X = x)= mr(e^(-lambda) dot (lambda^x)/x! I_{0, ..., +infinity} (x)) $
@@ -1972,14 +2046,16 @@ Se le due variabili aleatorie sono anche identicamente distribuite allora: $ X_1
 
 ==== Modello ipergeometrico $X tilde H(n, M, N)$ <ipergeometrico>
 
-Descrive l'*estrazione* di oggetti binari da un'urna *senza reimmissioni* (in caso ci fossero reimmissioni, potremmo usare il #link(<binomiale>)[modello binomiale]). $X$ assume il numero di _oggetti "corretti" estratti_ dopo $n$ estrazioni. I parametri sono:
+La variabile assume il numero di *oggetti corretti* estratti da un'urna di oggetti binari _(corretti o scorretti)_ durante un'*estrazione senza reimmissione* dopo $n$ estrazioni. Il supporto del modello è ${max(0, n-M), ..., min(n, N)}$ e i parametri sono:
 - $n in bb(N)^+$: numero di estrazioni
 - $N in {0, ..., n}$: numero di oggetti _"corretti"_
 - $M in {0, ..., n}$: numero di oggetti _"errati"_
 
-Il supporto del modello è ${max(0, n-M), ..., min(n, N)}$.
-
 $ mr(X tilde H(n, M, N)) $
+
+#nota[
+  In caso ci fossero reimmissioni è possibile usare il #link(<binomiale>)[modello binomiale]
+]
 
 #informalmente[
   Il #text(blue)[minor numero] di oggetti _corretti_ estraibili è: $max(0, "estrazioni" - "errati") = mb(max(0, n - M))$.
@@ -1998,6 +2074,12 @@ $ mr(X tilde H(n, M, N)) $
 $ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_{0, ..., n} (x)) $
 
 #figure(caption: [Funzione di massa modello ipergeometrico], image("ipergeometrica-massa.png", width: 40%))
+
+#informalmente[
+  - $binom(N, x)$ rapresenta il numero di modi in cui è possibile estrarre $x$ oggetti _corretti_ su $N$ _corretti_ totali
+  - $binom(M, n-x)$ rapresenta il numero di modi in cui è possibile estrarre $n-x$ (quindi i rimanenti) oggetti _errati_ su $M$ _errati_ totali
+  - $binom(N+M, n)$ rappresenta il _totale_ delle possibili estrazioni di $n$ oggetti dal totale $N+M$ degli oggetti
+]
 
 #dimostrazione[
   Per dimostrare la funzione di massa di basiamo sul calcolo delle disposizioni semplici di $T$ _oggetti_ su $w$ _posti_.
@@ -2028,8 +2110,7 @@ $ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_{0, ...
 ]
 
 / Valore atteso:
-// TODO: controllare che sia giusto
-$ E[X] = n dot p = mr(n^2 N/(N+M)) $
+$ E[X] = mr((n dot N)/(N+M)) $
 
 #dimostrazione[
   Scomponiamo la variabile in $n$ variabili #link(<bernoulliano>)[aleatorie bernoulliane] _NON indipendenti_ definite:
@@ -2038,13 +2119,13 @@ $ E[X] = n dot p = mr(n^2 N/(N+M)) $
   $ P(X_i = 1) = M / (N+M) = E[X_i] = p $
   Quindi:
   $ E[X] &= E[sum_(i=1)^n X_i] \
-    &= sum_(i=1)^n E[X_i] = n dot p $
+    &= sum_(i=1)^n E[X_i] \
+    &= n dot p \
+    &= n N/(N+M) $
 ]
 
 / Varianza:
-// TODO: controllare che sia giusto
-$ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
-  &= mr((n N/(N+M)) (1-(N/(N+M))) (1- (n-1)/(N+M-1))) $
+$ "Var"(X) &= mr((n (N + M - n) N M) / ((N + M)^2 (N + M - 1))) $
 
 #nota[
   Per $N+M -> infinity$ il modello si semplifica in un #link(<binomiale>)[modello binomiale]
@@ -2060,10 +2141,13 @@ $ "Var"(X) &= n p (1-p) (1- (n-1)/(N+M-1)) \
   $ mp("Var"(sum_(i=1)^n X_i)) = mg(sum_(i=1)^n) mo("Var"(X_i)) + mg(sum_i^n sum_(i != j)^n) mb("Cov"(X_i, X_j)) $
   Sappiamo che:
   $ mb("Cov"(X_i, X_j)) &= E[X_i dot X_j] - E[X_i] dot E[X_j] \
-   &= mr((N M) / ((N + M - 1)(N+M)^2)) $
+   &= mr(- (N M) / ((N + M - 1)(N+M)^2)) $
   Quindi:
-  $ mp("Var"(X)) &= mg(n) mo((N M)/(N+M)^2) - mg(n(n-1)) dot mr((-N M) / ((N+M-1)(N+M)^2)) \
-   &= n p (1-p) (1 - (n-1)/(N+M-1)) $
+  $ mp("Var"(X)) &= mg(n) mo((N M)/(N+M)^2) - mg(n(n-1)) dot mr((N M) / ((N+M-1)(N+M)^2)) \
+   &= (n N M) / (N + M)^2 (1 - (n-1)/(N+M-1)) \
+   &= n (n/(N+M)) (M/(N+M)) (1- (n-1)/(N+M-1)) \
+   &= n p (1-p) (1 - (n-1)/(N+M-1)) \
+   &= (n (N + M - n) N M) / ((N + M)^2 (N + M - 1)) $
 ]
 
 === Modelli di distribuzione continui
@@ -2072,7 +2156,7 @@ Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di
 
 ==== Modello uniforme continuo $X tilde U(a,b)$ <uniforme-continuo>
 
-Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*. Il supporto del modello è $D_X = [a, b]$.
+La variabile assume un valore nell'*intervallo* $[a,b]$, di conseguenza il supporto è $D_X = [a, b]$. Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*.
 
 $ mr(X tilde U(a,b)) $
 
@@ -2106,7 +2190,7 @@ $ F_X (x) = P(X <= x) = mr((x-a)/(b-a) I_[a,b] (x) + I_((b,+infinity)) (x)) $
 ]
 
 / Valore atteso:
-$ E[X] = mr((a + b) / 2) $
+$ E[X] = mr((b + a) / 2) $
 
 #dimostrazione[
   $ E[X] &= integral_a^b f_X (x) dif x \
@@ -2129,16 +2213,9 @@ $ "Var"(X) = mr(((b-a)^2)/12) $
 
 ==== Modello esponenziale $X tilde E(lambda)$ <esponenziale>
 
-Modello di variabili aleatorie continue, rappresenta una distribuzione in cui la funzione di densità ha *forma esponenziale*, spesso $X$ rappresenta il tempo tra il verificarsi di eventi. Il parametro $lambda in bb(R)^+$ indica la forma della _funzione esponenziale_ e il supporto è $D_X = bb(R)^+$.
+La variabile assume il *tempo di attesa* tra due eventi, che mediamente accadono ogni $lambda in (0, +infinity)$ unità di tempo. La probabilità che questa attesa si _allunghi_ decresce in maniera _esponenziale_. Il supporto è $D_X = [0, +infinity)$.
 
 $ mr(X tilde E(lambda)) $
-
-#informalmente[
-  Il modello si usa spesso per modellare il tempo che intercorre tra eventi:
-
-  - $X$ è il _tempo effettivo_ che l'evento ci mette ad avvenire
-  - $lambda$ è la _forma della curva_, più è piccola, più è piatta
-]
 
 / Funzione di densità:
 $ f_X (x) = mr(lambda e^(-lambda x) I_[0, +infinity) (x)) $
@@ -2214,13 +2291,13 @@ Sia $X tilde E(lambda)$ e $Y = a X$ (scalatura con $a > 0$), allora $ Y tilde E(
 Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Y$ il massimo di esse $Y = max_i X_i$, allora:
 $ F_Y (x) = product_(i=1)^n F_(X_i) (x) $
 
-Nel caso le variabili aleatorie siano #link(<iid>)[indipendenti identicamente distribuite], allora:
+Nel caso le variabili aleatorie siano _indipendenti identicamente distribuite_, allora:
 $ F_Y (x) = F_X (x)^n $
 
 Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Z$ il minimo di esse $Z = min_i X_i$, allora:
 $ F_Z (x) = 1 - product_(i=1)^n (1 - F_(X_i) (x)) $
 
-Nel caso le variabili aleatorie siano #link(<iid>)[indipendenti identicamente distribuite], allora:
+Nel caso le variabili aleatorie siano _indipendenti identicamente distribuite_, allora:
 $ F_Z (x) = 1- (1-F_X (x))^n $
 
 Siano $X_1, ..., X_n$ variabili aleatorie indipendenti e sia $Z = min_i X_i$. Se $forall i, X_i tilde E(lambda_i)$, allora:
@@ -2231,7 +2308,9 @@ $ F_Y (x) = 1 - e^(-lambda/c x) $
 
 ==== Modello Gaussiano (o normale) $X tilde N(mu, sigma)$ <gaussiano>
 
-Modello estremamente diffuso in natura, ha la classica forma a campana.
+Facendo *tante osservazioni* dello *stesso fenomeno*, misureremo molte volte valori vicini alla media, mentre sempre meno volte valori lontani da essa. Graficando le probabilità otteniamo la classica forma a *campana*.
+
+Formalizzando questo concetto in una variabile aleatoria, otteniamo una distribuzione normale o Gaussiana. I parametri $mu$ e $sigma$ descrivono la forma della campana, essendo la _media_ e la _deviazione standard_.
 
 #attenzione[
   Questo modello non ha funzione indicatrice, è definito su tutto $bb(R)$
@@ -2243,7 +2322,23 @@ $ mr(X tilde N(mu, sigma)) $
 $ f_X (x) = P(X = x) = mr(1/(sigma sqrt(2 pi)) dot e^(-(x-mu)^2 / (2 sigma^2))) $
 
 / Funzione di ripartizione:
+#attenzione[
+  Non è nota una forma analitica
+]
+
 $ F_X (x) = P(X <= x) = mr(integral_(-infinity)^x 1 / (sigma sqrt(2 pi)) dot e^((- (x - mu)^2)/(2 sigma^2)) dif x) $
+
+#nota[
+  Data una qualsiasi variabile aleatoria $X tilde N(mu, sigma)$, è possibile trovare la funzione di ripartizione #link(<normale-standard>)[standard]:
+  $ F_X (x) = Phi((x-mu)/sigma) $
+
+  #dimostrazione[
+  $ F_X (x) &= P(X <= x) \
+    &= P((X-mu)/sigma <= (x-mu)/sigma) \
+    &= P(Z <= (x - mu)/sigma) \
+    &= F_Z ((x-mu)/sigma) = Phi((x-mu)/sigma) $
+  ]
+]
 
 / Valore atteso:
 $ E[X] = mr(mu) $
@@ -2260,12 +2355,12 @@ $ Y tilde N(sum_(i=1)^n mu_i, sqrt(sum_(i=1)^n sigma^2_i)) $
 ]
 
 / Eventi simmetrici:
-Una qualsiasi variabile che segue la distribuzione normale ha una curva simmetrica rispetto al centro ($mu$), di conseguenza:
+Una qualsiasi variabile che segue la distribuzione normale ha una curva _simmetrica_ rispetto al centro ($mu$), di conseguenza:
 $ F_X (-x) = 1 - F_X (x) $
 
 #figure(caption: [Le due parti non evidenziate della curva sono identiche, quindi $F(-1) = 1 - F(1)$], image("normale-simmetria.png",  width: 40%))
 
-===== Distribuzione normale standard
+===== Distribuzione normale standard <normale-standard>
 
 Siano $X tilde N(mu, sigma^2)$ e $Y = a X + b$ con $a,b in bb(R), a != 0$, allora:
 $ Y tilde N(a mu +b, a^2, sigma^2) $
@@ -2288,10 +2383,6 @@ $ Z = (X - mu)/sigma = Z tilde N(0,1) $
 La *funzione di densità* e la *funzione di ripartizione* di una variabile aleatoria normale standard si indicano con $phi_Z (x)$ e $Phi_Z (x)$:
 $ Phi_Z (x) = mr(1/sqrt(2 pi) integral_(-infinity)^x e^(-(u^2)/2) dif u) $
 
-/ Ricavare funzione di ripartizione:
-Data una qualsiasi variabile aleatoria $X tilde N(mu, sigma)$, è possibile trovare la funzione di ripartizione standard:
-$ F_X (x) = Phi((x-mu)/sigma) $
-
 #informalmente[
   Portando una curva normale in una curva standard, _perdiamo informazione_ (la curva standard è appunto standard, sempre uguale). Per non perdere informazioni, viene applicata la _stessa trasformazione_ direttamente al parametro della funzione $Phi$ nota della variabile standardizzata:
   $ F_X (x) = Phi_Z ((x-mu)/sigma) $
@@ -2300,23 +2391,29 @@ $ F_X (x) = Phi((x-mu)/sigma) $
   $ P(X <= x) = P((X-mu)/sigma <= (x-mu)/sigma) $
 ]
 
-#dimostrazione[
-  $ F_X (x) &= P(X <= x) \
-    &= P((X-mu)/sigma <= (x-mu)/sigma) \
-    &= P(Z <= (x - mu)/sigma) \
-    &= F_Z ((x-mu)/sigma) = Phi((x-mu)/sigma) $
-]
-
 #nota[
   Si può usare la stessa tecnica per calcolare la probabilità tra due insiemi:
-  $ P(a <= x <= b) = Phi((b-mu)/sigma) - Phi((a-mu)/sigma) $
+  $ P(a <= x <= b) = Phi(b) - Phi(a) $
 ]
 
 === Teorema centrale del limite
 
-Siano $X_1, ... X_n$ variabili aleatorie #link(<iid>)[indipendenti identicamente distribuite], ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
+Siano $X_1, ... X_n$ variabili aleatorie *indipendenti identicamente distribuite*, ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
 Allora, per $n -> +infinity$ le variabili sono distribuite in modo *approssimativamente normale*:
 $ sum_(i=1)^n X_i tilde.dot N(n dot mu, sigma sqrt(n)) $
+
+#attenzione[
+  In caso volessimo stimare una media campionaria $overline(X)$, allora otteniamo:
+  $ overline(X) tilde.dot N(mu, sigma/sqrt(n)) $
+
+  #dimostrazione[
+    Sappiamo che:
+    $ overline(X) = 1/n sum_(i=1)^n X_i $
+    Quindi per linearità:
+    $ overline(X) &tilde.dot((cancel(n) mu)/cancel(n), (sigma sqrt(n))/n) \
+      &tilde.dot(mu, sigma / sqrt(n)) $
+  ]
+]
 
 Questa distribuzione si può standardizzare:
 $ (limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
@@ -2324,14 +2421,20 @@ $ (limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
 Quindi per $n$ grande e $x$ qualsiasi, vale l'approssimazione:
 $ P((limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
 
+#informalmente[
+  Quando abbiamo una *generica* variabile aleatoria $X$ che segue una _distribuzione ignota_, allora possiamo vederla come la *somma di tante osservazioni* $X_1, ..., X_n$, ognuna con $E[X_i] = E[X]$ e $"Var"(X_i) = "Var"(X)$. Ogni osservazione è una variabile aleatoria *indipendente e identicamente distribuita*.
+
+  Facendo tante osservazioni, grazie al teorema centrale del limite, possiamo approssimare la somma $sum_i X_i$ come una distribuzione normale
+
+  #attenzione[
+    Non stiamo approssimando la _variabile_ aleatoria $X$, ma la _somma_ di tante sue osservazioni $sum_i X_i$
+  ]
+]
+
 #nota[
   È possibile approssimare una variabile #link(<binomiale>)[binomiale] $X tilde B(n, p)$ con $n$ grande utilizzando il teorema:
   $ X = sum_(i=1)^n X_i tilde.dot N(n p, sqrt(n p (1-p))) \
   (x - n p)/sqrt(n p (1-p)) tilde.dot N(0,1) $
-]
-
-#informalmente[
-  Quando abbiamo una *generica* variabile aleatoria $X$ che segue una _distribuzione ignota_, allora possiamo vederla come la *somma di tante osservazioni* $X_1, ..., X_n$. Ogni osservazione è una variabile aleatoria *indipendente e identicamente distribuita*. Tante più osservazioni $n$ facciamo, migliore sarà l'approssimazione usando il teorema centrale del limite
 ]
 
 = Statistica inferenziale <inferenziale>
@@ -2342,7 +2445,7 @@ La statistica inferenziale vuole _analizzare_ e _trarre risultati_ da campioni s
 
 / Popolazione: grande insieme di oggetti descritti da una variabile aleatoria $X tilde F$
 
-/ Campione: _sottoinsieme_ della popolazione usato per studiare le leggi. Si estraggono i campioni in modo casuale (per questo motivo si assume indipendenza). Viene descritto come una successione di variabili aleatorie $X_1, ... X_n$ #link(<iid>)[indipendenti identicamente distribuite], con $n$ grandezza del campione
+/ Campione: _sottoinsieme_ della popolazione usato per studiare le leggi. Si estraggono i campioni in modo casuale (per questo motivo si assume indipendenza). Viene descritto come una successione di variabili aleatorie $X_1, ... X_n$ _indipendenti identicamente distribuite_, con $n$ grandezza del campione
 
 La statistica inferenziale permette di capire quale distribuzione descrivere le osservazioni, attraverso due metodologie:
 
@@ -2417,10 +2520,47 @@ Dato un campione ${X_1, ..., X_n}$ da una popolazione $X$ e $theta$ parametro di
 
 Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ lim_(n->infinity) "MSE"_tau(theta) (T_n) = 0 $
 
+== Legge dei grandi numeri
+#informalmente[
+  Date $n$ variabili aleatorie $X_1, ..., X_n$ i.i.d. estratte da una popolazione $X$: $ lim_(n->+infinity) 1/n sum_(i=1)^n X_i = overline(X) $
+]
+
+/ Legge forte dei grandi numeri:
+Data una media campionaria $overline(X)_n$ su $n$ elementi, se $n -> +infinity$ allora la probabilità che essa stimi $E[X]$ vale 1:
+$ P(lim_(n->+infinity) overline(X)_n = mu) = 1 $
+
+/ Legge debole dei grandi numeri:
+Fissato un $epsilon > 0$, se $n -> +infinity$ allora $overline(X)_n$ non stima mai $E[X]$ con errore maggiore di $epsilon$:
+
+$ lim_(n->+infinity) P(abs(overline(X)_n - mu) > epsilon) = 0 $
+
+=== Taglia minima di un campione
+
+/ Con disuguaglianza di Chebyshev:
+
+Data una variabile aleatoria discreta o continua $X$, con $E[X] = mu$ e $"Var"(X) = sigma^2$:
+$ forall epsilon > 0, P(abs(X - mu) >= epsilon) <= (sigma^2)/(epsilon^2) $
+
+//TODO: finire da appunti
+
+#nota[
+  Es svolto:
+  //TODO: finire
+]
+
+/ Con teorema del limite centrale:
+Data una v.a. $X$ vogliamo stimare la taglia minima $n$ di un campione tale che abbia probabilità molto alta di avere il valore di $overline(X)$ molto vicino al valore atteso $mu$
+
+$P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon)\
+&= (-epsilon/(sigma/sqrt(n)) <= (overline(X) - mu) / (sigma/sqrt(n)) <= epsilon/(sigma/sqrt(n)))\
+&= P((-epsilon sqrt(n))/sigma <= Z <= (epsilon sqrt(n))/sigma)\
+&= Phi((epsilon sqrt(n))/sigma) - Phi(-(epsilon sqrt(n))/sigma)\
+&= Phi((epsilon sqrt(n))/sigma) - (1 - Phi((epsilon sqrt(n))/sigma))\
+&= Phi((epsilon sqrt(n))/sigma) - 1 + Phi((epsilon sqrt(n))/sigma)\
+&= 2 dot Phi((epsilon sqrt(n))/sigma) - 1 $
 
 // TODO: metodo di massima verosomiglianza
 // TODO: metodo plugin
-// TODO: legge grandi numeri
 // TODO: guardare cosa manca incrociando appunti
 
 #pagebreak()
@@ -2458,7 +2598,7 @@ Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ li
   $ "Var"(X + Y) = "Var"(X) + "Var"(Y) + 2 "Cov"(X, Y) $
   $ "Var"(X - Y) = "Var"(X) + "Var"(Y) - 2"Cov"(X,Y) $
   #attenzione[
-    Se le variabili sono #link(<iid>)[indipendenti identicamente distribuite], allora la covarianza vale $0$
+    Se le variabili sono _indipendenti identicamente distribuite_, allora la covarianza vale $0$
   ]
 - la varianza della somma di più variabili aleatorie vale:
   $ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
@@ -2475,7 +2615,7 @@ Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ li
   $ "Cov"(X + Y, Z) = "Cov"(X, Z) + "Cov"(Y, Z) $
 
 == Modelli
-// TODO: sistemare nei modelli disreti la I, fare {0, ..., n} al posto di [0, n]
+// TODO: ricontrollare formule
 
 - #link(<bernoulliano>)[Modello di Bernoulli]: $X tilde B(p)$
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
@@ -2521,19 +2661,18 @@ Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ li
   )
 
 - #link(<ipergeometrico>)[Modello ipergeometrico]: $X tilde H(n, M, N)$
-// TODO: riguardare valore atteso e varianza (p)
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
     [- Massa:], [$(binom(N, x) binom(M, n-x)) / binom(N + M, n) I_{0, ..., n} (x)$],
     [- Ripartizione:], [_non vista nel corso_],
-    [- Valore atteso:], [$n^2 N/(N+M)$],
-    [- Varianza:], [$(N M) / (N + M)^2$]
+    [- Valore atteso:], [$(n dot N) / (N + M)$],
+    [- Varianza:], [$(n(N + M - n)N M) / ((N+M)^2 (N + M - 1))$]
   )
 
 - #link(<uniforme-continuo>)[Modello uniforme continuo]: $X tilde U(a,b)$
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
     [- Massa:], [$1 / (b-a) I_[a,b] (x)$],
     [- Ripartizione:], [$(x-a) / (b-a) I_[a,b] (x) + I_((b, +infinity)) (x)$],
-    [- Valore atteso:], [$(b-a) / 2$],
+    [- Valore atteso:], [$(b+a) / 2$],
     [- Varianza:], [$(b-a)^2 / 12$]
   )
 
@@ -2668,6 +2807,7 @@ dif t = D(sqrt(x)) mb(dif x) quad quad dif t = 1/(2mr(sqrt(x))) mb(dif x) quad q
 - Dimostrare / trovare se la funzione $f(x)$ è una massa/densità valida
   - sommatoria / integrale = 1
   - è possibile considerare la seconda incognita (quella su cui non si integra) come una costante, quindi portarla fuori dalla sommatoria/integrale
+  - sempre positiva $>= 0$ (da dimostrare, non graficamente)
 
 - dimostrare stimatore distorto per $tau(theta)$: $E[T] != tau(theta)$
 
@@ -2681,3 +2821,12 @@ dif t = D(sqrt(x)) mb(dif x) quad quad dif t = 1/(2mr(sqrt(x))) mb(dif x) quad q
 - metodo plug-in: lo stimatore è distorto, va "raddrizzato":
   - $E[T] = a/2 + 6 != a$
   - risolviamo per $a$: $T = a/2 + 6$, quindi $T*2 - 6$ è non distorto
+
+- probabilità dell'evento che si verifica quando l'errore in valore assoluto che si compie usando $T$ per stimare $a$ è minore o uguale di $epsilon$:
+  - l'errore è lo stimatore meno il suo valore atteso: $T - E[T]$ (il valore atteso $E[T]$, dato che lo stimatore non è distorto è uguale ad $a$)
+  - quindi $P(-epsilon < T - E[T] < epsilon)$
+  - di solito si trasforma il valore atteso in $mu$ (calcolato in base a quanto vale lo stimatore $T$ rispetto alla media campionaria $overline(X)$)
+  - si toglie il valore assoluto
+  - si calcola la normale che approssima $T$, attraverso il teorema del limite centrale
+  - si porta la normale in normale standard
+  - è possibile usare $Phi$ per la probabilità

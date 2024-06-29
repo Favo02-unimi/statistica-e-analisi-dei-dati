@@ -72,6 +72,10 @@
   #link("https://github.com/tsagae")[
     #text(1.5em, "Matteo Zagheno")
   ]
+  #text(", ")
+  #link("https://github.com/Gallja")[
+    #text(1.5em, "Andrea Galliano")
+  ]
 
   #text("Ultima modifica:")
   #datetime.today().display("[day]/[month]/[year]")
@@ -470,7 +474,7 @@ $ "Cov"(x, y) = 1/(n-1)sum_(i=1)^n (x_i y_i - n overline(x y)) $
 ])
 
 #nota[
-  Una relazione diretta/indiretta non è necessariamente _lineare_, può essere anche _logaritmica_ o seguire altre forme.
+  Una relazione diretta/indiretta non è necessariamente _lineare_, può essere anche _logaritmica_ o seguire altre forme
 ]
 
 === Indice di correlazione di Pearson (indice di correlazione lineare) <correlazione-lineare>
@@ -536,7 +540,7 @@ $ H' = 1/log(n) H $
 ]
 
 #informalmente[
-  Intuitivamente sia l'#link(<gini>)[indice di Gini] che l'#link(<entropia>)[entropia] sono una _"media pesata"_ tra la frequenza relativa di ogni elemento ed un peso: la _frequenza stessa_ nel caso di Gini e il _logaritmo del reciproco_ nell'entropia. La frequenza relativa è già nel range $[0, 1]$, quindi non c'è bisogno di dividere per il numero di elementi.
+  Intuitivamente sia l'#link(<gini>)[indice di Gini] che l'#link(<entropia>)[entropia] sono una _"media pesata"_ tra la frequenza relativa di ogni elemento ed un peso: la _frequenza stessa_ nel caso di Gini e il _logaritmo del reciproco_ nell'entropia. La frequenza relativa è già nel range $[0, 1]$, quindi non c'è bisogno di dividere per il numero di elementi
 ]
 
 == Indici di concentrazione
@@ -563,7 +567,7 @@ Inoltre: $forall i, space 0 <= Q_i <= F_i <= 1$.
 
 #informalmente[
   Possiamo vedere $F_i$ come _"quanta"_ popolazione è stata analizzata fino all'osservazione $i$, espressa nel range $[0, 1]$.
-  $Q_i$ è invece una #link(<frequenze>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$.
+  $Q_i$ è invece una #link(<frequenze>)[_"frequenza cumulata"_] della ricchezza, fino all'osservazione $i$
 ]
 
 #figure(caption: [Curva di Lorentz],
@@ -887,7 +891,214 @@ Quando i valori di un campione sono molto grandi oppure molto distanti è possib
 
 == Grafici
 
-// TODO: fare i grafici
+=== Diagramma a barre
+
+Rappresenta graficamente la _tabella delle frequenze_, è opportuno utilizzarlo in caso di *attributi qualitativi non ordinati*.
+
+L'uso delle _frequenze relative_ permette di confrontare situazioni in cui il numero di osservazioni è variabile, quindi ha senso sovrapporre grafici di campioni diversi.
+
+Si utilizza per gli indici (asse delle x) con attributo qualitativo ma non ordinato.
+
+```python
+publisher_order = ['Hanna-Barbera', 'ABC Studios', 'Dark Horse Comics',
+                   'Image Comics', 'Marvel Comics', 'DC Comics',
+                   'George Lucas', 'Rebellion',
+                   'Star Trek', 'Universal Studios']
+publisher_rel_freq.loc[publisher_order,:].plot.bar(legend=False)
+plt.show()
+```
+#nota[
+- Se utilizzo plot.bar su value.counts ottengo un ordinamento non crescente sulle frequenze
+- Se utilizzo plot.bar sul dataframe ottengo un ordinamento in base ai valori e una legenda dell'asse delle ascisse (che si puo togliere con legend=False)
+]
+
+=== Aerogramma (grafico a torta)
+
+Grafico alternativo per le frequenze dei valori qualitativi
+
+```python
+gender_freq.plot.pie(y='Abs. frequence', colors=['pink', 'blue'])
+plt.show()
+```
+
+=== Istogramma
+
+Per rappresentare graficamente le tabelle delle frequenze di dati quantitativi, usiamo ancora ``` plot.bar```
+Tuttavia è molto probabile che il risultato non sia ottimale in quanto le barre hanno uno spessore che puo suggerire un interpretazione fuorviante secondo cui le frequenze non facciano riferimento ad un anno ma a un intervallo.
+
+```python
+first_app_freq = heroes_with_year['First appearance'].value_counts()
+plt.bar(first_app_freq.index, first_app_freq.values)
+plt.show()
+```
+
+Si utilizza in questi casi un grafico a bastoncini in cui ogni punto è evidenziato da un segmento verticale che lo congiunge con l'asse delle ascisse. Lo si genera con ``` plt.vlines(listaIndici, yiniziale, listaValori)```.
+Eventualmente si puo sovrapporre con un ``` plt.plot``` che rappresenta un cerchio.
+
+```python
+plt.vlines(first_app_freq.index, 0, first_app_freq.values)
+plt.show()
+```
+
+Ulteriore problema che ricorre spesso nei dati quantitativi sono i numerosi valori distinti per un valore piccolissimo (ad esempio tra 81.01 e 81).
+Risulta piu sensato calcolare le frequenze di intervalli di possibili valori, aggregando quindi i valori ma non sarebbe corretto perché daremmo l'impressione che un certo valore ha una frequenza alta.
+
+Alcuni insiemi hanno troppi valori distinti per poter usare il metodo del grafico poligonale/a barre. Suddividiamo i valori in gruppi/classi e poi rappresentiamo con un grafico il numero di valori dei dati appartenenti a ciascuna classe.
+
+Come scegliere li numero di classi:
+- Se troppo poche classi perdo molte informazioni sui valori effettivi
+- Se troppe classi ottengo frequenze troppo basse per ottenere delle informazioni dal grafico
+Di solito si scelgono tra le 5 e le 10 classi. È prassi scegliere classi della stessa lunghezza.
+I valori al bordo di una classe di chiamano estremi della classe.
+
+Convenzione di inclusione a sinistra: classe include il suo estremo sinistro ma non quello destro.
+
+Utilizziamo quindi un istogramma, generabile con ``` .hist()```.
+
+Come argomento a hist possiamo specificare i bins, cioe i sotto intervalli espressi o come differenza tra gli intervalli.
+
+``` .hist()``` in modo automatico raggruppa i dati, calcola le frequenze e le rappresenta.
+
+es ``` bins=50``` oppure come con ``` np.stack((np.arange(0, 200, 20)), …)``` posso specificare gli intervalli.
+
+- ``` np.hstack``` permette di giustapporre due o piu array numpy
+- ``` np.arange``` permette di creare un array con valori che variano tra i primi due argomenti secondo il terzo argomento
+
+```python
+heroes['Weight'].hist(bins=50)
+plt.show()
+heroes['Weight'].hist(bins=np.hstack((np.arange(0, 200, 20),
+                                      np.arange(200, 500, 50),
+                                      np.arange(500, 1000, 100))))
+plt.show()
+```
+
+#nota[
+  Nell'istogramma è l'area di ogni barra a essere legata alla frequenza. Se le barre hanno basi della stessa lunghezza, le aree sono proporzionali all'altezza
+]
+
+=== Diagramma di Pareto
+
+// TODO: diagramma di pareto (catu pagina frequenze congiunte e marginali)
+Le frequenze assolute/relative e cumulate di una variabile categorica possono essere considerate congiuntamente generando un diagramma di Pareto, ordinando i dati per frequenza decrescente su uno stesso sistema di riferimento in cui l'asse delle ascisse fa riferimento ai valori.
+In questo sistema si sovrappongono il diagramma a barre delle frequenze assolute/relative e la linea spezzata he collega i valori delle frequenze cumulate
+
+```python
+eye_color = heroes['Eye color']
+eye_color_freq = eye_color.value_counts(normalize=True)
+eye_color_freq[eye_color_freq>.02].cumsum().plot()
+eye_color_freq[eye_color_freq>.02].plot.bar()
+plt.show()
+```
+
+La linea spezzata non arriva sempre all'ordinata 1 (considerando le frequenze relative) in quanto consideriamo solo un sottoinsieme dei dati dato il possibile gran numero di dati con una frequenza bassa e quindi trascurabile.
+
+Voglio pero considerare un sottoinsieme del mio campione, per avere una risposta succinta non considero quindi tutti i valori distinti il cui numero potrebbe essere molto elevato ma con molti valori con una frequenza relativa trascurabile.
+
+Per far arrivare il diagramma di Pareto fino all'ordinata unitaria si attua una normalizzazione in particolare dividiamo tutte le frequenze per la sommatoria.
+
+La normalizzazione tipicamente si ottiene:
+- dividendo per la somma, in modo che i dati trasformati hanno somma 1
+- dividere per il massimo, in modo che i dati trasformati siano < 1
+
+```python
+norm_eye_color_freq = eye_color_freq[eye_color_freq>.02]/sum(eye_color_freq[eye_color_freq>.02])
+norm_eye_color_freq.cumsum().plot()
+norm_eye_color_freq.plot.bar()
+plt.show()
+```
+
+In generale un diagramma di Pareto permette di identificare gli elementi piu rilevanti in termini di frequenze all'interno di un insieme di osservazioni.
+
+Tuttavia dobbiamo considerare che non stiamo tenendo in considerazione tutte le osservazioni, considerandole tutte scirebbe un grafico poco leggibile.
+
+```python
+def my_pareto(data, threshold=0.02, renormalize=False):
+    freq = data.value_counts(normalize=True)
+    freq = freq[freq > threshold]
+    if renormalize:
+        freq = freq / sum(freq)
+    freq.cumsum().plot()
+    freq.plot.bar()
+my_pareto(heroes['Eye color'], threshold=0)
+```
+
+=== Box plot
+
+// TODO: boxplot (catu pagina coefficienti di variazione)
+È possibile visualizzare un campione attraverso un *box plot*, partendo dal basso composto da:
+- eventuali _outliers_, rappresentati con le `x` prima del baffo
+- il _baffo_ "inferiore", che parte dal valore minimo e raggiunge il primo quartile
+- il _box_ (scatola), che rappresenta le osservazioni comprese tra il primo e il terzo quartile
+- la linea che divide in due il box, che rappresenta la _mediana_
+- il _baffo_ "superiore", che parte terzo quartile e raggiunge il massimo
+- eventuali _outliers_ "superiori", rappresentati con le `x` dopo il baffo
+
+#figure(caption: [Grafico boxplot],
+  cetz.canvas({
+    import cetz: *
+    plot.plot(size: (4,4), x-tick-step: none, y-tick-step: none, {
+      plot.add-boxwhisker((
+        x: 1,
+        outliers: (7, 65, 69),
+        min: 20, max: 60,
+        q1: 25,
+        q2: 33,
+        q3: 50))
+    })
+  })
+)
+
+Il box plot permette di evidenziare la centralità delle osservazioni e la loro dispersione in termini di range interquartile (L'estensione della box) e di intervallo di variazione dei dati / range, definito come la distanza tra MAX e MIN
+
+```python
+year.plot.box(whis='range')
+plt.show()
+```
+
+#nota[
+ Di default il box plot analizza ed esclude gli outliner, per evitare cioe specifichiamo l'argomento whis='range'. Un valore è un outliner se la sua distanza dalla mediana è più di una costante moltiplicata per il range interquartile. Per visualizzare il box plot in modo orizzontale usiamo vert=False
+]
+
+=== Simmetria
+
+=== Q-Q plot
+
+// TODO: diagrammi Q-Q (catu pagina indici di eterogeneità)
+Un diagramma Q-Q / Quantile-Quantile è una rappresentazione grafica utilizzata per verificare se due campioni seguano una medesima distribuzione.
+
+Ogni asse lo associo con un campione, segnando i punti come incontro dei due percentili. Prendendo come riferimento la bisettrice del primo e del terzo quadrante, se i punti sono vicini ad essa, allora posso dire che la popolazione è plausibilmente la stessa
+Questi diagrammi si basano sul fatto che i quantili campionari rappresentano l'approssimazione di quantili teorici che considerandoli tutti individuano univocamente la distribuzione dei dati.
+
+Se due campioni hanno un'uguale distribuzione allora estraendo da entrambi il quantile di un livello si dovranno ottenere due numeri molto vicini.
+
+Oltre a mostrare il comportamento relativo di due variabili ed aiutarci nella rappresentazione, è utile per riconoscere i valori anomali/outliner.
+
+```python
+import statsmodels.api as sm
+sm.qqplot_2samples(marvel_sample, dc_sample, line='45')
+plt.show()
+```
+
+#nota[
+  Normalizzando i dati si possono notare piu facilmente valori fuori scala
+]
+
+=== Scatter plot
+
+Considerando due serie con un medesimo indice, individuiamo un punto sul piano dato dai valori delle due serie. Oppure considerando una riga fissata, quindi un individuo, voglio analizzare la relazione tra due attributi dell'individuo.
+
+Ripetendo la stessa cosa per tutti gli individui, otteniamo una nuvola di punti: Abbiamo otteniamo un diagramma di dispersione o scatter plot.
+
+Non sto cercando una relazione deterministica, ma una tendenza.
+Se esistesse una qualunque relazione lineare, otterrei esattamente una retta congiungendo i punti.
+
+Generiamo uno scatter plot da un dataframe invocando ``` plot.scatter()``` indicando come argomenti i nomi dei caratteri da considerare.
+
+```python
+heroes[heroes['Gender']=='M'].plot.scatter('Height', 'Weight')
+plt.show()
+```
 
 = Calcolo delle probabilità <probabilità>
 
@@ -904,7 +1115,7 @@ Analizzare _come_ e in _quanti_ modi si possono effettuare raggruppamenti di ele
   / Combinazioni: l'ordine _non_ è importante $(a, b) = (b, a)$
   / Permutazioni: tutti gli elementi vengono disposti $k = n$
 
-  È possibile sia _avere_ che _non avere_ delle *ripetizioni* in tutti i casi.
+  È possibile sia _avere_ che _non avere_ delle *ripetizioni* in tutti i casi
 ]
 
 === Disposizioni
@@ -916,8 +1127,7 @@ Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezi
 #dimostrazione[
   $ d_(n,k) &= n(n-1)(n-2)...(n-k+1) \
     &= mb(n(n-1)(n-2)...(n-k+1)) dot mb((n-k)(n-k-1)...(1))/mo((n-k)(n-k-1)...(1)) \
-    &= mb(n!) / mo((n-k)!)
-  $
+    &= mb(n!) / mo((n-k)!) $
 ]
 
 / Disposizione con ripetizione: gli oggetti di $A$ possono essere usati più di una volta $ D_(n,k) = underbrace(n dot n dot ... dot n, k "volte") = n^k $
@@ -931,7 +1141,7 @@ Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezi
 Dato un insieme di $n$ oggetti distinti $A = { a_1, ..., a_n }$, vogliamo selezionare $k$ oggetti (con $k <= n$), *senza* considerare l'ordine.
 
 #nota[
-  Il numero di combinazioni $c_(n,k)$ è sempre minore del numero di disposizioni $d_(n,k)$, dato che l'ordine non conta.
+  Il numero di combinazioni $c_(n,k)$ è sempre minore del numero di disposizioni $d_(n,k)$, dato che l'ordine non conta
 ]
 
 / Combinazione senza ripetizioni (semplici): gli oggetti di $A$ possono essere usati una volta sola $ c_(n,k) = binom(n, k) $
@@ -970,14 +1180,14 @@ Dato un insieme di $n$ oggetti $A = { a_1, ..., a_n }$, una *permutazione* è un
 / Spazio campionario $Omega$ (insieme degli esiti o insieme universo): è l'insieme di tutti gli esiti possibili. Può essere _finito_ o _infinito_, _continuo_ o _discreto_
 
 #informalmente[
-  _Esempio_: lanciando un dado, l'_esito_ è il numero risultante, un _evento_ può essere "esce 3 o 6" e la _probabilità_ di questo evento è $2/6$.
+  _Esempio_: lanciando un dado, l'_esito_ è il numero risultante, un _evento_ può essere "esce 3 o 6" e la _probabilità_ di questo evento è $2/6$
 ]
 
 / Evento certo $E = Omega$: si verifica sempre
 / Evento impossibile $E = emptyset$: non si verifica mai
 
 #nota[
-  Indichiamo sempre con una _minuscola_ un _esito_, mentre con una _maiuscola_ un _evento_.
+  Indichiamo sempre con una _minuscola_ un _esito_, mentre con una _maiuscola_ un _evento_
 ]
 
 Dati degli eventi, è possibile applicare le operazioni e proprietà degli insiemi su di essi:
@@ -1010,10 +1220,14 @@ Un algebra di eventi $A$ è un insieme di eventi ${E_1, E_2, ...}$ a cui sono as
 - $forall E, F in A, space E union F in A$: chiusa rispetto all'_unione_
 - $forall E, F in A, space E sect F in A$: chiusura rispetto all'_intersezione_
 
-#nota[La chiusura rispetto all'_intersezione_ non è una vera proprietà, ma deriva dalla chiusura rispetto all'_unione_ a cui viene applicata la _legge di De Morgan_]
+#nota[
+  La chiusura rispetto all'_intersezione_ non è una vera proprietà, ma deriva dalla chiusura rispetto all'_unione_ a cui viene applicata la _legge di De Morgan_
+]
 
-#nota[Se la chiusura sull'_unione_ vale anche per $|Omega| = infinity
-$, allora $A$ viene chiamata $sigma$-algebra]
+#nota[
+  Se la chiusura sull'_unione_ vale anche per $|Omega| = infinity
+$, allora $A$ viene chiamata $sigma$-algebra
+]
 
 #attenzione[
   L'algebra degli eventi non è un _vero_ insieme di eventi, ma è un _"dizionario"_ che sfruttiamo per definire quali _operazioni_ e _variabili_ sono ammesse su un $Omega$
@@ -1122,7 +1336,9 @@ Dato $Omega$ partizionato in $F_1, ..., F_n$ partizioni disguinte, la probabilit
 
 $ P(E) = sum_(i=1)^n P(F_i) dot P(E|F_i)  $
 
-#nota[Insieme $A$ partizionato: $limits(union.big)_(i=1)^n F_i = A$ con $forall i, j, space  i != j, space F_i sect F_j = emptyset$. L'_unione_ di tutte le partizioni è uguale all'insieme iniziale e tutte le partizioni sono _disgiunte_]
+#nota[
+  Insieme $A$ partizionato: $limits(union.big)_(i=1)^n F_i = A$ con $forall i, j, space  i != j, space F_i sect F_j = emptyset$. L'_unione_ di tutte le partizioni è uguale all'insieme iniziale e tutte le partizioni sono _disgiunte_
+]
 
 #figure(caption: [
   Probabilità di $E$:
@@ -1206,7 +1422,7 @@ $ = (P(Y = y_k) dot limits(product)_(i=1)^n P(X_i = x_i | Y = y_k)) / P(X_1 = x_
 #informalmente[
   Questa _assunzione_ è, appunto, _ingenua_: ad esempio, una persona con i capelli chiari è _più probabile_ che abbia anche gli occhi chiari rispetto ad una persona con i capelli scuri. Le due caratteristiche _non_ sono _indipendenti_.
 
-  Come capire _formalmente_ se due eventi (o più) eventi sono _indipendenti_ è descritto nel #link(<eventi-indipendenti>)[paragrafo successivo].
+  Come capire _formalmente_ se due eventi (o più) eventi sono _indipendenti_ è descritto nel #link(<eventi-indipendenti>)[paragrafo successivo]
 ]
 
 Per trovare la classe alla quale _assegnare_ l'oggetto, bisogna calcolare la probabilità per ogni possibile $y_k$ e trovare il massimo $k^*$:
@@ -1216,8 +1432,6 @@ $ k^* = arg max_k P(Y = y_k) dot product_i^n P(X_i = x_i | Y = y_k) $
 #nota[
   Dato che ci interessa solo $y_k$ massimo e il _denominatore_ non dipende da $k$, allora possiamo _ignorarlo_ dato che non influenzerà la scelta del masssimo
 ]
-
-// TODO: classificatore naive-bayes in Python (appunti michele)
 
 === Eventi indipendenti <eventi-indipendenti>
 
@@ -1707,7 +1921,7 @@ $ E[X] = integral_(-infinity)^(+infinity) x dot f_(X)(x) dif x $
 La _varianza_ di una variabile aleatoria continua vale:
 $ "Var"(X) = E[(X - mu)^2] = integral_(-infinity)^(+infinity) (x - mu)^2 f_(X)(x) dif x $
 
-==== Disuguaglianza di Markov
+==== Disuguaglianza di Markov <disuguaglianza-markov>
 
 #informalmente[
   Permette di ottenere un limite superiore alla probabilità dalla sola conoscenza del valore atteso
@@ -1742,7 +1956,7 @@ $ P(X >= a) <= E[X] / a $
 ]
 
 
-==== Disuguaglianza di Chebyshev
+==== Disuguaglianza di Chebyshev <chebyshev>
 
 #informalmente[
   Permette di ottenere un limite superiore alla probabilità che il valore di una variabile aleatoria si discosti dal suo valore atteso di una quantità maggiore o uguale a una soglia scelta
@@ -1762,19 +1976,13 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 
 #dimostrazione[
   $ | X - mu | >= r quad <==> quad ( X - mu )^2 >= r^2  $
-
   dunque:
-
   $ mr(P( |X - mu| >= r)) &= mb(P((X - mu)^2 >= r^2)) \
      mb(P((X - mu)^2 >= r^2)) &<= E[(X - mu)^2] / r^2 "per Markov" \
-     mr(P( |X - mu| >= r)) &<= sigma^2 / r^2
-  $
+     mr(P( |X - mu| >= r)) &<= sigma^2 / r^2 $
 ]
 
 === Modelli di distribuzione discreti
-
-// TODO: controlalre e aggiungere descrizione a parole per ogni modello
-// TODO: per ogni modello scrivere come riconoscerlo
 
 Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di conseguenza esistono dei risultati notevoli.
 
@@ -1843,8 +2051,7 @@ $ E[X] = mr(n p) $
 
 #dimostrazione[
   $ E[X] &= E[sum_i^n X_i] \
-  &= sum_i^n E[X_i] = n dot p
-  $
+  &= sum_i^n E[X_i] = n dot p $
 ]
 
 / Varianza:
@@ -1914,7 +2121,7 @@ $ mr(X tilde G(p)) $
 $ p_X (x) = P(X = x) = mr(p(1-p)^x I_{0, ..., +infinity} (x)) $
 
 #informalmente[
-  La funzione di massa equivale a calcolare le probabilità che accadano $x$ _insuccessi_, quindi $(1-p)^x$ a cui succede un _successo_ $dot p$, ottenenendo $p dot (1-p)^x$.
+  La funzione di massa equivale a calcolare le probabilità che accadano $x$ _insuccessi_, quindi $(1-p)^x$ a cui succede un _successo_ $dot p$, ottenenendo $p dot (1-p)^x$
 ]
 
 #figure(caption: [Funzione di massa modello geometrico], image("geometrico-massa.png", width: 40%))
@@ -2007,7 +2214,7 @@ $ E[X] = mr(lambda) $
     &= lambda e^(-lambda) e^lambda = lambda $
 
   #nota[
-    Dal secondo passaggio in poi l'indice della sommatoria $i$ parte da 1 e non da 0. Questo perché moltiplicando tutto per $i$ se $i = 0$ il contributo alla sommatoria sarà nullo.
+    Dal secondo passaggio in poi l'indice della sommatoria $i$ parte da 1 e non da 0. Questo perché moltiplicando tutto per $i$ se $i = 0$ il contributo alla sommatoria sarà nullo
   ]
 ]
 
@@ -2156,7 +2363,7 @@ Alcune _distribuzioni/modelli_ di variabili aleatorie sono molto _frequenti_, di
 
 ==== Modello uniforme continuo $X tilde U(a,b)$ <uniforme-continuo>
 
-La variabile assume un valore nell'*intervallo* $[a,b]$, di conseguenza il supporto è $D_X = [a, b]$. Tutti gli esiti della variabile aleatoria discreta sono *equiprobabili*.
+La variabile assume un valore nell'*intervallo* $[a,b]$, di conseguenza il supporto è $D_X = [a, b]$. Tutti gli esiti della variabile aleatoria continua sono *equiprobabili*.
 
 $ mr(X tilde U(a,b)) $
 
@@ -2199,8 +2406,7 @@ $ E[X] = mr((b + a) / 2) $
     &= 1/(b-a) dot [x^2 / 2]_a^b \
     &= 1/(b-a) dot (b^2 - a^2)/2 \
     &= 1/cancel(b-a) dot ((a+b)cancel((b-a)))/2 \
-    &= (a+b) / 2
-  $
+    &= (a+b) / 2 $
 ]
 
 #nota[
@@ -2310,7 +2516,7 @@ $ F_Y (x) = 1 - e^(-lambda/c x) $
 
 Facendo *tante osservazioni* dello *stesso fenomeno*, misureremo molte volte valori vicini alla media, mentre sempre meno volte valori lontani da essa. Graficando le probabilità otteniamo la classica forma a *campana*.
 
-Formalizzando questo concetto in una variabile aleatoria, otteniamo una distribuzione normale o Gaussiana. I parametri $mu$ e $sigma$ descrivono la forma della campana, essendo la _media_ e la _deviazione standard_.
+Formalizzando questo concetto in una variabile aleatoria, otteniamo una distribuzione normale o Gaussiana. I parametri $mu$ e $sigma$ descrivono la forma della campana, essendo la _media_ (quindi il centro) e la _deviazione standard_ (quindi la larghezza).
 
 #attenzione[
   Questo modello non ha funzione indicatrice, è definito su tutto $bb(R)$
@@ -2396,30 +2602,30 @@ $ Phi_Z (x) = mr(1/sqrt(2 pi) integral_(-infinity)^x e^(-(u^2)/2) dif u) $
   $ P(a <= x <= b) = Phi(b) - Phi(a) $
 ]
 
-=== Teorema centrale del limite
+=== Teorema centrale del limite <teorema-centrale-limite>
 
-Siano $X_1, ... X_n$ variabili aleatorie *indipendenti identicamente distribuite*, ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
+Siano $X_1, ... X_n$ variabili aleatorie _indipendenti identicamente distribuite_, ovvero $forall i, E[X_i] = mu, "Var"(X_i) = sigma^2$.
 Allora, per $n -> +infinity$ le variabili sono distribuite in modo *approssimativamente normale*:
 $ sum_(i=1)^n X_i tilde.dot N(n dot mu, sigma sqrt(n)) $
 
 #attenzione[
-  In caso volessimo stimare una media campionaria $overline(X)$, allora otteniamo:
+  In caso volessimo stimare una media campionaria $overline(X)$ <tcl-media-campionaria>, allora otteniamo:
   $ overline(X) tilde.dot N(mu, sigma/sqrt(n)) $
 
   #dimostrazione[
     Sappiamo che:
-    $ overline(X) = 1/n sum_(i=1)^n X_i $
+    $ overline(X) = 1/mb(n) sum_(i=1)^n X_i $
     Quindi per linearità:
-    $ overline(X) &tilde.dot((cancel(n) mu)/cancel(n), (sigma sqrt(n))/n) \
-      &tilde.dot(mu, sigma / sqrt(n)) $
+    $ overline(X) &tilde.dot N((cancel(n) mu)/mb(cancel(n)), (sigma sqrt(n))/mb(n)) \
+      overline(X) &tilde.dot N(mu, sigma / sqrt(n)) $
   ]
 ]
 
 Questa distribuzione si può standardizzare:
-$ (limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
+$ ((limits(sum)_(i=1)^n X_i) - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
 
 Quindi per $n$ grande e $x$ qualsiasi, vale l'approssimazione:
-$ P((limits(sum)_(i=1)^n X_i - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
+$ P(((limits(sum)_(i=1)^n X_i) - n mu) / (sigma sqrt(n)) < x) approx Phi(x) $
 
 #informalmente[
   Quando abbiamo una *generica* variabile aleatoria $X$ che segue una _distribuzione ignota_, allora possiamo vederla come la *somma di tante osservazioni* $X_1, ..., X_n$, ognuna con $E[X_i] = E[X]$ e $"Var"(X_i) = "Var"(X)$. Ogni osservazione è una variabile aleatoria *indipendente e identicamente distribuita*.
@@ -2456,7 +2662,7 @@ La statistica inferenziale permette di capire quale distribuzione descrivere le 
   - *stima per intervalli*: forniamo un intervallo di valori in cui ricade $theta$
 
 #nota[
-  Spesso ci interessa un valore che dipende dal parametro ignoto $theta$, non $theta$ stesso. Questo valore lo indichiamo come $tau(theta)$
+  Spesso ci interessa un valore che _dipende_ dal parametro ignoto $theta$, non $theta$ stesso. Questo valore lo indichiamo come $tau(theta)$
 ]
 
 / Statistica / Stimatore: funzione $t : D_X^n -> bb(R)$ che dati dei valori, stima il valore che ci interessa: $ t(x_1, ..., x_n) = hat(tau) approx tau(theta) $
@@ -2484,7 +2690,7 @@ $ E[t(X_1, ..., X_n)] = tau(theta) $
 === Media campionaria
 
 Un ottimo stimatore *non deviato* per stimare il *valore atteso*, indipendentemente dalla distribuzione, è quello della media:
-$ t(x_1, ..., x_n) = 1/n sum_(i=1)^n x_i quad quad tau(theta) = E[X] $
+$ t(x_1, ..., x_n) = overline(X) = 1/n sum_(i=1)^n x_i quad quad tau(theta) = E[X] $
 
 #dimostrazione[
   $ E[T] &= E[1/n sum_(i=1)^n X_i] \
@@ -2492,19 +2698,38 @@ $ t(x_1, ..., x_n) = 1/n sum_(i=1)^n x_i quad quad tau(theta) = E[X] $
     &= 1/n sum_(i=1)^n E[X_i] = cancel(n/n) dot E[X] $
 ]
 
-// TODO: finire questa parte dagli appunti di Catu
-$ "Var"(1/n sum_(i=1)^n X_i) $
+Abbiamo dimostrato che lo stimatore non è deviato. Per valutarne la bontà ne calcoliamo la varianza:
+
+$ "Var"(overline(X)) = "Var"(1/n sum_(i=1)^n X_i) = "Var"(X)/n $
+
+Quindi per $n -> +infinity$ la varianza tende a 0: per campioni più grandi il risultato è più preciso.
+
+#informalmente[
+  La varianza di uno stimatore non distorto descrive le *"oscillazioni"* intorno a $tau(theta)$
+]
 
 == Bias e Scarto quadratico medio (MSE)
 
-Definiamo il *bias* come:
+Il *bias* è una misura di quanto uno stimatore tende a _sottostimare_ o _sovrastimare_ $tau(theta)$, è definito come:
 $ b_tau(theta) (T) = E[T] - tau(theta) $
 
-Definiamo il valore medio dell'errore quadratico come:
-$ "MSE"_tau(theta) (T) = E[(T_n - tau(theta))^2] $
+#attenzione[
+  Il bias di uno _stimatore_ *non* distorto è $0$
+]
 
-Definiamo lo *scarto quadratico medio* (MSE) come:
+L'errore quadratico medio (MSE) è un'altra misura dell'errore che uno stimatore compie stimando $tau(theta)$. È definito come:
+$ "MSE"_tau(theta) (T) = E[(T_n - tau(theta))^2] $
 $ "MSE"_tau(theta) (T) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
+
+#dimostrazione[
+  $ "MSE"_tau(theta) &= E[(T - tau(theta))^2] \
+    &= E[(mb(T - E[T]) + mp(E[T] - tau(theta))^2)] \
+    &= E[mb((T-E[T])^2) + 2 mb((T- E[T])) mp((E[T] - tau(theta))) + mp((E[T] - tau(theta))^2)] \
+    &= mo(E[(T - E[T])^2]) + cancel(2(E[T] - tau(theta))mr(E[T-E[T]])) + mg((E[T] - tau(theta))^2) $
+  Sappiamo che $mr(E[X - E[X]]) = 0$, allora:
+  $ mo(E[(T - E[T])^2]) + mg((E[T] - tau(theta))^2) =\
+   mo("Var"(T)) + mg(underbrace((E[T] - tau(theta))^2, "bias")) $
+]
 
 #informalmente[
   Lo scarto quadratico medio e il bias sono due metodi per calcolare la _bontà_ di uno _stimatore_.
@@ -2516,52 +2741,143 @@ $ "MSE"_tau(theta) (T) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
 
 == Consistenza in media quadratica
 
-Dato un campione ${X_1, ..., X_n}$ da una popolazione $X$ e $theta$ parametro di $X$, chiamiamo $T_n$ la famiglia di stimatori che sono costituiti dalla funzione $t_n$ applicata a $n$ argomenti.
+La consistenza in media quadratica implica che non solo lo stimatore è *corretto in media*, ma anche che le sue *variazioni* attorno al valore stimato $tau(theta)$ diminuiscono con l'aumentare del campione ${X_1, ..., X_n}$, quindi uno stimatore gode della proprietà di *consistenza in media quadratica* se:
+$ lim_(n->infinity) "MSE"_tau(theta) (T_n) = 0 $
 
-Uno stimatore gode della proprietà di *consistenza in media quadratica* se $ lim_(n->infinity) "MSE"_tau(theta) (T_n) = 0 $
-
-== Legge dei grandi numeri
 #informalmente[
-  Date $n$ variabili aleatorie $X_1, ..., X_n$ i.i.d. estratte da una popolazione $X$: $ lim_(n->+infinity) 1/n sum_(i=1)^n X_i = overline(X) $
+  Se all'aumentare delle osservazioni, l'_errore diminuisce_ sempre di più (fino a tendere a $0$), allora lo stimatore è consistente in media quadratica
 ]
 
-/ Legge forte dei grandi numeri:
-Data una media campionaria $overline(X)_n$ su $n$ elementi, se $n -> +infinity$ allora la probabilità che essa stimi $E[X]$ vale 1:
+/ Consistenza debole: uno stimatore è debolmente consistente rispetto a $tau(theta)$ se
+  $ forall epsilon > 0, quad lim_(n -> +infinity) P(tau(theta) - epsilon <= T <= tau(theta) + epsilon) = 1 $
+
+  #nota[
+    La consistenza in media quadratica _implica_ la _consistenza debole_
+
+    #dimostrazione[
+      $ P(-epsilon <= T - tau(theta) <= epsilon) &= P(|T - tau(theta)| <= epsilon) \
+        &= P((T - tau(theta))^2 <= epsilon^2) \
+        &= 1 - P((T - tau(theta))^2 > epsilon) $
+      Per la #link(<disuguaglianza-markov>)[disuguaglianza di Markov]:
+      $ = 1 - P((T - tau(theta))^2 > epsilon) &>= 1 - (E[(T - tau(theta))^2])/epsilon^2 \
+        &>= 1 - mb("MSE"_tau(theta) (T))/epsilon^2 $
+      Dato che $limits(lim)_(n -> infinity) mb("MSE"_tau(theta) (T)) = 0$, allora:
+      $ 1 - mb(0) = 1 $
+    ]
+  ]
+
+== Legge dei grandi numeri
+
+#informalmente[
+  Date $n$ osservazioni $X_1, ..., X_n$ con $n -> infinity$, allora la media campionaria $overline(X)_n$ converge al valore atteso di ogni $X_i$: $ lim_(n->+infinity) overline(X)_n = E[X_i] = mu $
+]
+
+=== Legge forte dei grandi numeri:
+Data una media campionaria $overline(X)_n$ su $n$ elementi, se $n -> +infinity$ allora la probabilità che essa stimi $E[X] = mu$ vale 1:
 $ P(lim_(n->+infinity) overline(X)_n = mu) = 1 $
 
-/ Legge debole dei grandi numeri:
-Fissato un $epsilon > 0$, se $n -> +infinity$ allora $overline(X)_n$ non stima mai $E[X]$ con errore maggiore di $epsilon$:
+#nota[
+  Quindi per campioni di grandezza infinita, la _media campionaria_ non è una _variabile aleatoria_ ma una _costante_
+]
+
+=== Legge debole dei grandi numeri:
+Data una media campionaria $overline(X)_n$ su $n$ elementi, se $n -> +infinity$ allora la probabilità che essa stimi $E[X] = mu$ con un errore $>$ di un $epsilon$ fissato vale 9:
 
 $ lim_(n->+infinity) P(abs(overline(X)_n - mu) > epsilon) = 0 $
 
-=== Taglia minima di un campione
-
-/ Con disuguaglianza di Chebyshev:
-
-Data una variabile aleatoria discreta o continua $X$, con $E[X] = mu$ e $"Var"(X) = sigma^2$:
-$ forall epsilon > 0, P(abs(X - mu) >= epsilon) <= (sigma^2)/(epsilon^2) $
-
-//TODO: finire da appunti
-
-#nota[
-  Es svolto:
-  //TODO: finire
+#informalmente[
+  Questo risultato è semplicemente "l'inverso" della _legge forte dei grandi numeri_, se la stima è sempre corretta $P(...) = 1$, allora l'errore non è mai superiore $P(...) = 0$ ad $epsilon$
 ]
 
-/ Con teorema del limite centrale:
-Data una v.a. $X$ vogliamo stimare la taglia minima $n$ di un campione tale che abbia probabilità molto alta di avere il valore di $overline(X)$ molto vicino al valore atteso $mu$
+== Taglia minima di un campione
 
-$P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon)\
-&= (-epsilon/(sigma/sqrt(n)) <= (overline(X) - mu) / (sigma/sqrt(n)) <= epsilon/(sigma/sqrt(n)))\
-&= P((-epsilon sqrt(n))/sigma <= Z <= (epsilon sqrt(n))/sigma)\
+Data una variabile aleatoria $X$ vogliamo stimare la taglia minima $n$ di un campione tale che abbia probabilità molto alta di avere il valore di $overline(X)$ molto vicino al valore atteso $mu$:
+$ P(|overline(X)_n - mu| <= epsilon) >= 1 - delta $
+
+=== Con teorema del limite centrale:
+
+Troviamo prima la probabilità, per poi confrontarla con $1 - delta$:
+
+$ P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon) $
+
+Per calcolare questa _probabilità_, vogliamo ricondurci ad una _distribuzione nota_ e sfruttare la sua _funzione di ripartizione_. Dato che la media campionaria è una somma, possiamo sfruttare il #link(<teorema-centrale-limite>)[teorema centrale del limite] per ricavare una #link(<gaussiano>)[distribuzione normale], #link(<normale-standard>)[standardizzarla] e usare $Phi$ per calcolare la probabilità.
+
+Quindi, come dimostrato in #link(<tcl-media-campionaria>)[precendeza], sappiamo che:
+$ overline(X) tilde.dot N(mo(mu), mp(sigma/sqrt(n))) $
+
+Normalizziamo la $overline(X)$ all'interno della probabilità:
+$ P(-epsilon/(sigma/sqrt(n)) <= mb((overline(X) - mo(mu)) / mp(sigma/sqrt(n))) <= epsilon/(sigma/sqrt(n))) &= P((-epsilon sqrt(n))/sigma <= mb(Z) <= (epsilon sqrt(n))/sigma)\
 &= Phi((epsilon sqrt(n))/sigma) - Phi(-(epsilon sqrt(n))/sigma)\
 &= Phi((epsilon sqrt(n))/sigma) - (1 - Phi((epsilon sqrt(n))/sigma))\
 &= Phi((epsilon sqrt(n))/sigma) - 1 + Phi((epsilon sqrt(n))/sigma)\
-&= 2 dot Phi((epsilon sqrt(n))/sigma) - 1 $
+&= 2 Phi((epsilon sqrt(n))/sigma) - 1 $
 
+Confrontiamolo con $1 - delta$:
+
+$ 2 Phi((epsilon sqrt(n))/sigma) - 1 >= 1 - delta \
+Phi((epsilon sqrt(n))/sigma) >= 1 - delta/2 \
+(epsilon sqrt(n))/sigma >= Phi^(-1)(1 - delta/2) \
+n >= sigma^2/epsilon^2 dot (Phi^(-1)(1 - delta/2))^2 $
+
+#nota[
+  $Phi^(-1)(x)$ è l'inversa della funzione di ripartizione della #link(<normale-standard>)[normale standard], che è uguale al quantile di livello $x$.
+  In questo caso vale $Phi^(-1)(1- delta/2) = "quantile di livello" 1 - delta/2$
+]
+
+=== Con disuguaglianza di Chebyshev:
+
+Data una variabile aleatoria discreta o continua $X$, con $E[X] = mu$ e $"Var"(X) = sigma^2$, allora per la #link(<chebyshev>)[disuguaglianza di Chebyshev]:
+$ forall epsilon > 0, quad P(abs(X - mu) >= epsilon) <= (sigma^2)/(epsilon^2) $
+
+Al posto di usare una variabile generica $X$, utilizziamo la media campionaria $overline(X)$, sostituendo $"Var"(X) = sigma^2$ con $"Var"(overline(X)) = (sigma^2)/n$:
+$ forall epsilon > 0, quad mb(P(abs(overline(X) - mu) >= epsilon)) <= (sigma^2)/(n epsilon^2) $
+
+Possiamo trasformare la #text(red)[probabilità che vogliamo trovare] per renderla uguale:
+$ mr(P(abs(overline(X) - mu) < epsilon)) &= 1 - mb(P(abs(overline(X) - mu) >= epsilon)) <= mg((sigma^2)/(n epsilon^2)) \
+1 - mb(P(abs(overline(X) - mu) >= epsilon)) &>= mg(1 - (sigma^2)/(n epsilon^2)) >= 1 - delta $
+
+#attenzione[
+  Effettuando il complementare, viene invertito anche il segno della disequazione ed effettuato il #text(olive)[complementare della quantità]
+]
+
+Quindi:
+$ 1 - (sigma^2)/(n epsilon^2) >= 1 - delta \
+  (sigma^2)/(n epsilon^2) < delta \
+  n >= sigma^2 / (delta epsilon^2) $
+
+== Metodo plug-in
+
+Il metodo plug in (o di sostituzione), permette di "costruire" uno _stimatore_ partendo da uno _noto_ o da una _stima di un suo parametro_.
+
+#nota[
+  Non abbiamo visto questo metodo nel dettaglio
+]
+
+#informalmente[
+  Esempio: popolazione = $X tilde B(m,p)$ dove conosco solo $m$, devo trovare $p$:
+
+  Dato che $E[overline(X)] = E[X] = m p$
+  $ p = E[overline(X)] dot 1/m $
+
+  Grazie alla linearità del valore atteso:
+
+  $ p = E[overline(X)] dot 1/m = E[overline(X) dot 1/m] $
+
+  Quindi $T = 1/m dot overline(X)$ è uno stimatore non distorto per $p$
+]
+
+#informalmente[
+  Esempio: abbiamo lo stimatore $S = overline(X)$ e il suo valore atteso $E[S] = a/2 + 4$
+
+  Vogliamo ottenere uno stimatore $T$ non deviato per $a$, quindi:
+  $ T = 2S - 4 quad E[T] = a $
+]
+
+== Metodo di massima verosomiglianza
 // TODO: metodo di massima verosomiglianza
-// TODO: metodo plugin
-// TODO: guardare cosa manca incrociando appunti
+
+== Processo di Poisson
+// TODO: processo di poisson
 
 #pagebreak()
 // numerazione appendici
@@ -2602,7 +2918,7 @@ $P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon
   ]
 - la varianza della somma di più variabili aleatorie vale:
   $ "Var"(sum_i^n X_i) = sum_i^n "Var"(X_i) + sum_i^n sum_(j, j != i)^n "Cov"(X_i, X_j) $
-- la varianza della media campionaria è: $ "Var"(overline(X)) = "Var"(1/n sum_(i=1)^n X_i) = 1/n^2 "Var"(sum_(i=1)^n X_i) = 1/n^2 dot n "Var"(X) = mr("Var"(X)/n) $
+- la varianza della media campionaria è: $ "Var"(overline(X)) = "Var"(1/n sum_(i=1)^n X_i) = 1/n^2 "Var"(sum_(i=1)^n X_i) = 1/n^2 dot n "Var"(X) = "Var"(X)/n $
 
 === Proprietà della covarianza
 
@@ -2615,7 +2931,6 @@ $P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon
   $ "Cov"(X + Y, Z) = "Cov"(X, Z) + "Cov"(Y, Z) $
 
 == Modelli
-// TODO: ricontrollare formule
 
 - #link(<bernoulliano>)[Modello di Bernoulli]: $X tilde B(p)$
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
@@ -2637,7 +2952,7 @@ $P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon
 - #link(<uniforme-discreto>)[Modello uniforme discreto]: $X tilde U(n)$
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
     [- Massa:], [$1/n I_{1, ..., n} (x)$],
-    [- Ripartizione:], [$floor(x)/n I_{1, ..., n} + I_((n, +infinity)) (x)$],
+    [- Ripartizione:], [$floor(x)/n I_[1, n] + I_((n, +infinity)) (x)$],
     [- Valore atteso:], [$(n+1)/2$],
     [- Varianza:], [$(n^2 - 1)/12$]
   )
@@ -2694,13 +3009,221 @@ $P(abs(overline(X)- mu) <= epsilon) &= P(-epsilon <= overline(X) - mu <= epsilon
     [- Proprietà:], [standardizzazione, riproducibilità]
   )
 
+#figure(caption: "Forma grafici dei modelli")[
+  #image("forma-modelli.png", width: 70%)
+]
+
 = Cheatsheet Python <python>
+
+/ Librerie:
+  ```python
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import numpy as np
+  import scipy.stats as st
+  import statsmodels.api
+  import sklearn
+  import itertools
+  ```
+
+/ Lettura dati:
+  ```python
+  data = pd.read_csv('file_path/fileName.csv', delimiter=',', decimal=',', quotechar='"')
+  ```
+  Per avere il numero di righe nel _dataset_:
+  ```python
+  len(data)
+  ```
+  Per avere a disposizione gli attributi in corrispondenza ai loro valori mancanti nel _dataset_:
+  ```python
+  valMancanti = {col : len(data[col]) - len(data[col].dropna()) for col in data.columns}
+
+  dataF = pd.DataFrame(index = valMancanti.keys(), data = valMancanti.values(), columns = ['mancanti'])
+  ```
+
+  In alternativa, possibile utilizzare i metodi _*isna().sum()*_ per soddisfare la medesima richiesta:
+  ```python
+  valMancanti = {col : data[col].isna().sum() for col in data.columns}
+  ```
+
+  Frequenze assolute di un dato *qualitativo* in formato tabulare:
+  ```python
+  data['attributo'].value_counts()
+  ```
+
+  Frequenze assolute di un dato *qualitativo* con grafico:
+  ```python
+  data['attributo'].value_counts().plot.bar()
+  ```
+
+  Frequenze relative:
+  ```python
+  data['attributo'].value_counts(normalize = True)
+  ```
+
+  Frequenze assolute di un dato *quantitativo* in formato tabulare:
+  ```python
+  data['attributo'].value_counts(bins = 20)
+  ```
+
+/ Indici di centralità:
+
+  Moda di un carattere:
+  ```python
+  data['attributo'].mode()
+  ```
+
+  Media campionaria di un carattere:
+  ```python
+  data['attributo'].mean()
+  ```
+
+  Mediana di un carattere:
+  ```python
+  data['attributo'].median()
+  ```
+
+/ Indici di dispersione:
+
+  Varianza campionaria:
+  ```python
+  data['attributo'].var()
+  ```
+
+  Deviazione standard campionaria:
+  ```python
+  data['attributo'].std()
+  ```
+
+/ Quantili:
+
+  Quantile di un certo livello:
+  ```python
+  data['attributo'].quantile(0.25) #in questo caso restituisce il primo quartile
+  ```
+
+/ Indici di eterogeneità:
+
+  Indice di Gini fra 2 valori distinti:
+  ```python
+  def gini_2_val(f):
+    return 1 - f**2 - (1-f)**2
+
+  x = np.arange(0, 1.01, .01) # start, stop, step
+  y = map(gini_2_val, x)
+  plt.plot(x, y)
+  plt.ylim((0, 0.55))
+  plt.show()
+  ```
+
+  Indice di Gini:
+  ```python
+  def gini(series):
+    return 1 - sum(series.value_counts(normalize=True).map(lambda f: f**2))
+
+  # import librerie
+  # assegnamento a 'data' delle osservazioni del dataset
+
+  gini(data['attributo'])
+  ```
+
+  Entropia fra 2 valori distinti:
+  ```python
+  def entropia_2_val(f):
+      return 0 if f in (0, 1) else - f * np.log2(f) - (1-f) * np.log2(1-f)
+
+  x = np.arange(0, 1.01, .01)
+  y = map(entropia_2_val, x)
+  plt.plot(x, y)
+  plt.ylim((0, 1.1))
+  plt.show()
+  ```
+
+  Entropia:
+  ```python
+  def entropia(series):
+    return sum(series.value_counts(normalize=True).map(lambda f: -f * np.log2(f)))
+
+  # import librerie
+  # assegnamento a 'data' delle osservazioni del dataset
+
+  entropia(data['attributo'])
+  ```
+
+/ Diagramma di Pareto:
+
+  ```python
+  from paretochart import pareto
+
+  freqAttributo = data['attributo'].value_counts()/len(data)
+  attributoComune = freqAttributo[freqAttributo > .02].index
+
+  attributoComune = (data['attributo'][data['attributo'].isin(attributoComune)])
+
+  attributoComune_freq = attributoComune.value_counts()/len(attributoComune)
+
+  pareto(attributoComune_freq, labels=attributoComune_freq.index)
+  plt.show()
+  ```
+
+/ Analisi degli elementi del dataset:
+
+  Elemento massimo:
+  ```python
+  dato = data[data['attributo'] == max(data['attributo'])]
+  ```
+
+  Elemento minimo:
+  ```python
+  dato = data[data['attributo'] == min(data['attributo'])]
+  ```
+
+  Tutti i valori assumibili da un carattere:
+  ```python
+  list(data['attributo'].unique())
+  ```
+
+  Tipo e forza della correlazione fra 2 caratteri:
+  ```python
+  data['attributo 1'].corr(data['attributo 2'])
+  ```
+
+  Questa riga di codice restituisce il valore di un indice che ci porta a fare le seguenti valutazioni:
+  1. Se il valore restituito è circa $1$, è probabile che vi sarà una *_correlazione lineare diretta_* tra i 2 attributi presi in analisi.
+  2. Se il valore restituito è circa $0$, significa che fra i 2 attributi presi in analisi vi è una *_correlazione improbabile_*.
+  3. Se il valore restituito è circa $-1$, allora è probabile che i 2 attributi godano di una *_probabile correlazione linearmente indiretta_*.
+
+
+/ Tabelle congiunte:
+
+  Tabella delle frequenze relative congiunte:
+  ```python
+  pd.crosstab(data['attributo 1'], data['attributo 2'], normalize = True)
+  ```
+
+  Tabella delle frequenze assolute congiunte:
+  ```python
+  pd.crosstab(data['attributo 1'], data['attributo 2'])
+  ```
 
 = Cheatsheet matematica <matematica>
 
-== Varie
+== Sommatorie
 
-$ sum_(i=1)^n = (n(n+1))/2 $
+Proprità sommatoria:
+- solo il primo elemento dopo una sommatoria è il suo _"corpo"_:
+  $ sum_(i=1)^3 a + b = 3a + b $
+  $ sum_(i=1)^3 (a + b) = 3a + 3b $
+- somma dei primi $n$ numeri:
+  $ sum_(i=1)^n = (n(n+1))/2 $
+- associativitià e dissociatività:
+  $ sum_(k=n)^m f(k) + sum_(k=n)^m g(k) = sum_(k=n)^m (f(k) + g(k)) $
+- distributività:
+  $ a dot sum_(k=n)^m f(k) = sum_(k=n)^m (a dot f(k)) $
+- scomposizione indici:
+  $ sum_(k=n)^(m_1+m_2) f(k) = sum_(k=n)^(m_1) f(k) + sum_(k=m_1+1)^(m_2) f(k) $
+- "portare dentro" somme:
+  $ (sum_(i=1)^n a) + b = sum_(i=1)^n (a + b/n) $
 
 == Derivate
 
@@ -2709,65 +3232,71 @@ $ (a dot f(x) + b dot g(x))' = a dot f'(x) + b dot g'(x) $
 
 === Derivate immediate
 
-#table(
-  columns: 2,
-  inset: 5pt,
-  align: horizon,
-  table.cell(fill: silver, [$ f(x) $]),
-  table.cell(fill: silver, [$ f'(x) $]),
-  [$ n in bb(R) $], [$ 0 $],
-  [$ x $], [$ 1 $],
-  [$ x^a $], [$ a x^(a-1) $],
-  [$ e^x $], [$ e^x $],
-  [$ a^x $], [$ a^x ln(a) $],
-  [$ ln(x) $], [$ 1/x, x > 0 $],
-  [$ ln|x| $], [$ 1/x, x != 0 $],
-  [$ log_a (x) $], [$ 1/(x ln(a)), x > 0 $],
-  [$ |x| $], [$ (|x|) / x, x != 0 $],
-  [$ sin(x) $], [$ cos(x) $],
-  [$ cos(x) $], [$ -sin(x) $],
-  [$ tan(x) $], [$ 1/(cos^2(x)), x != pi/2 + k pi $],
-  [$ cot(x) $], [$ - 1 / (sin^2(x)), x != k pi $],
-  [$ arcsin(x) $], [$ 1 / sqrt(1-x^2), x in [-1,1] $],
-  [$ arccos(x) $], [$ - 1 / sqrt(1-x^2), x in [-1,1] $],
-  [$ arctan(x) $], [$ 1/(1+x^2) $]
-)
+#align(center)[
+  #table(
+    columns: (30%, 30%),
+    inset: 5pt,
+    align: center + horizon,
+    table.cell(fill: silver, [$ f(x) $]),
+    table.cell(fill: silver, [$ f'(x) $]),
+    [$ n in bb(R) $], [$ 0 $],
+    [$ x $], [$ 1 $],
+    [$ x^a $], [$ a x^(a-1) $],
+    [$ e^x $], [$ e^x $],
+    [$ a^x $], [$ a^x ln(a) $],
+    [$ ln(x) $], [$ 1/x, x > 0 $],
+    [$ ln|x| $], [$ 1/x, x != 0 $],
+    [$ log_a (x) $], [$ 1/(x ln(a)), x > 0 $],
+    [$ |x| $], [$ (|x|) / x, x != 0 $],
+    [$ sin(x) $], [$ cos(x) $],
+    [$ cos(x) $], [$ -sin(x) $],
+    [$ tan(x) $], [$ 1/(cos^2(x)), x != pi/2 + k pi $],
+    [$ cot(x) $], [$ - 1 / (sin^2(x)), x != k pi $],
+    [$ arcsin(x) $], [$ 1 / sqrt(1-x^2), x in [-1,1] $],
+    [$ arccos(x) $], [$ - 1 / sqrt(1-x^2), x in [-1,1] $],
+    [$ arctan(x) $], [$ 1/(1+x^2) $]
+  )
+]
 
 === Derivate "avanzate"
 
-#table(
-  columns: 2,
-  inset: 5pt,
-  align: horizon,
-  table.cell(fill: silver, [$ f(x) $]),
-  table.cell(fill: silver, [$ f'(x) $]),
-  [$ f(g(x)) $], [$ f'(g(x)) dot g'(x) $],
-  [$ f(x) dot g(x) $], [$ f'(x) dot g(x) + f(x) dot g'(x) $],
-  [$ f(x)/g(x) $], [$ (f'(x) dot g(x) - f(x) dot g'(x))/(g^2(x)) $]
-)
+#align(center)[
+  #table(
+    columns: (30%, 30%),
+    inset: 5pt,
+    align: horizon,
+    table.cell(fill: silver, [$ f(x) $]),
+    table.cell(fill: silver, [$ f'(x) $]),
+    [$ f(g(x)) $], [$ f'(g(x)) dot g'(x) $],
+    [$ f(x) dot g(x) $], [$ f'(x) dot g(x) + f(x) dot g'(x) $],
+    [$ f(x)/g(x) $], [$ (f'(x) dot g(x) - f(x) dot g'(x))/(g^2(x)) $]
+  )
+]
 
 == Integrali
 
 === Integrali immediati
 
-#table(
-  columns: 2,
-  inset: 5pt,
-  align: horizon,
-  table.cell(fill: silver, [$ g'(x) $]),
-  table.cell(fill: silver, [$ g(x) $]),
-  [$ integral 1 dif x $], [$ x + c $],
-  [$ integral a dif x $], [$ a x + c $],
-  [$ integral x^n dif x $], [$ (x^(n+1))/(n+1) + c $],
-  [$ integral 1/x dif x $], [$ ln|x| + c $],
-  [$ integral e^x dif x $], [$ e^x + c $],
-  [$ integral a^x dif x $], [$ (a^x)(ln(a)) + c $],
-  [$ integral sin(x) dif x $], [$ -cos(x) + c $],
-  [$ integral cos(x) dif x $], [$ sin(x) + c $],
-  [$ integral 1/(cos^2(x)) dif x $], [$ tan(x) + c $],
-  [$ integral 1/(1+x^2) dif x $], [$ arctan(x) + c $],
-  [$ integral 1/(sqrt(1-x^2)) dif x $], [$ arcsin(x) + c $],
-)
+#align(center)[
+  #table(
+    columns: (30%, 30%),
+    inset: 5pt,
+    align: horizon,
+    table.cell(fill: silver, [$ g'(x) $]),
+    table.cell(fill: silver, [$ g(x) $]),
+    [$ integral 1 dif x $], [$ x + c $],
+    [$ integral a dif x $], [$ a x + c $],
+    [$ integral x^n dif x $], [$ (x^(n+1))/(n+1) + c $],
+    [$ integral 1/x dif x $], [$ ln|x| + c $],
+    [$ integral e^x dif x $], [$ e^x + c $],
+    [$ integral a^x dif x $], [$ (a^x)(ln(a)) + c $],
+    [$ integral sin(x) dif x $], [$ -cos(x) + c $],
+    [$ integral cos(x) dif x $], [$ sin(x) + c $],
+    [$ integral 1/(cos^2(x)) dif x $], [$ tan(x) + c $],
+    [$ integral 1/(1+x^2) dif x $], [$ arctan(x) + c $],
+    [$ integral 1/(sqrt(1-x^2)) dif x $], [$ arcsin(x) + c $],
+  )
+]
 
 === Integrali "avanzati"
 

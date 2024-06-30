@@ -134,6 +134,13 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 - _Appendice: #link(<matematica>)[Cheatsheet matematica]:_ trucchi per risolvere/semplificare equazioni, serie, integrali;
 - _Appendice: #link(<esercizi>)[Esercizi]:_ come svolegere gli esercizi dell'esame.
 
+#heading(outlined: false, bookmarked: false, numbering: none, "Autori, Ringraziamenti e Licenza")
+
+/ Autori: #link("https://github.com/Favo02")[Luca Favini], #link("https://github.com/tsagae")[Matteo Zagheno], #link("https://github.com/Gallja")[Andrea Galliano] _(Appendice Python)_
+/ Ringraziamenti: Martina Provini _(appunti)_, Mattia Delledonne _(revisione)_
+/ Sorgente e Licenza: #link("https://github.com/Favo02/statistica-e-analisi-dei-dati")[github.com/Favo02/statistica-e-analisi-dei-dati] (#link("https://creativecommons.org/licenses/by/4.0/")[CC-BY-4.0])
+/ Ultima modifica: #datetime.today().display("[day]/[month]/[year]")
+
 // indice
 #outline(
   title: "Indice",
@@ -1057,7 +1064,7 @@ plt.show()
 ```
 
 #nota[
- Di default il box plot analizza ed esclude gli outliner, per evitare cioe specifichiamo l'argomento whis='range'. Un valore è un outliner se la sua distanza dalla mediana è più di una costante moltiplicata per il range interquartile. Per visualizzare il box plot in modo orizzontale usiamo vert=False
+ Di default il box plot analizza ed esclude gli outlier, per evitare cioe specifichiamo l'argomento whis='range'. Un valore è un outlier se la sua distanza dalla mediana è più di una costante moltiplicata per il range interquartile. Per visualizzare il box plot in modo orizzontale usiamo vert=False
 ]
 
 === Simmetria
@@ -1470,7 +1477,7 @@ $ P(sect.big_(i=1)^r E_(a i)) = product_(i=1)^r P(E_a_i) $
 
 == Variabili aleatorie
 
-Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che assume un valore _diverso_ ogni osservazione. Permettono di codificare gli _eventi_ numericamente.
+Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che può assumere un valore _diverso_ non prevedibile ogni osservazione. Permettono di codificare gli _eventi_ numericamente.
 
 Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, una variabile aleatoria è $X : Omega -> bb(R)$ che associa ad ogni _esito_ un _numero reale_.
 
@@ -1499,7 +1506,7 @@ $ I_(A(x)) = cases(1 "se" x in A, 0 "se" x in.not A) $
 
 === Variabili aleatorie discrete <aleatorie-discrete>
 
-Una variabile aleatoria si dice discreta se il suo supporto è finito e numerabile (ovvero ha un numero finito di valori possibili). Dato $[m,n]$ il range di valori che possono _essere assunti_ dalla variabile $X$, vale:
+Una variabile aleatoria si dice discreta se il suo supporto è un insieme _discreto_, ovvero è composto da _punti isolati_. Dato $[m,n]$ il range di valori che possono _essere assunti_ dalla variabile $X$, vale:
 
 $ 1 = P(Omega) = P(union.big_(i=m)^n {X = i}) = sum_(i=m)^n P(X = i) $
 
@@ -2368,7 +2375,13 @@ La variabile assume un valore nell'*intervallo* $[a,b]$, di conseguenza il suppo
 $ mr(X tilde U(a,b)) $
 
 / Funzione di densità di probabilità:
-$ f_X (x) = P(X = x) = mr(1/(b-a) I_[a,b] (x)) $
+$ f_X (x) = mr(1/(b-a) I_[a,b] (x)) $
+
+#attenzione[
+  La funzione di _densità_ *non* è la _probabilità_ nel punto, ma è l'_ordinata_ della funzione in quel punto, che poi deve essere _integrata_ in un intervallo per ottenere la probabilità
+  $ P(X = x) != f(x), quad P(X = x) = 0 $
+  $ P(a <= X <= b) = integral_a^b f(x) dif x $
+]
 
 #figure(caption: [Funzione di densità modello uniforme continuo], image("uniforme-continuo-densita.png", width: 40%))
 
@@ -2425,6 +2438,12 @@ $ mr(X tilde E(lambda)) $
 
 / Funzione di densità:
 $ f_X (x) = mr(lambda e^(-lambda x) I_[0, +infinity) (x)) $
+
+#attenzione[
+  La funzione di _densità_ *non* è la _probabilità_ nel punto, ma è l'_ordinata_ della funzione in quel punto, che poi deve essere _integrata_ in un intervallo per ottenere la probabilità
+  $ P(X = x) != f(x), quad P(X = x) = 0 $
+  $ P(a <= X <= b) = integral_a^b f(x) dif x $
+]
 
 #figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-densita.png",  width: 40%))
 
@@ -2525,7 +2544,13 @@ Formalizzando questo concetto in una variabile aleatoria, otteniamo una distribu
 $ mr(X tilde N(mu, sigma)) $
 
 / Funzione di densità:
-$ f_X (x) = P(X = x) = mr(1/(sigma sqrt(2 pi)) dot e^(-(x-mu)^2 / (2 sigma^2))) $
+$ f_X (x) = mr(1/(sigma sqrt(2 pi)) dot e^(-(x-mu)^2 / (2 sigma^2))) $
+
+#attenzione[
+  La funzione di _densità_ *non* è la _probabilità_ nel punto, ma è l'_ordinata_ della funzione in quel punto, che poi deve essere _integrata_ in un intervallo per ottenere la probabilità
+  $ P(X = x) != f(x), quad P(X = x) = 0 $
+  $ P(a <= X <= b) = integral_a^b f(x) dif x $
+]
 
 / Funzione di ripartizione:
 #attenzione[
@@ -3015,6 +3040,55 @@ Il metodo plug in (o di sostituzione), permette di "costruire" uno _stimatore_ p
 
 = Cheatsheet Python <python>
 
+/ Calcolo combinatorio\: utilità:
+  ```python
+  from math import factorial as fact
+  from scipy.special import binom
+  # fattoriale
+  fact(5) # 120
+  # coefficiente binomiale
+  binom(5, 2) # 10
+  ```
+
+/ Calcolo combinatorio\: combinazioni/disposizioni/permutazioni: solo il numero
+  ```python
+  # N = numerosità insieme da cui pescare
+  # k = numero oggetti da estrarre
+
+  from scipy.special import comb, perm
+
+  # combinazioni, con o senza ripetizioni (ordine non conta)
+  comb(N, k, repetition=False)
+
+  # disposizioni (o permutazioni in caso k = N) SENZA RIPETIZIONI (ordine conta)
+  perm(N, k)
+  ```
+
+/ Calcolo combinatorio\: combinazioni/disposizioni/permutazioni: calcolati davvero
+  ```python
+  from itertools import product, permutations, combinations, combinations_with_replacement
+
+  # prodotto cartesiano tra insiemi
+  product(set1, set2, ..., repeat=1)
+  product("ABC", "123", "xy") # ['A1x', 'A1y', 'A2x', 'A2y', 'A3x', 'A3y', 'B1x', 'B1y', 'B2x', 'B2y', 'B3x', 'B3y', 'C1x', 'C1y', 'C2x', 'C2y', 'C3x', 'C3y']
+  product([0,1], repeat=3) # ['000', '001', '010', '011', '100', '101', '110', '111']
+
+  # disposizioni (o permutazioni in caso n=None o n = len(set1)) SENZA RIPETIZIONI (ordine conta)
+  permutations(set1, n=None)
+  permutations("ABC") # ['ABC', 'ACB', 'BAC', 'BCA', 'CAB', 'CBA']
+  permutations("ABC", 2) # ['AB', 'AC', 'BA', 'BC', 'CA', 'CB']
+  # in caso ci siano duplicati nell'iterabile passato, allora questo metodo NON restituisce le permutazioni di oggetti distinguibili a gruppi
+  permutations("ABA") # sbagliato: ['ABA', 'AAB', 'BAA', 'BAA', 'AAB', 'ABA']
+
+  # combinazioni SENZA ripetizioni
+  combinations(set1, n)
+  combinations("ABC", 2) # ['AB', 'AC', 'BC']
+
+  # combinazioni CON ripetizioni
+  combinations_with_replacement(set1, n)
+  combinations_with_replacement("ABC", 2) # ['AA', 'AB', 'AC', 'BB', 'BC', 'CC']
+  ```
+
 / Librerie:
   ```python
   import pandas as pd
@@ -3165,6 +3239,19 @@ Il metodo plug in (o di sostituzione), permette di "costruire" uno _stimatore_ p
   pareto(attributoComune_freq, labels=attributoComune_freq.index)
   plt.show()
   ```
+
+/ Funzioni utili per grafici:
+  ```python
+  plt.grid() # mostrare griglia
+  np.linspace(start, stop, campioni) # spesso conviene aumentare il numero di campioni (1000)
+  plt.axvline(0.5) # linea verticale a x=0.5
+  plt.axhline(0.5) # linea verticale a y=0.5
+  ```
+
+/ Parametri utili per funzioni di `plt`:
+  - `color="red"` o `colors=["red", "blue"]` (in base al grafico): colorare linea/riempimento
+  - `linestyle="dashed"` o `linestyles="dashed"`: stile della linea
+  - `read_csv()`
 
 / Analisi degli elementi del dataset:
 

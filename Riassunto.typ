@@ -2037,7 +2037,7 @@ $ mr(X tilde B(n, p)) $
 / Funzione di massa:
 $ p_X (x) = P(X = x) = mr(binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)) $
 
-#figure(caption: [Funzione di massa modello binomiale], image("binomiale-massa.png",  width: 40%))
+#figure(caption: [Funzione di massa modello binomiale], image("imgs/binomiale-massa.png",  width: 40%))
 
 / Funzione di ripartizione:
 $ F_X (x) &= P(X <= x) = \
@@ -2079,7 +2079,7 @@ $ mr(X tilde U(n)) $
 $ p_X (x) = P(X = x) = mr(1/n I_{1, ..., n} (x)) $
 
 
-#figure(caption: [Funzione di massa modello uniforme discreto], image("uniforme-discreto-massa.png", width: 40%))
+#figure(caption: [Funzione di massa modello uniforme discreto], image("imgs/uniforme-discreto-massa.png", width: 40%))
 
 / Funzione di ripartizione:
 $ F_X (x) = P(X <= x) = mr(floor(x) / n I_[1, n] (x) + I_((n, +infinity)) (x)) $
@@ -2091,7 +2091,7 @@ $ F_X (x) = P(X <= x) = mr(floor(x) / n I_[1, n] (x) + I_((n, +infinity)) (x)) $
     &= 1^floor(x) dot 1/n = floor(x)/n $
 ]
 
-#figure(caption: [Funzione di ripartizione modello uniforme discreto], image("uniforme-discreto-ripartizione.png", width: 40%))
+#figure(caption: [Funzione di ripartizione modello uniforme discreto], image("imgs/uniforme-discreto-ripartizione.png", width: 40%))
 
 / Valore atteso:
 $ E[x] = mr((n+1)/2) $
@@ -2131,7 +2131,7 @@ $ p_X (x) = P(X = x) = mr(p(1-p)^x I_{0, ..., +infinity} (x)) $
   La funzione di massa equivale a calcolare le probabilità che accadano $x$ _insuccessi_, quindi $(1-p)^x$ a cui succede un _successo_ $dot p$, ottenenendo $p dot (1-p)^x$
 ]
 
-#figure(caption: [Funzione di massa modello geometrico], image("geometrico-massa.png", width: 40%))
+#figure(caption: [Funzione di massa modello geometrico], image("imgs/geometrico-massa.png", width: 40%))
 
 / Funzione di ripartizione:
 $ F_X (x) = P(X <= x) = mr((1 - (1-p)^(floor(x)+1)) I_[0, +infinity) (x)) $
@@ -2140,7 +2140,7 @@ $ F_X (x) = P(X <= x) = mr((1 - (1-p)^(floor(x)+1)) I_[0, +infinity) (x)) $
   $ F_X (x) = F_X (floor(x)) $
 ]
 
-#figure(caption: [Funzione di ripartizione modello geometrico], image("geometrico-ripartizione.png", width: 40%))
+#figure(caption: [Funzione di ripartizione modello geometrico], image("imgs/geometrico-ripartizione.png", width: 40%))
 
 #dimostrazione[
   Possiamo calcolare la funzione di ripartizione $P(X <= x)$ come $1 - P(X > x)$:
@@ -2200,7 +2200,7 @@ $ mr(X tilde P(lambda)) $
 / Funzione di massa:
 $ p_X (x) = P(X = x)= mr(e^(-lambda) dot (lambda^x)/x! I_{0, ..., +infinity} (x)) $
 
-#figure(caption: [Funzione di massa modello di Poisson], image("poisson-massa.png", width: 40%))
+#figure(caption: [Funzione di massa modello di Poisson], image("imgs/poisson-massa.png", width: 40%))
 
 / Valore atteso:
 
@@ -2287,7 +2287,7 @@ $ mr(X tilde H(n, M, N)) $
 
 $ p_X (x) = P(X = x) =  mr((binom(N, x) binom(M, n-x)) / binom(N+M, n) I_{0, ..., n} (x)) $
 
-#figure(caption: [Funzione di massa modello ipergeometrico], image("ipergeometrica-massa.png", width: 40%))
+#figure(caption: [Funzione di massa modello ipergeometrico], image("imgs/ipergeometrica-massa.png", width: 40%))
 
 #informalmente[
   - $binom(N, x)$ rapresenta il numero di modi in cui è possibile estrarre $x$ oggetti _corretti_ su $N$ _corretti_ totali
@@ -2383,7 +2383,7 @@ $ f_X (x) = mr(1/(b-a) I_[a,b] (x)) $
   $ P(a <= X <= b) = integral_a^b f(x) dif x $
 ]
 
-#figure(caption: [Funzione di densità modello uniforme continuo], image("uniforme-continuo-densita.png", width: 40%))
+#figure(caption: [Funzione di densità modello uniforme continuo], image("imgs/uniforme-continuo-densita.png", width: 40%))
 
 #dimostrazione[
   Sappiamo che la $limits(integral)_(-infinity)^(+infinity) f_X (x) dif x$ deve essere uguale a $1$, quindi possiamo ricavare la funzione di densità $f_X$, sostituendola con l'incognita $alpha$:
@@ -2400,7 +2400,7 @@ $ f_X (x) = mr(1/(b-a) I_[a,b] (x)) $
 / Funzione di ripartizione:
 $ F_X (x) = P(X <= x) = mr((x-a)/(b-a) I_[a,b] (x) + I_((b,+infinity)) (x)) $
 
-#figure(caption: [Funzione di ripartizione modello uniforme continuo], image("uniforme-continuo-ripartizione.png", width: 40%))
+#figure(caption: [Funzione di ripartizione modello uniforme continuo], image("imgs/uniforme-continuo-ripartizione.png", width: 40%))
 
 #dimostrazione[
   $ F_X (x) &= integral_(a)^(x) f_(X)(y) dif y \
@@ -2445,7 +2445,7 @@ $ f_X (x) = mr(lambda e^(-lambda x) I_[0, +infinity) (x)) $
   $ P(a <= X <= b) = integral_a^b f(x) dif x $
 ]
 
-#figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-densita.png",  width: 40%))
+#figure(caption: [Funzione di massa modello esponenziale], image("imgs/esponenziale-densita.png",  width: 40%))
 
 / Funzione di ripartizione:
 $ F_X (x) = mr((1 - e^(-lambda x)) I_[0, +infinity) (x)) $
@@ -2459,7 +2459,7 @@ $ F_X (x) = mr((1 - e^(-lambda x)) I_[0, +infinity) (x)) $
     &= -e^(-lambda x) - e^0 = 1 - e^(-lambda x) $
 ]
 
-#figure(caption: [Funzione di massa modello esponenziale], image("esponenziale-ripartizione.png",  width: 40%))
+#figure(caption: [Funzione di massa modello esponenziale], image("imgs/esponenziale-ripartizione.png",  width: 40%))
 
 / Valore atteso:
 $ E[X] = mr(1/lambda) $
@@ -2589,7 +2589,7 @@ $ Y tilde N(sum_(i=1)^n mu_i, sqrt(sum_(i=1)^n sigma^2_i)) $
 Una qualsiasi variabile che segue la distribuzione normale ha una curva _simmetrica_ rispetto al centro ($mu$), di conseguenza:
 $ F_X (-x) = 1 - F_X (x) $
 
-#figure(caption: [Le due parti non evidenziate della curva sono identiche, quindi $F(-1) = 1 - F(1)$], image("normale-simmetria.png",  width: 40%))
+#figure(caption: [Le due parti non evidenziate della curva sono identiche, quindi $F(-1) = 1 - F(1)$], image("imgs/normale-simmetria.png",  width: 40%))
 
 ===== Distribuzione normale standard <normale-standard>
 
@@ -3035,7 +3035,7 @@ Il metodo plug in (o di sostituzione), permette di "costruire" uno _stimatore_ p
   )
 
 #figure(caption: "Forma grafici dei modelli")[
-  #image("forma-modelli.png", width: 70%)
+  #image("imgs/forma-modelli.png", width: 70%)
 ]
 
 = Cheatsheet Python <python>

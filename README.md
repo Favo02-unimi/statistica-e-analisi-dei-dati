@@ -4,7 +4,7 @@ Dispensa per il corso di Statistica e Analisi dei dati, tenuto dal Prof. Dario M
 
 - Dispensa: Teoria + Appendici Python, Matematica, Esercizi
   - Codice sorgente (Typst): [Dispensa.typ](./Dispensa.typ)
-  - Release PDF: [release di questo repository](https://github.com/Favo02/statistica-e-analisi-dei-dati/releases/download/v1/Dispensa.pdf)
+  - Release PDF: [release di questo repository](https://github.com/Favo02/statistica-e-analisi-dei-dati/releases/download/v2/Dispensa.pdf)
 
 - Notebook Jupyter:
   - Grafici: [grafici.ipynb](./grafici.ipynb)

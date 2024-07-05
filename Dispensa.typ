@@ -149,6 +149,37 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 
 #pagebreak()
 
+// TODO: roba da sistemare!!!
+/*
+
+cosa vuol dire che lo stimatore non è deviato? questo vuol dire che stimando molte volte usando lo stimatore, allora la media delle stime ottenute è molto vicino al vero valore di p
+
+omega: insieme degli esiti
+algebra: insieme di eventi, quindi insieme di sottoinsiemi di omega
+
+aggiungere in correzione di bessel: corregge la stima della varianza campionaria, provando a fare i conti esce che serve il n-1
+
+dimostrazione teorema proprietà totali
+
+dimostrazione eventi indipendenti
+indipendenza a più eventi (non si estende per transitività)
+
+indipendenza variabili aleatorie
+
+regola empirica (e grafico) per normale
+
+distribuzione uniforme continua: tutti gli esiti non sono equiprobabili (gli esiti sono tutti 0 inun punto)
+
+quantile di una variabile aleatoria: inverso della funzione di ripartizione
+da quantile descrittivo a quello di un va: quello che è una percentuale, diventa una probabilità
+quindi F^-1 passa dalla probabilità (quindi il percento del quantile) all'evento associato alla probabilità (x_q)
+
+specificare meglio la differenza tra quantile (x_q) e livello (q)
+
+funzione di ripartizione va, aggiungere proprietà: continua da destra
+
+*/
+
 = Statistica descrittiva <descrittiva>
 
 / Popolazione: insieme di elementi da _analizzare_, spesso troppo numerosa per essere analizzata tutta
@@ -310,12 +341,13 @@ $ s^2 = 1/(n-1) sum_(i=1)^n (x_i - overline(x))^2 $
 
 Metodo alternativo per calcolare la varianza:
 
-$ s^2 = 1/(n-1) sum_(i=1)^n (x_i^2 - n overline(x)^2) $
+$ s^2 = 1/(n-1) (sum_(i=1)^n x_i^2 - n overline(x)^2) $
 
 #dimostrazione[
-  $ sum^n_(i=1) (x_i - overline(x))^2 &= sum_(i=1)^n (x^2_i - 2x_i overline(x) + overline(x)^2) \
-    &= sum_(i=1)^n x_i^2 - 2 overline(x) sum_(i=1)^n x_i + sum_(i=1)^n overline(x)^2 \
-    &= sum_(i=1)^n x_i^2 - 2n overline(x)^2 + n overline(x)^2 \
+  $ sum^n_(i=1) (mb(x_i) - mo(overline(x)))^2 &= sum_(i=1)^n (mb(x^2_i) - 2 mb(x_i) mo(overline(x)) + mo(overline(x)^2)) \
+    &= sum_(i=1)^n x_i^2 - mp(2 overline(x) underbrace(sum_(i=1)^n x_i, = n overline(x))) + mg(sum_(i=1)^n overline(x)^2) \
+    &= sum_(i=1)^n x_i^2 - mp(2 overline(x) dot n overline(x)) + mg(n overline(x)^2) \
+    &= sum_(i=1)^n x_i^2 - mp(cancel(2) n overline(x)^2) + mg(cancel(n overline(x)^2)) \
     &= sum_(i=1)^n x_i^2 - n overline(x)^2 $
 ]
 
@@ -323,7 +355,9 @@ $ s^2 = 1/(n-1) sum_(i=1)^n (x_i^2 - n overline(x)^2) $
   Verrebbe intuitivo applicare il _valore assoluto_ ad ogni scarto medio, ma questo causa dei problemi. Per questo motivo la differenza viene elevata al _quadrato_, in modo da renderla sempre positiva
 ]
 
-La varianza _non_ è un operatore lineare: la traslazione non ha effetto mentre la scalatura si comporta: $ s_y^2 = a^2 s_x^2 $
+La varianza _non_ è un operatore lineare: la traslazione ($+ b$) non ha effetto mentre la scalatura ($dot a$) si comporta:
+$ forall i space y_i = a x_i + b => s^2_y = a^2 s^2_x $
+
 
 ==== Correzione di Bessel <bessel>
 
@@ -1422,7 +1456,7 @@ Applicando il teorema di _Bayes_:
 
 $ = (P(X_1 = x_1, ..., X_n = x_n | Y = y_k) dot P(Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
 
-La formula viene semplificata in modo "ingenuo" _(naive)_, assumendo che le caratteristiche siano #link(<eventi-indipendenti>)[eventi indipendenti] $P(X_1 = x_1 and X_2 = x_2 | Y) = P(X_1 = x_1) dot P(X_2 = x_2)$:
+La formula viene semplificata in modo "ingenuo" _(naive)_, assumendo che le caratteristiche siano #link(<eventi-indipendenti>)[eventi indipendenti] $P(X_1 = x_1 and X_2 = x_2 | Y) = P(X_1 = x_1 | Y) dot P(X_2 = x_2 | Y)$:
 
 $ = (P(Y = y_k) dot limits(product)_(i=1)^n P(X_i = x_i | Y = y_k)) / P(X_1 = x_1, ..., X_n = x_n) $
 
@@ -1477,7 +1511,7 @@ $ P(sect.big_(i=1)^r E_(a i)) = product_(i=1)^r P(E_a_i) $
 
 == Variabili aleatorie
 
-Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che può assumere un valore _diverso_ non prevedibile ogni osservazione. Permettono di codificare gli _eventi_ numericamente.
+Una _variabile aleatoria_ o _casuale_ (random variable) è una variabile che può assumere un valore _diverso_ non prevedibile ogni osservazione. Permettono di codificare gli _esiti_ numericamente.
 
 Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, una variabile aleatoria è $X : Omega -> bb(R)$ che associa ad ogni _esito_ un _numero reale_.
 
@@ -1496,7 +1530,7 @@ Dato uno #link(<spazio-probabilita>)[spazio di probabilità] $(Omega, A, P)$, un
 
 Dati $A, B$ due insiemi tali che $A subset.eq B$, la funzione indicatrice di $A$ rispetto a $B$ è la funzione $I : B -> {0, 1}$ che vale:
 
-$ I_(A(x)) = cases(1 "se" x in A, 0 "se" x in.not A) $
+$ I_(A) (x) = cases(1 "se" x in A, 0 "se" x in.not A) $
 
 #informalmente[
   La _funzione indicatrice_ agisce da _filtro_, "limitando il dominio". Quando viene _moltiplicata_ con una probabilità la _annulla_ o la _lascia inalterata_.
@@ -1944,21 +1978,24 @@ $ P(X >= a) <= E[X] / a $
 
 #dimostrazione[
   Variabili aleatorie *discrete*:
-  $ E[X] &= mr(sum_(x>=0) x dot p(x)) \
-    &= mr(sum_(x < a) x dot p(x) + sum_(x >= a) x dot p(x)) &>= mb(sum_(x >= a) x dot p(x)) = \
-    & &>= mb(sum_(x >= a) a dot p(x)) = \
-    & &>= mb(a dot sum_(x >= a) p(x)) = \
-    & &>= mb(a dot P(X >= a)) $
-  Quindi $ mr(E[X]) >= mb(mp(a) dot P(X >= a)) quad => quad mb(P(X >= a)) <= mr(E[X]) / mp(a) $
+  $ E[X] &= sum_(mr(x>=0)) x dot p(x) \
+    &= sum_(mr(x < a)) x dot p(x) + sum_(mr(x >= a)) x dot p(x)
+         quad >= quad sum_(mb(x >= a)) mb(x) dot p(x))
+        quad &>= quad sum_(mb(x >= a)) mb(a) dot p(x)) \
+    & & = a dot sum_(x >= a) p(x) \
+    & & = a dot P(X >= a) $
+  Quindi
+  $ mr(E[X]) >= mb(mp(a) dot P(X >= a)) quad => quad mb(P(X >= a)) <= mr(E[X]) / mp(a) $
 ]
 
 #dimostrazione[
   Variabili aleatorie *continue*:
-  $ E[X] &= mr(integral_(-infinity)^(+infinity) x f_X (x) dif x) \
-    &= mr(integral_(0)^(a) x f_X (x) dif x + integral_(a)^(+infinity) x f_X (x) dif x) &>= mb(integral_(a)^(+infinity) x f_X (x) dif x) = \
-    & &>= mb(integral_(a)^(+infinity) a f_X (x) dif x) = \
-    & &>= mb(a integral_(a)^(+infinity) f_X (x) dif x) = \
-    & &>= mb(a dot P(X >= a)) $
+  $ E[X] &= integral_(mr(-infinity))^(mr(+infinity)) x f_X (x) dif x \
+    &= integral_(mr(0))^(mr(a)) x f_X (x) dif x + integral_(mr(a))^(mr(+infinity)) x f_X (x) dif x
+        quad >= quad integral_(mb(a))^(mb(+infinity)) mb(x) f_X (x) dif x
+        quad &>= quad integral_(mb(a))^(mb(+infinity)) mb(a) f_X (x) dif x \
+    & &= a integral_(a)^(+infinity) f_X (x) dif x \
+    & &= a dot P(X >= a) $
   Quindi $ mr(E[X]) >= mb(mp(a) dot P(X >= a)) quad => quad mb(P(X >= a)) <= mr(E[X]) / mp(a) $
 ]
 
@@ -1982,11 +2019,14 @@ $ forall r > 0, quad P(|X - mu| >= r) <= sigma^2 / r^2 $
 ]
 
 #dimostrazione[
-  $ | X - mu | >= r quad <==> quad ( X - mu )^2 >= r^2  $
-  dunque:
-  $ mr(P( |X - mu| >= r)) &= mb(P((X - mu)^2 >= r^2)) \
-     mb(P((X - mu)^2 >= r^2)) &<= E[(X - mu)^2] / r^2 "per Markov" \
-     mr(P( |X - mu| >= r)) &<= sigma^2 / r^2 $
+  Partendo dalla #link(<disuguaglianza-markov>)[disuguaglianza di Markov]:
+  $ P(X >= a) <= E[X] / a $
+  Al posto della costante $mb(a)$, usiamo la costante $mb(r^2)$:
+  $ P(X >= mb(r^2)) <= E[X] / mb(r^2) $
+  Al posto della variabile aleatoria $mp(X)$, usiamo $mp(Y = (X - mu)^2)$:
+  $ P(mp((X - mu)^mg(2)) >= r^mg(2)) &<= E[mp((X - mu)^2)] / r^2 \
+    P(mg(|X - mu |) >= mg(r)) &<= mr(E[(X - mu)^2]) / r^2 \
+    P(|X - mu| >= r) &<= mr(sigma^2) / r^2 $
 ]
 
 === Modelli di distribuzione discreti
@@ -2004,7 +2044,7 @@ $ p_X (x) = P(X = x) &= mr(p^x (1-p)^((1-x)) I_{0,1} (x)) \
   &= cases(1-p quad "per " x=0, p quad "per " x=1, 0 quad "altrimenti") $
 
 / Funzione di ripartizione:
-$ F_X (x) = P(X <= x) &= mr((1 - p) I_[0,1](x) + I_((1, +infinity))(x)) \
+$ F_X (x) = P(X <= x) &= mr((1 - p) I_[0,1)(x) + I_([1, +infinity))(x)) \
   &= cases(0 quad "se " x < 0, 1-p quad "se " 0 <= x < 1, 1 quad "se " x >= 1 ) $
 
 / Valore atteso:
@@ -2039,6 +2079,10 @@ $ p_X (x) = P(X = x) = mr(binom(n, x) p^x (1-p)^((n-x)) I_{0, ..., n} (x)) $
 
 #figure(caption: [Funzione di massa modello binomiale], image("imgs/binomiale-massa.png",  width: 40%))
 
+#informalmente[
+  Ci servono $n-x$ insuccessi, quindi $(1-p)^(n-x)$ e ci servono $x$ successi, quindi $p^x$. Ma non ci interessa l'ordine con il quale avvengono _insuccessi_ e _successi_, quindi utilizziamo il _coefficiente binomiale_ $binom(n,x)$
+]
+
 / Funzione di ripartizione:
 $ F_X (x) &= P(X <= x) = \
   &= sum_(i=0)^floor(x) p_X (i) dot I_[0, n](x) + I_((n, +infinity))(x) \
@@ -2068,6 +2112,9 @@ $ "Var"(X) = mr(n p (1-p)) $
 Siano $X_1 tilde B(n, p)$ e $X_2 tilde B(m, p)$ indipendenti, allora:
 $ X_1 + X_2 = sum_(i=1) ^n X_(1,i) + sum_(j=1)^m X_(2,j) = sum_(i=1)^(n+m) Y_i = Y $
 dove $Y tilde B(n+m, p)$
+  #nota[
+    Per la riproduzione, il parametro $n$ può essere diverso ogni variabile, ma il parametro $p$ deve essere uguale
+  ]
 
 ==== Modello uniforme discreto $X tilde U(n)$ <uniforme-discreto>
 
@@ -2147,8 +2194,11 @@ $ F_X (x) = P(X <= x) = mr((1 - (1-p)^(floor(x)+1)) I_[0, +infinity) (x)) $
 
   $ mb(P(X > x)) &= sum_(i = x+1)^(+infinity) p_X (i) \
     &= sum_(i = x+1)^(+infinity) p(1-p)^i \
-    &= p(1-p)^(x+1) dot sum_(i=x+1)^(+infinity) (1-p)^(i-(x+1)) \
-    &= p(1-p)^(x+1) sum_(i=0)^(+infinity) (1-p)^i \
+    &= p sum_(i = x+1)^(+infinity) (1-p)^i \
+    &= p sum_(i = x+1)^(+infinity) (1-p)^i dot mp(((1-p)^(x+1))/((1-p)^(x+1))) \
+    &= p mp((1-p)^(x+1)) sum_(i = x+1)^(+infinity) ((1-p)^i)/mp((1-p)^(x+1)) \
+    &= p(1-p)^(x+1) sum_(i=mg(x+1))^(+infinity) (1-p)^(i- mp((x+1))) \
+    &= p(1-p)^(x+1) sum_(i=mg(0))^(+infinity) (1-p)^i \
     &= p(1-p)^(x+1) dot 1/(cancel(1)-(cancel(1)-p)) \
     &= cancel(p)(1-p)^(x+1) dot 1/cancel(p) = mb((1-p)^(x+1)) $
 
@@ -2646,6 +2696,14 @@ $ sum_(i=1)^n X_i tilde.dot N(n dot mu, sigma sqrt(n)) $
   ]
 ]
 
+#attenzione[
+  // TODO: sistemare questa roba
+  In caso di _scalatura/traslazione_ della variabile aleatoria approssimata, l'_approssimazione_ è:
+  $ X = overline(X) = 1/n sum_(i=1)^n X_i $
+  $ X &tilde.dot N(n mu, sigma sqrt(n)) \
+    mb(a) X + mp(b) &tilde.dot N(mb(a) (n mu) + mp(b), mb(|a|) sigma sqrt(n)) $
+]
+
 Questa distribuzione si può standardizzare:
 $ ((limits(sum)_(i=1)^n X_i) - n mu) / (sigma sqrt(n)) tilde.dot N(0,1) $
 
@@ -2748,7 +2806,7 @@ $ "MSE"_tau(theta) (T) = "Var"(T_n) + b_tau(theta) (T_n)^2 $
 
 #dimostrazione[
   $ "MSE"_tau(theta) &= E[(T - tau(theta))^2] \
-    &= E[(mb(T - E[T]) + mp(E[T] - tau(theta))^2)] \
+    &= E[(mb(T - E[T]) + mp(E[T] - tau(theta)))^2] \
     &= E[mb((T-E[T])^2) + 2 mb((T- E[T])) mp((E[T] - tau(theta))) + mp((E[T] - tau(theta))^2)] \
     &= mo(E[(T - E[T])^2]) + cancel(2(E[T] - tau(theta))mr(E[T-E[T]])) + mg((E[T] - tau(theta))^2) $
   Sappiamo che $mr(E[X - E[X]]) = 0$, allora:
@@ -2960,7 +3018,7 @@ Il metodo plug in (o di sostituzione), permette di "costruire" uno _stimatore_ p
 - #link(<bernoulliano>)[Modello di Bernoulli]: $X tilde B(p)$
   #grid(columns: 2, row-gutter: 15pt, column-gutter: 5pt, align: horizon + left,
     [- Massa:], [$p^x (1-p)^((1-x)) I_{0, 1} (x)$],
-    [- Ripartizione:], [$(1-p) I_[0,1](x) + I_((1, +infinity)) (x)$],
+    [- Ripartizione:], [$(1-p) I_[0,1)(x) + I_([1, +infinity)) (x)$],
     [- Valore atteso:], [$p$],
     [- Varianza:], [$p(1-p)$]
   )

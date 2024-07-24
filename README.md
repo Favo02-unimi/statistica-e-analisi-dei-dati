@@ -10,6 +10,10 @@ Dispensa per il corso di Statistica e Analisi dei dati, tenuto dal Prof. Dario M
   - Grafici: [grafici.ipynb](./grafici.ipynb)
   - Modelli: [modelli.ipynb](./modelli.ipynb)
 
+### TODO
+
+Il sorgente Typst è disseminato di commenti `// TODO` con modifiche/miglioramenti necessari _(notare bene soprattutto il primo mega-commento dopo l'indice)_.
+
 ### Autori, Ringraziamenti e Licenza
 
 - **Autori**: [Luca Favini](https://github.com/Favo02), [Matteo Zagheno](https://github.com/tsagae), [Andrea Galliano](https://github.com/Gallja) _(Appendice Python)_

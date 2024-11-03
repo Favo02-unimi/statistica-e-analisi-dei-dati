@@ -1,3 +1,6 @@
+//       !!! IMPORTANT !!!
+// Typst Compiler Version 0.11.0
+
 #import "@preview/gentle-clues:0.8.0": *
 #import "@preview/cetz:0.2.2"
 #import "@preview/codly:0.2.0": *
@@ -137,7 +140,7 @@ La statistica si occupa di raccogliere, analizzare e trarre conclusioni su dati,
 #heading(outlined: false, bookmarked: false, numbering: none, "Autori, Ringraziamenti e Licenza")
 
 / Autori: #link("https://github.com/Favo02")[Luca Favini], #link("https://github.com/tsagae")[Matteo Zagheno], #link("https://github.com/Gallja")[Andrea Galliano] _(Appendice Python)_
-/ Ringraziamenti: Martina Provini _(appunti)_, Mattia Delledonne _(revisione)_
+/ Ringraziamenti: #link("https://github.com/Catu42")[Martina Provini] _(appunti)_, #link("https://github.com/ceri01")[Daniele Ceribelli] _(appunti)_
 / Sorgente e Licenza: #link("https://github.com/Favo02/statistica-e-analisi-dei-dati")[github.com/Favo02/statistica-e-analisi-dei-dati] (#link("https://creativecommons.org/licenses/by/4.0/")[CC-BY-4.0])
 / Ultima modifica: #datetime.today().display("[day]/[month]/[year]")
 
